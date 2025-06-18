@@ -1,0 +1,661 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px;
+    padding-top: 80px; /* Space for fixed header */
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+}
+
+header .logo img {
+    width: 120px;
+    height: auto;
+    margin-right: 10px;
+}
+
+header h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+header .icons {
+    display: flex;
+    align-items: center;
+}
+
+header .icons button {
+    background: transparent;
+    border: none;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+header .icons button img {
+    width: 40px;
+    height: 40px;
+}
+
+header .icons button:hover img {
+    filter: brightness(1.2);
+}
+
+/* Notification Dot */
+#notificationIcon {
+    position: relative;
+}
+
+#notificationIcon::after {
+    content: "●";
+    font-size: 12px;
+    color: red;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+/* Main Content */
+main {
+    margin-top: 100px;
+    padding: 20px;
+}
+/* ====== Form Container ====== */
+.form-container {
+    background-color: white;
+    padding: 30px;
+    width: 100%;
+    max-width: 900px;
+    margin: 90px auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-container h3 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* ====== Input Fields ====== */
+form label {
+    display: block;
+    margin-top: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+form input,
+form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+form input:disabled,
+form select:disabled {
+    background-color: #f0f0f0;
+    color: #777;
+}
+
+/* ====== Button Container ====== */
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 15px;
+}
+
+/* ====== General Button Style ====== */
+form button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+/* ✅ Save Button - Dark Green */
+.save-button {
+    background-color: #2d6a4f; /* Dark Green */
+}
+.save-button:hover {
+    background-color: #1f5d43; /* Slightly darker shade */
+    transform: translateY(-1px);
+}
+
+/* ❌ Cancel Button - Muted Red */
+.cancel-button {
+    background-color: #9b2226; /* Muted Red */
+}
+.cancel-button:hover {
+    background-color: #7f1d21; /* Slightly darker shade */
+    transform: translateY(-1px);
+}
+
+/* ✏️ Edit Button - Cool Gray */
+.edit-button {
+    background-color: #6b7280; /* Cool Gray */
+}
+.edit-button:hover {
+    background-color: #4b5563; /* Slightly darker gray */
+    transform: translateY(-1px);
+}
+
+/* 🔲 Accessibility Focus */
+form button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.4); /* Blue glow for focus */
+}
+
+
+
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -50%; /* Initially hidden */
+    width: 30%; /* Adjusted to take half the screen */
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    transition: right 0.4s ease;
+    z-index: 980;
+    padding: 20px;
+     padding-top: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Sidebar Content */
+.sidebar-content {
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+
+/* Sidebar content links */
+.sidebar-content a {
+    display: block;
+    text-decoration: none;
+    color: #fff;
+    margin: 15px 0;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding: 15px;
+    width: auto; /* Let the link width adjust to its content */
+    background-color: #FF9800; /* Vibrant Yellow-Orange Background */
+    border-radius: 12px;
+    text-align: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Added transition for smooth effect */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4); /* Light shadow for depth */
+}
+
+/* Hover effect */
+.sidebar-content a:hover {
+    background-color: #F57C00; /* Darker shade of Yellow-Orange on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow on hover */
+}
+
+/* Message Section Styling */
+.sidebar-content p {
+    display: block;
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 8px;
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Show Sidebar (when toggled) */
+.sidebar.show {
+    right: 0;
+}
+
+/* Close Button inside Sidebar */
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 30px;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 130px;
+}
+
+.close-btn:hover {
+    color: #4B014B;
+}
+
+/* Heading Styling for Sidebars */
+.sidebar h3 {
+    font-size: 24px;
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 50px;
+}
+
+/* Overlay (background behind the sidebar) */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 950;
+    display: none;
+}
+
+/* Show Overlay (when sidebar is open) */
+.overlay.show {
+    display: block;
+}
+
+/* User Icon & Notification Icon */
+#userIcon, #notificationIcon, #messengerBtn {
+    cursor: pointer;
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 600px) {
+    .sidebar {
+        width: 250px;
+    }
+}
+/* General Button Styling */
+button.map-button {
+    padding: 12px 25px;
+    border-radius: 8px; /* Rounded corners */
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    color: white;
+    background-color: #007BFF; /* Default blue color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+button.map-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-3px); /* Raise button on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhance shadow */
+}
+
+/* Specific styling for Locate Button */
+#locateButton {
+    padding: 12px 30px;
+    border-radius: 8px;
+    background-color: #28a745; /* Green color */
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+#locateButton:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: translateY(-3px); /* Button raises slightly */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhance shadow */
+}
+
+#locateButton:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.6); /* Green glow */
+}
+
+
+#closeMap:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 76, 76, 0.6); /* Red glow */
+}
+/* Close Button Style */
+.close-icon {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+    transition: color 0.2s;
+}
+
+/* Hover Effect */
+.close-icon:hover {
+    color: red; /* Change color to red on hover */
+}
+
+
+/* Modal Styling */
+.map-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 1000px;
+    height: 80vh;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2); /* Modal shadow */
+    padding: 20px;
+    overflow: hidden; /* Avoid overflow from map */
+}
+
+/* Map Styling */
+#map {
+    width: 100%;
+    height: 75%; /* Map height */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Map shadow */
+}
+
+/* Modal Heading */
+h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    padding: 12px 0;
+}
+
+/* Responsiveness for Small Screens */
+@media (max-width: 768px) {
+    .map-modal {
+        width: 95vw;
+        height: 85vh;
+    }
+
+    #map {
+        height: 70%;
+    }
+}
+
+@media (max-width: 480px) {
+    .map-modal {
+        width: 95vw;
+        height: 90vh;
+    }
+
+    #map {
+        height: 65%;
+    }
+}
+#saveLocation {
+    background-color: #28a745; /* সবুজ রঙ */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#saveLocation:hover {
+    background-color: #218838;
+    transform: scale(1.03);
+}
+
+#saveLocation:active {
+    background-color: #1e7e34;
+    transform: scale(0.98);
+}
+.close-form {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-form:hover {
+    color: red;
+}
+.nid-upload {
+    width: 100%;
+    max-width: 420px;
+    margin: 20px auto;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.nid-label {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: left; /* Align text to the left */
+    padding-left: 10px; /* Add some padding to align it nicely */
+}
+
+.nid-image-box {
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #f4f6f9;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.nid-image {
+    width: 100%;
+    max-height: 200px;  /* Limit image height */
+    object-fit: contain;
+    border-radius: 8px;
+}
+/* Style for the Password Form */
+.nid-password-form {
+    margin-top: 10px;
+    background-color: #f4f4f4;  /* Light grey background */
+    padding: 15px;
+    border-radius: 5px;         /* Rounded corners */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.nid-password-form label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;  /* Dark text color */
+}
+
+.nid-password-form input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.nid-password-form button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    position: center;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.nid-password-form button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Error message styling */
+.nid-password-form p {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.nid-reset-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #ffffff;
+    background-color: #1e88e5; /* Medium Blue */
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.nid-reset-link:hover {
+    background-color: #1565c0; /* Darker Blue */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(21, 101, 192, 0.4);
+    text-decoration: none;
+}
+
+
+
+/* General inline links inside form (if needed) */
+.nid-password-form a {
+    margin-top: 10px;
+    display: inline-block;
+}
+
+/* Show Button Styling */
+.show-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.show-btn:hover {
+    background-color: #45a049;
+}
+
+
+
+
+/* Add a hidden class to manage visibility of elements */
+        .hidden {
+            display: none;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal input[type="password"] {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .modal button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal button:hover {
+            background-color: #45a049;
+        }

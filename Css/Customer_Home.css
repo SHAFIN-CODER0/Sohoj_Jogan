@@ -1,0 +1,816 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px; /* Root font size */
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 70px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    z-index: 1000; 
+}
+
+
+header .logo {
+    display: flex;
+    align-items: center;
+}
+
+header .logo img {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+}
+
+header h2 {
+    font-size: 1.5em; /* 32px */
+    font-weight: bold;
+    color: #333;
+}
+
+header nav ul {
+    display: flex;
+    list-style-type: none;
+}
+
+header nav ul li {
+    margin-left: 25px;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    font-size:1.2em; /* 16px */
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+header nav ul li a:hover {
+
+    border-bottom: 2px solid black;
+}
+
+header .icons {
+    display: flex;
+    align-items: center;
+    margin: 25px;
+}
+.search-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0 10px 0;
+}
+
+.search-bar-form {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: #f6faf7;
+    border-radius: 8px;
+    padding: 7px 12px;
+    box-shadow: 0 1px 6px 0 rgba(28,124,84,0.04);
+}
+
+.search-bar-form input[type="text"] {
+    padding: 9px 14px;
+    border: 1px solid #c2eccb;
+    border-radius: 7px;
+    font-size: 1rem;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+}
+
+.search-bar-form input[type="text"]:focus {
+    border-color: #1c7c54;
+}
+
+.search-bar-form button {
+    background: #1c7c54;
+    border: none;
+    border-radius: 7px;
+    padding: 7px 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.search-bar-form button:hover {
+    background: #0a4025;
+}
+
+.search-bar-form button img {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+header .icons button {
+    background-color: transparent;
+    border: none;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+header .icons button img {
+    width: 30px;
+    height: 30px;
+}
+
+/* Hover effects for icons */
+header .icons button:hover img {
+    filter: brightness(1.2); /* Slightly brighten on hover */
+   
+}
+
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header .logo {
+        margin-bottom: 20px;
+    }
+
+    header nav ul {
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    header nav ul li {
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+
+    header .icons {
+        margin-top: 10px;
+    }
+}
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -50%; /* Initially hidden */
+    width: 30%; /* Adjusted to take half the screen */
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    transition: right 0.4s ease;
+    z-index: 980;
+    padding: 20px;
+padding-top: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Sidebar Content */
+.sidebar-content {
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+/* Sidebar content links */
+.sidebar-content a {
+    display: block;
+    text-decoration: none;
+    color: #fff;
+    margin: 15px 0;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding: 15px;
+    width: auto; /* Let the link width adjust to its content */
+    background-color: #FF9800; /* Vibrant Yellow-Orange Background */
+    border-radius: 12px;
+    text-align: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Added transition for smooth effect */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4); /* Light shadow for depth */
+}
+/* Hover effect */
+.sidebar-content a:hover {
+    background-color: #F57C00; /* Darker shade of Yellow-Orange on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow on hover */
+}
+/* Message Section Styling */
+.sidebar-content p {
+    display: block;
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 8px;
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Show Sidebar (when toggled) */
+.sidebar.show {
+    right: 0;
+}
+
+/* Close Button inside Sidebar */
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 30px;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 130px;
+}
+.close-btn:hover {
+    color: #4B014B;
+}
+
+/* Heading Styling for Sidebars */
+.sidebar h3 {
+    font-size: 24px;
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 40px;
+}
+
+/* Overlay (background behind the sidebar) */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 950;
+    display: none;
+}
+
+/* Show Overlay (when sidebar is open) */
+.overlay.show {
+    display: block;
+}
+
+/* User Icon & Notification Icon */
+#userIcon, #notificationIcon, #messengerBtn {
+    cursor: pointer;
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 600px) {
+    .sidebar {
+        width: 250px;
+    }
+}
+.design-masters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between text and button */
+    height: 120vh; /* Adjust height to fit screen */
+    background-image: url('../Images/backgournd.jpg'); /* Use the correct path */
+    background-size: cover;
+    background-position: center;
+    color: white;
+    text-align: left;
+    padding: 50px; /* Add padding to space elements */
+}
+
+.design-masters-content {
+    max-width: 50%;
+    padding-right: 30px; /* Add padding to the right for spacing */
+}
+
+.title {
+    font-size: 2em;
+    font-weight: bold;
+    font-family: 'Garamond', 'Times New Roman', serif;
+    margin-top: 350px;
+    margin-right: 0; /* Remove right margin */
+    margin-left: 0;  /* Optional: force alignment to the left */
+    text-align: left;
+    padding-right: 130px;
+}
+
+.description {
+    font-size: 1.2em;
+    margin-top: 10px;
+    margin-left: 0; /* Optional */
+    text-align: left;
+}
+
+
+.shop-now-btn {
+    display: inline-block;
+    padding: 10px 100px;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: black;
+    background: white;
+    border-radius: 60px;
+    text-decoration: none;
+    transition: 0.3s;
+    position: absolute;
+    right: 20px;
+    width: 380px;
+    margin-top: -520px; /* Adjusted to fit the design */
+   
+
+}
+
+.shop-now-btn:hover {
+    background: #dddddd;
+}
+.footer-column h4 {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+    text-decoration: none;
+    color: #ddd;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.footer-column ul li a:hover {
+    color: #2ecc71;
+    transform: translateX(5px);
+}
+
+.link-icon {
+    width: 18px;
+    height: 18px;
+    filter: brightness(90%);
+    transition: filter 0.3s ease;
+}
+
+.footer-column ul li a:hover .link-icon {
+    filter: brightness(120%);
+}
+
+
+.footer {
+    background-color: #f8f8f8;
+    padding: 30px;
+    font-family: Arial, sans-serif;
+}
+
+/* Removed .newsletter and .newsletter-signup styles */
+
+.footer-links {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.footer-column h4 {
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li a {
+    text-decoration: none;
+    color: black;
+    font-size: 1.2em;
+}
+
+
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+}
+/* Shop Showcase Section */
+.shop-showcase {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 1800px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    height: 450px;
+}
+
+/* Title Section */
+.shop-title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.shop-title h1 {
+    font-size: 2.5rem;
+    color: #444;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Gallery Section */
+.gallery-container {
+    display: flex;
+    gap: 20px;
+    justify-items: center;
+    margin-top: 10px;
+    height: 100%;
+    /* animation: moveGallery 20s linear infinite; <-- removed for JS control */
+}
+
+/* Gallery Items */
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex-shrink: 0;
+    width: 250px;
+    height: 250px;
+}
+
+.gallery-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-bottom: 2px solid #ddd;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Item Label Styling */
+.item-label {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #333;
+    padding: 10px 5px;
+    background-color: rgba(245, 245, 245, 0.8);
+    font-weight: bold;
+    border-radius: 0 0 8px 8px;
+    box-shadow: inset 0 -1px 3px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.gallery-item:hover .item-label {
+    background-color: #444;
+    color: #fff;
+}
+
+/* Optional: Retain the keyframes (used via JS) */
+@keyframes moveGallery {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Shops Section */
+.shops-section {
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin: 40px auto;
+    max-width: 1800px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Section Title */
+.shops-title h1 {
+    font-size: 2.5rem;
+    color: #333;
+    text-align: center;
+    margin-bottom: 40px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Shops List */
+.shops-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+}
+
+/* Shop Card */
+.shop-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    width: 280px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.shop-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Shop Image */
+.shop-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+/* Shop Name */
+.shop-name {
+    font-size: 1.5rem;
+    color: #444;
+    margin-bottom: 8px;
+}
+
+/* Shop Description */
+.shop-description {
+    font-size: 1rem;
+    color: #666;
+}
+
+
+
+header .coin-balance {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    padding: 6px 14px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #222;
+    margin-right: 30px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+header .coin-balance:hover {
+    background-color: #f0f0f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+header .coin-balance .coin-icon {
+    width: 22px;
+    height: 22px;
+}
+.game-section {
+    background: linear-gradient(135deg, #fff5e1, #ffe0b3);
+    padding: 30px 16px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    margin: 30px 0;
+}
+
+.game-section h2 {
+    font-size: 28px;
+    color: #1f1f1f;
+    margin-bottom: 8px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.game-section p {
+    font-size: 16px;
+    color: #444;
+    margin-bottom: 20px;
+}
+
+.game-section .game-box {
+    margin-top: 15px;
+}
+
+.game-section .game-box img {
+    max-width: 260px;
+    width: 85%;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: transform 0.25s ease;
+}
+
+.game-section .game-box img:hover {
+    transform: scale(1.04);
+}
+
+.play-now-btn {
+    display: inline-block;
+    margin-left: 60px;
+    margin-top: 16px;
+    padding: 10px 20px;
+    background-color: #ffa726;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.play-now-btn:hover {
+    background-color: #f57c00;
+    transform: translateY(-1.5px);
+}
+
+.shops-section h2 {
+    font-size: 26px;
+    color: #2e2e2e;
+    margin-bottom: 25px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-align: center; /* center-align the text */
+}
+
+
+
+.product-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 18px 0;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    background: #fafcff;
+    box-shadow: 0 1px 6px 0 rgba(28,124,84,0.06);
+    transition: box-shadow 0.2s;
+}
+.product-card:hover {
+    box-shadow: 0 4px 16px 0 rgba(28,124,84,0.14);
+}
+.product-image {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #d1e7dd;
+    background: #fff;
+}
+.product-info {
+    flex: 1;
+    min-width: 0;
+}
+.product-info h3 {
+    font-size: 1.1rem;
+    margin: 0 0 7px 0;
+    color: #085c37;
+    line-height: 1.2;
+}
+.product-info p {
+    margin: 0 0 7px 0;
+    font-size: 1rem;
+    color: #222;
+}
+.shop-link {
+    color: #1c7c54;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+.shop-link:hover {
+    color: #0a4025;
+    text-decoration: underline;
+}
+.shop-thumb {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 8px;
+    border: 1px solid #a5e9c2;
+    vertical-align: middle;
+    background: #fff;
+}
+section h2 {
+    color: #0a4025;
+    margin-bottom: 18px;
+}
+
+/* Center the search results section and its contents */
+section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 32px 0 26px 0;
+}
+
+/* Center the heading and not-found message */
+.centered-text {
+    text-align: center;
+    margin-bottom: 18px;
+    color: #0a4025;
+    font-weight: 500;
+    font-size: 1.2rem;
+}
+
+/* Product card styling */
+.product-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 18px 0;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    background: #fafcff;
+    box-shadow: 0 1px 6px 0 rgba(28,124,84,0.06);
+    transition: box-shadow 0.2s;
+    max-width: 540px;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.product-card:hover {
+    box-shadow: 0 4px 16px 0 rgba(28,124,84,0.14);
+}
+
+.product-image {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #d1e7dd;
+    background: #fff;
+}
+
+.product-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.product-info h3 {
+    font-size: 1.1rem;
+    margin: 0 0 7px 0;
+    color: #085c37;
+    line-height: 1.2;
+}
+
+.product-info p {
+    margin: 0 0 7px 0;
+    font-size: 1rem;
+    color: #222;
+}
+
+.shop-link {
+    color: #1c7c54;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.shop-link:hover {
+    color: #0a4025;
+    text-decoration: underline;
+}
+
+.shop-thumb {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 8px;
+    border: 1px solid #a5e9c2;
+    vertical-align: middle;
+    background: #fff;
+}

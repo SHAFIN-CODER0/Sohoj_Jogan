@@ -1,0 +1,170 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px; /* Root font size */
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 70px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    z-index: 1000; 
+}
+
+
+header .logo {
+    display: flex;
+    align-items: center;
+}
+
+header .logo img {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+}
+
+header h2 {
+    font-size: 1.5em; /* 32px */
+    font-weight: bold;
+    color: #333;
+}
+
+header nav ul {
+    display: flex;
+    list-style-type: none;
+}
+
+header nav ul li {
+    margin-left: 25px;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    font-size:1.2em; /* 16px */
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+header nav ul li a:hover {
+
+    border-bottom: 2px solid black;
+}
+
+header .icons {
+    display: flex;
+    align-items: center;
+    margin: 25px;
+}
+
+header .icons button {
+    background-color: transparent;
+    border: none;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+header .icons button img {
+    width: 30px;
+    height: 30px;
+}
+
+/* Hover effects for icons */
+header .icons button:hover img {
+    filter: brightness(1.2); /* Slightly brighten on hover */
+   
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header .logo {
+        margin-bottom: 20px;
+    }
+
+    header nav ul {
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    header nav ul li {
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+
+    header .icons {
+        margin-top: 10px;
+    }
+}
+/* Main About Us Section */
+main {
+    padding: 2rem;
+    background-color: #f2f4f8;
+}
+
+.about-us {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem 2.5rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    margin-top: 160px; /* Space for fixed header */
+    max-width: 1200px;
+}
+
+.about-us h1 {
+    font-size: 2rem;
+    color: #00704A;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.about-us p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #333;
+    margin-bottom: 1.5rem;
+    text-align: justify;
+}
+
+.about-us em {
+    font-style: italic;
+    color: #00704A;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .about-us {
+        padding: 1.5rem;
+    }
+
+    .about-us h1 {
+        font-size: 1.6rem;
+    }
+
+    .about-us p {
+        font-size: 1rem;
+    }
+}

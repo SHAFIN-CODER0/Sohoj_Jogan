@@ -1,0 +1,339 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px;
+    padding-top: 80px; /* Prevents content from being overlapped by fixed header */
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+}
+
+header .logo img {
+    width: 120px; /* Adjusted size for better fit */
+    height: auto;
+    margin-right: 10px;
+}
+
+header h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+header .icons {
+    display: flex;
+    align-items: center;
+}
+
+header .icons button {
+    background-color: transparent;
+    border: none;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+header .icons button img {
+    width: 40px;
+    height: 40px;
+}
+
+header .icons button:hover img {
+    filter: brightness(1.2);
+}
+
+/* Main Content */
+main {
+    margin-top: 100px;
+    padding: 20px;
+}
+
+
+
+.shop-now-btn:hover {
+    background: #dddddd;
+}
+
+/* Notification Icon */
+#notificationIcon {
+    position: relative;
+}
+
+#notificationIcon::after {
+    content: "●";
+    font-size: 12px;
+    color: red;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+/* New Collection Button */
+.new-collection {
+    text-align: center;
+    margin-top: 50px;
+}
+
+#newCollectionBtn {
+    background: linear-gradient(135deg, #e44a4a, #a02b2b);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+#newCollectionBtn:hover {
+    background: linear-gradient(135deg, #b52b27, #7a1d1d);
+    transform: scale(1.05);
+}
+
+/* Messenger Icon */
+.messenger {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+
+.messenger img {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.messenger img:hover {
+    transform: scale(1.1);
+}
+
+/* Main Content */
+main {
+    margin-top: 100px;
+    padding: 20px;
+    width: 100%;
+    min-height: 70vh;
+    box-sizing: border-box;
+}
+
+.shop-now-btn:hover {
+    background: #dddddd;
+}
+
+/* Notification Icon */
+#notificationIcon {
+    position: relative;
+}
+
+#notificationIcon::after {
+    content: "●";
+    font-size: 12px;
+    color: red;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+/* New Collection Button */
+.new-collection {
+    text-align: center;
+    margin-top: 50px;
+}
+
+#newCollectionBtn {
+    background: linear-gradient(135deg, #e44a4a, #a02b2b);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+#newCollectionBtn:hover {
+    background: linear-gradient(135deg, #b52b27, #7a1d1d);
+    transform: scale(1.05);
+}
+
+/* Messenger Icon */
+.messenger {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+
+.messenger img {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.messenger img:hover {
+    transform: scale(1.1);
+}
+
+/* Review Section */
+.review-section {
+    background: #fcfcfc;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 24px 18px;
+    max-width: 600px;
+    margin: 32px auto;
+}
+
+.review-section h3 {
+    font-size: 1.45rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #333;
+    letter-spacing: 0.5px;
+}
+
+.review-list {
+    margin-bottom: 18px;
+}
+
+.review-item {
+    border-bottom: 1px solid #ececec;
+    padding: 13px 0 10px 0;
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 3px;
+}
+
+.reviewer {
+    font-weight: 500;
+    color: #206194;
+}
+
+.review-rating {
+    color: #ffd700;
+    font-size: 1.1em;
+    letter-spacing: 1px;
+}
+
+.review-date {
+    margin-left: auto;
+    font-size: 0.97em;
+    color: #aaa;
+}
+
+.review-text {
+    font-size: 1.08em;
+    color: #222;
+    margin-left: 3px;
+    margin-bottom: 2px;
+    white-space: pre-line;
+}
+
+.review-form {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.review-form label {
+    font-weight: 500;
+    color: #252525;
+}
+
+.review-form select, 
+.review-form textarea {
+    font-size: 1em;
+    padding: 6px 8px;
+    border: 1px solid #c0c0c0;
+    border-radius: 5px;
+    resize: vertical;
+    width: 100%;
+    max-width: 340px;
+    box-sizing: border-box;
+}
+
+.review-form textarea {
+    min-height: 60px;
+}
+
+.review-form button {
+    align-self: flex-start;
+    margin-top: 6px;
+    background: #1e90ff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 7px 21px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s;
+}
+
+.review-form button:hover {
+    background: #206194;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #e5e5e5;
+    margin: 18px 0 12px 0;
+}
+
+/* Responsive for Mobile */
+@media (max-width: 700px) {
+    header {
+        padding: 12px 10px;
+    }
+    main {
+        padding: 8px;
+        margin-top: 80px;
+    }
+    .review-section {
+        max-width: 98vw;
+        padding: 14px 4vw;
+    }
+    .review-header {
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+    .review-form select, 
+    .review-form textarea {
+        max-width: 100%;
+    }
+}
