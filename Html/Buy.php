@@ -108,6 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $customer_comment = trim($_POST['customer_comment'] ?? '');
     $distance = isset($_POST['distance']) ? (float)$_POST['distance'] : 0;
     $delivery_charge = isset($_POST['delivery_charge']) ? (int)$_POST['delivery_charge'] : 0;
+    $payment_method = $_POST['payment_method'] ?? 'cod';
+    $bkash_txid = trim($_POST['bkash_txid'] ?? '');
 
     // shop_owner_id fetch (again, in case someone tampers with form)
     $shop_owner_id = 0;
@@ -128,18 +130,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
     }
 
-    // Basic validation (server-side)
-    if (!$product_id || !$quantity || !$delivery || !$customer_name || !$customer_address || !$customer_phone) {
+    // Validation
+    if (!$product_id || !$quantity || !$delivery || !$customer_name || !$customer_address || !$customer_phone || !$payment_method) {
         $showError = true;
         $errorMessage = "সব তথ্য সঠিকভাবে পূরণ করুন।";
+    } elseif ($payment_method === 'bkash' && !$bkash_txid) {
+        $showError = true;
+        $errorMessage = "bKash Transaction ID দিন।";
     } else {
-        // (১) অর্ডার টেবিলে সেভ করুন (customer_id, shop_owner_id সহ)
-        $sql = "INSERT INTO orders (product_id, shop_owner_id, customer_id, quantity, delivery_method, customer_name, customer_address, customer_phone, customer_comment, distance, delivery_charge, order_time)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('iiiisssssdi', $product_id, $shop_owner_id, $customer_id, $quantity, $delivery, $customer_name, $customer_address, $customer_phone, $customer_comment, $distance, $delivery_charge);
-        $success = $stmt->execute();
-        $stmt->close();
+        // (১) অর্ডার টেবিলে সেভ করুন (payment_method, bkash_txid সহ)
+     // Order Insert
+$sql = "INSERT INTO orders 
+(product_id, shop_owner_id, customer_id, quantity, delivery_method, customer_name, customer_address, customer_phone, customer_comment, distance, delivery_charge, order_time)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+$stmt5 = $conn->prepare($sql);
+$stmt5->bind_param(
+    'iiiisssssid', // delivery_charge যদি FLOAT হয়, যদি INT হয় তাহলে শেষটা 'i'
+    $product_id, $shop_owner_id, $customer_id, $quantity,
+    $delivery, $customer_name, $customer_address, $customer_phone, $customer_comment,
+    $distance, $delivery_charge
+);
+$success = $stmt5->execute();
+$order_id = $conn->insert_id;
+$stmt5->close();
+
+// Payment Insert
+if ($success) {
+    $amount = ($payment_method == 'coin') ? 0 : ($productPrice * $quantity + $delivery_charge);
+    $payment_status = 'pending';
+    $sql2 = "INSERT INTO payments (order_id, payment_method, bkash_txid, amount, payment_status, payment_time)
+             VALUES (?, ?, ?, ?, ?, NOW())";
+    $stmt6 = $conn->prepare($sql2);
+    $stmt6->bind_param(
+        'issis', // amount যদি int হয়, যদি float/double হয় তাহলে 'd'
+        $order_id, $payment_method, $bkash_txid, $amount, $payment_status
+    );
+    $stmt6->execute();
+    $stmt6->close();
+    // ...
+}
 
         // (২) product টেবিল থেকে stock কমান
         if ($success) {
@@ -369,7 +398,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="customer-comment">মন্তব্য:</label>
                 <textarea id="customer-comment" name="customer_comment" placeholder="যদি কিছু জানাতে চান......"></textarea>
             </section>
-            <section class="order-summary">
+           <section class="order-summary">
                 <div class="delivery-method">
                     <h4>বিলি পদ্ধতি</h4>
                     <input type="radio" id="home" name="delivery" value="home" checked onchange="updateDelivery()" />
@@ -379,6 +408,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="radio" id="coin" name="delivery" value="coin" onchange="updateDelivery()" />
                     <label for="coin">কয়েন দিয়ে ফ্রি ডেলিভারি (চার্জ = কয়েন)</label>
                 </div>
+                <div class="payment-method">
+                    <h4>পেমেন্ট অপশন</h4>
+                    <input type="radio" id="cod" name="payment_method" value="cod" checked>
+                    <label for="cod">ক্যাশ অন ডেলিভারি</label>
+                    <input type="radio" id="bkash" name="payment_method" value="bkash">
+                    <label for="bkash">বিকাশ</label>
+                </div>
+                <div id="bkash-info">
+                    <b>বিকাশ নম্বরঃ 01569129533</b>
+                    <p>এই নম্বরে Send Money/Payment করুন।</p>
+                    <p>পেমেন্ট করার পর Transaction ID (TxID) লিখুন:</p>
+                    <input type="text" id="bkash-txid" name="bkash_txid" placeholder="bKash TxID">
+                </div>
+                <style>.payment-method {
+    background: #e3f2fd;
+    border-radius: 10px;
+    padding: 16px 18px 12px 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 12px rgba(33, 150, 243, 0.10);
+    max-width: 420px;
+}
+
+.payment-method h4 {
+    color: #1976d2;
+    font-size: 1.18em;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.payment-method input[type="radio"] {
+    accent-color: #1976d2;
+    margin-right: 6px;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+.payment-method label {
+    margin-right: 18px;
+    font-size: 1.07em;
+    color: #263238;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+#bkash-info {
+    background: #fffde7;
+    border-left: 5px solid #fbc02d;
+    border-radius: 8px;
+    padding: 14px 18px 12px 18px;
+    margin: 14px 0 0 0;
+    box-shadow: 0 1px 6px rgba(251, 192, 45, 0.11);
+    font-size: 1.09em;
+    display: none; /* Default: hidden, shown by JS if bKash is selected */
+    animation: fadeIn 0.35s ease;
+}
+
+#bkash-info b {
+    color: #f9a825;
+    font-size: 1.12em;
+    letter-spacing: 0.5px;
+}
+
+#bkash-info p {
+    margin: 4px 0 0 0;
+    color: #6d4c41;
+}
+
+#bkash-txid {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border: 1.5px solid #fbc02d;
+    border-radius: 6px;
+    font-size: 1.09em;
+    background: #fffde7;
+    box-shadow: 0 1px 4px rgba(251,192,45,0.06);
+    width: 220px;
+    transition: border 0.22s;
+}
+
+#bkash-txid:focus {
+    border-color: #fbc02d;
+    outline: 0;
+    background: #fffde7;
+}
+
+@media (max-width: 600px) {
+    .payment-method {
+        max-width: 99vw;
+        padding: 10px 5vw 8px 5vw;
+    }
+    #bkash-info {
+        padding: 10px 5vw 8px 5vw;
+    }
+}
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(10px);}
+    100% { opacity: 1; transform: translateY(0);}
+}</style>
+
                 <button type="button" class="summary-title">অর্ডার সংক্ষিপ্ত বিবরণ</button>
                 <div class="product-details">
                     <label class="product-name">পণ্যের নাম: <span id="product-name"><?= $productName ?></span></label>
@@ -402,6 +531,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
+    // bKash select করলে TxID input দেখাবে, COD হলে লুকাবে
+document.getElementById('cod').addEventListener('change', function() {
+    document.getElementById('bkash-info').style.display = 'none';
+});
+document.getElementById('bkash').addEventListener('change', function() {
+    document.getElementById('bkash-info').style.display = 'block';
+});
+window.onload = function() {
+    // রিফ্রেশ হলেও সঠিক display
+    if(document.getElementById('bkash').checked) {
+        document.getElementById('bkash-info').style.display = 'block';
+    } else {
+        document.getElementById('bkash-info').style.display = 'none';
+    }
+};
+
 let quantity = 1;
 const unitPrice = <?= $productPrice ?>;
 const customerCoins = <?= $customer_coins ?>;
@@ -551,6 +696,15 @@ function confirmOrder() {
     if (selected === "coin") {
         if (customerCoins < coinNeeded) {
             alert("আপনার কাছে যথেষ্ট কয়েন নেই!");
+            return false;
+        }
+    }
+    // bKash হলে TxID লাগবে
+    const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    if (paymentMethod === 'bkash') {
+        const txid = document.getElementById('bkash-txid').value.trim();
+        if (!txid) {
+            alert("bKash Transaction ID দিন।");
             return false;
         }
     }
