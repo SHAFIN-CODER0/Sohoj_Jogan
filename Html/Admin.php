@@ -135,7 +135,7 @@ $conn->close();
             </tbody>
         </table>
     </section>
-<h1> teri maka naka </h1>
+
     <section>
         <h2>সব ডেলিভারি পার্সন</h2>
         <table>
