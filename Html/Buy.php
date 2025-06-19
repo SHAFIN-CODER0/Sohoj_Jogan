@@ -75,7 +75,7 @@ function getLatLngFromAddress($address) {
     return false;
 }
 
-// ঠিকানাটি থেকে latitude/longitude বের করুন (address না থাকলে বা ভুল থাকলে error দেখান)
+// Extract latitude/longitude from the address (show error if address is missing or incorrect)
 if ($shop_address && strtolower($shop_address) !== ', , , ,') {
     $latlng = getLatLngFromAddress($shop_address);
     if ($latlng) {
@@ -98,7 +98,7 @@ $errorMessage = '';
 
 // ---- Main Order Handling (POST to this page) ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // POST ডেটা সংগ্রহ
+// Collect POST data
     $product_id = (int)$_POST['product_id'];
     $quantity = max(1, (int)$_POST['quantity']);
     $delivery = $_POST['delivery'] ?? '';
@@ -138,14 +138,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $showError = true;
         $errorMessage = "bKash Transaction ID দিন।";
     } else {
-        // (১) অর্ডার টেবিলে সেভ করুন (payment_method, bkash_txid সহ)
+// (1) Save to order table (including payment_method, bkash_txid)
      // Order Insert
 $sql = "INSERT INTO orders 
 (product_id, shop_owner_id, customer_id, quantity, delivery_method, customer_name, customer_address, customer_phone, customer_comment, distance, delivery_charge, order_time)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
 $stmt5 = $conn->prepare($sql);
 $stmt5->bind_param(
-    'iiiisssssid', // delivery_charge যদি FLOAT হয়, যদি INT হয় তাহলে শেষটা 'i'
+    'iiiisssssid', // Use FLOAT if delivery_charge is float, use 'i' if it's int
+
     $product_id, $shop_owner_id, $customer_id, $quantity,
     $delivery, $customer_name, $customer_address, $customer_phone, $customer_comment,
     $distance, $delivery_charge
@@ -162,7 +163,8 @@ if ($success) {
              VALUES (?, ?, ?, ?, ?, NOW())";
     $stmt6 = $conn->prepare($sql2);
     $stmt6->bind_param(
-        'issis', // amount যদি int হয়, যদি float/double হয় তাহলে 'd'
+        'issis', // If amount is int, otherwise 'd' if it's float/double
+
         $order_id, $payment_method, $bkash_txid, $amount, $payment_status
     );
     $stmt6->execute();
@@ -170,7 +172,7 @@ if ($success) {
     // ...
 }
 
-        // (২) product টেবিল থেকে stock কমান
+// (2) Reduce stock from the product table
         if ($success) {
             $update_sql = "UPDATE products SET stock = stock - ? WHERE product_id = ?";
             $update_stmt = $conn->prepare($update_sql);
@@ -178,7 +180,7 @@ if ($success) {
             $update_stmt->execute();
             $update_stmt->close();
 
-            // (৩) কয়েন দিয়ে ফ্রি ডেলিভারি হলে কয়েন কেটে ফেলুন (if logged in, delivery == coin)
+// (3) Deduct coins if free delivery is used via coins (if logged in, delivery == coin)
             if ($delivery === 'coin' && isset($_SESSION['customer_email'])) {
                 $update_coins_sql = "UPDATE customers SET customer_coins = customer_coins - ? WHERE customer_email = ?";
                 $update_coins_stmt = $conn->prepare($update_coins_sql);
@@ -531,7 +533,7 @@ if ($success) {
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
-    // bKash select করলে TxID input দেখাবে, COD হলে লুকাবে
+// Show TxID input if bKash is selected, hide it if COD is selected
 document.getElementById('cod').addEventListener('change', function() {
     document.getElementById('bkash-info').style.display = 'none';
 });
@@ -539,7 +541,7 @@ document.getElementById('bkash').addEventListener('change', function() {
     document.getElementById('bkash-info').style.display = 'block';
 });
 window.onload = function() {
-    // রিফ্রেশ হলেও সঠিক display
+// Correct display even after refresh
     if(document.getElementById('bkash').checked) {
         document.getElementById('bkash-info').style.display = 'block';
     } else {
@@ -596,8 +598,8 @@ function findDistance() {
 
         // Leaflet distance calculation (meter)
         const distanceMeter = L.latLng(shopLat, shopLng).distanceTo([userLat, userLng]);
-        const distanceKm = distanceMeter / 1000; // কিমি
-        const baseCharge = Math.ceil(distanceKm) * 20; // ১ কিমি = ২০ কয়েন/২০ টাকা
+        const distanceKm = distanceMeter / 1000; // Km
+        const baseCharge = Math.ceil(distanceKm) * 20; // 1 km = 20 coin/20 Taka
 
         document.getElementById('distance-info').textContent = `দূরত্ব: ${toBengali(distanceKm.toFixed(2))} কিমি`;
         document.getElementById('delivery-charge-info').textContent = ` | ডেলিভারি চার্জ: ${toBengali(baseCharge)} টাকা/কয়েন`;
@@ -618,7 +620,7 @@ function updateDisplay() {
 
     const selected = document.querySelector('input[name="delivery"]:checked').value;
 
-    // কয়েন প্রয়োজন (ডেলিভারি per kg/piece)
+// Coins required (delivery per kg/piece)
     let coinNeeded = deliveryCharge * quantity;
 
     // If distance/charge not calculated yet, show notice
@@ -682,15 +684,15 @@ function confirmOrder() {
         return false;
     }
 
-    // ঠিকানা থেকে distance/charge বের হয়েছে কিনা
+// Whether distance/charge has been calculated from the address
     if (!deliveryCharge || !currentDistance) {
         alert("ঠিকানা দিয়ে দূরত্ব ও চার্জ দেখুন, তারপর অর্ডার করুন!");
         return false;
     }
+// Free delivery option using coins
 
-    // কয়েন দিয়ে ফ্রি ডেলিভারি অপশন
     const selected = document.querySelector('input[name="delivery"]:checked').value;
-    // কয়েন লাগবে (ডেলিভারি per kg/piece)
+// Coins required (delivery per kg/piece)
     let coinNeeded = deliveryCharge * quantity;
 
     if (selected === "coin") {
@@ -699,7 +701,7 @@ function confirmOrder() {
             return false;
         }
     }
-    // bKash হলে TxID লাগবে
+    // bKash  TxID 
     const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
     if (paymentMethod === 'bkash') {
         const txid = document.getElementById('bkash-txid').value.trim();
