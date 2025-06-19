@@ -1,0 +1,805 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px;
+    padding-top: 80px; /* Space for fixed header */
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+}
+
+header .logo img {
+    width: 120px;
+    height: auto;
+    margin-right: 10px;
+}
+
+header h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+header .icons {
+    display: flex;
+    align-items: center;
+}
+
+header .icons button {
+    background: transparent;
+    border: none;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+header .icons button img {
+    width: 40px;
+    height: 40px;
+}
+
+header .icons button:hover img {
+    filter: brightness(1.2);
+}
+
+/* Notification Dot */
+#notificationIcon {
+    position: relative;
+}
+
+#notificationIcon::after {
+    content: "●";
+    font-size: 12px;
+    color: red;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+/* Main Content */
+main {
+    margin-top: 100px;
+    padding: 20px;
+}
+
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -50%; /* Initially hidden */
+    width: 30%; /* Adjusted to take half the screen */
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    transition: right 0.4s ease;
+    z-index: 980;
+    padding: 20px;
+     padding-top: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Sidebar Content */
+.sidebar-content {
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+
+/* Sidebar content links */
+.sidebar-content a {
+    display: block;
+    text-decoration: none;
+    color: #fff;
+    margin: 15px 0;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding: 15px;
+    width: auto; /* Let the link width adjust to its content */
+    background-color: #FF9800; /* Vibrant Yellow-Orange Background */
+    border-radius: 12px;
+    text-align: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Added transition for smooth effect */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4); /* Light shadow for depth */
+}
+
+/* Hover effect */
+.sidebar-content a:hover {
+    background-color: #F57C00; /* Darker shade of Yellow-Orange on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow on hover */
+}
+
+/* Message Section Styling */
+.sidebar-content p {
+    display: block;
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 8px;
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Show Sidebar (when toggled) */
+.sidebar.show {
+    right: 0;
+}
+
+/* Close Button inside Sidebar */
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 30px;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 130px;
+}
+
+.close-btn:hover {
+    color: #4B014B;
+}
+
+/* Heading Styling for Sidebars */
+.sidebar h3 {
+    font-size: 24px;
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 50px;
+}
+
+/* Overlay (background behind the sidebar) */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 950;
+    display: none;
+}
+
+/* Show Overlay (when sidebar is open) */
+.overlay.show {
+    display: block;
+}
+
+/* User Icon & Notification Icon */
+#userIcon, #notificationIcon  {
+    cursor: pointer;
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 600px) {
+    .sidebar {
+        width: 250px;
+    }
+}
+/* General Button Styling */
+button.map-button {
+    padding: 12px 25px;
+    border-radius: 8px; /* Rounded corners */
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    color: white;
+    background-color: #007BFF; /* Default blue color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+button.map-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-3px); /* Raise button on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhance shadow */
+}
+
+/* Specific styling for Locate Button */
+#locateButton {
+    padding: 12px 30px;
+    border-radius: 8px;
+    background-color: #28a745; /* Green color */
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+#locateButton:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: translateY(-3px); /* Button raises slightly */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhance shadow */
+}
+
+#locateButton:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.6); /* Green glow */
+}
+
+
+#closeMap:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 76, 76, 0.6); /* Red glow */
+}
+/* Close Button Style */
+.close-icon {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+    transition: color 0.2s;
+}
+
+/* Hover Effect */
+.close-icon:hover {
+    color: red; /* Change color to red on hover */
+}
+
+
+/* Modal Styling */
+.map-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 1000px;
+    height: 80vh;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2); /* Modal shadow */
+    padding: 20px;
+    overflow: hidden; /* Avoid overflow from map */
+}
+
+/* Map Styling */
+#map {
+    width: 100%;
+    height: 75%; /* Map height */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Map shadow */
+}
+
+/* Modal Heading */
+h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    padding: 12px 0;
+}
+
+/* Responsiveness for Small Screens */
+@media (max-width: 768px) {
+    .map-modal {
+        width: 95vw;
+        height: 85vh;
+    }
+
+    #map {
+        height: 70%;
+    }
+}
+
+@media (max-width: 480px) {
+    .map-modal {
+        width: 95vw;
+        height: 90vh;
+    }
+
+    #map {
+        height: 65%;
+    }
+}
+#saveLocation {
+    background-color: #28a745; /* সবুজ রঙ */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#saveLocation:hover {
+    background-color: #218838;
+    transform: scale(1.03);
+}
+
+#saveLocation:active {
+    background-color: #1e7e34;
+    transform: scale(0.98);
+}
+.close-form {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-form:hover {
+    color: red;
+}
+
+.form-container {
+background-color: white;
+    padding: 30px;
+    width: 100%;
+    max-width: 900px;
+    margin: 90px auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Section heading */
+.form-container h3 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Profile & NID side by side */
+.profile-nid-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 28px;
+    margin-bottom: 28px;
+    margin-top: 20px; /* Space from header */
+}
+
+/* Profile Upload (smaller circle) */
+.profile-upload {
+    flex: 1 1 0;
+    margin-bottom: 0;
+}
+.profile-image-box {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 12px;
+    border: 2px dashed #99C4B5;
+    border-radius: 20%; /* Circle */
+    background: #F9FBFB;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.23s cubic-bezier(.4,2,.6,1),
+                box-shadow 0.23s cubic-bezier(.4,2,.6,1),
+                border-color 0.23s;
+}
+.profile-image-box:hover {
+    transform: scale(1.04);
+    box-shadow: 0 8px 28px rgba(46, 168, 134, 0.16), 0 1.5px 4px rgba(0,0,0,0.13);
+    border-color: #2EA886;
+    cursor: pointer;
+}
+.profile-image {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 10%;
+    border: 1.5px solid #DDD;
+    background: #E9F2F0;
+    transition: transform 0.23s cubic-bezier(.4,2,.6,1),
+                box-shadow 0.23s cubic-bezier(.4,2,.6,1),
+                border-color 0.23s;
+}
+.profile-image:hover {
+    transform: scale(1.04) rotate(-2deg);
+    box-shadow: 0 8px 28px rgba(46, 168, 134, 0.20), 0 1.5px 6px rgba(0,0,0,0.14);
+    border-color: #2EA886;
+    cursor: pointer;
+}
+
+/* NID Upload (bigger, rectangle) */
+.nid-upload {
+    flex: 1 1 0;
+    margin-bottom: 0;
+}
+.nid-image-box {
+    width: 400px;
+    height: 250px;
+    margin-bottom: 12px;
+    border: 1.2px dashed #99C4B5;
+    border-radius: 16px;
+    background: #F9FBFB;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.23s cubic-bezier(.4,2,.6,1),
+                box-shadow 0.23s cubic-bezier(.4,2,.6,1),
+                border-color 0.23s;
+}
+.nid-image-box:hover {
+    transform: scale(1.04);
+    box-shadow: 0 8px 28px rgba(46, 168, 134, 0.16), 0 1.5px 4px rgba(0,0,0,0.13);
+    border-color: #2EA886;
+    cursor: pointer;
+}
+.nid-image {
+    width: 350px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1.2px solid #DDD;
+    background: #E9F2F0;
+    transition: transform 0.23s cubic-bezier(.4,2,.6,1),
+                box-shadow 0.23s cubic-bezier(.4,2,.6,1),
+                border-color 0.23s;
+}
+.nid-image:hover {
+    transform: scale(1.04) rotate(-1.5deg);
+    box-shadow: 0 8px 28px rgba(46, 168, 134, 0.20), 0 1.5px 6px rgba(0,0,0,0.14);
+    border-color: #2EA886;
+    cursor: pointer;
+}
+
+/* Labels */
+.profile-label {
+    margin-bottom: 6px;
+    font-size: 1.08rem;
+    color: #111;
+    font-weight: 600;
+}
+.nid-label {
+    margin-bottom: 6px;
+    font-size: 1.08rem;
+    color: #111;
+    font-weight: 600;
+}
+/* NID Password Section */
+.nid-password-form {
+    margin-top: 10px;
+    margin-bottom: 26px;
+    background: #F9FBFB;
+    border: 1.5px solid #99C4B5;
+    border-radius: 10px;
+    padding: 22px 28px 18px 28px;
+    max-width: 400px;
+    max-height: 300px;
+    box-shadow: 0 2px 16px rgba(46, 168, 134, 0.08);
+    font-size: 14px;
+    /* Center the form horizontally in its flex/parent container */
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nid-password-form label {
+    display: block;
+    margin-bottom: 2px;
+    color: #222;
+    font-weight: 400;
+    font-size: 14px;
+    text-align: center;
+}
+
+.nid-password-form input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    border: 1.2px solid #99C4B5;
+    border-radius: 6px;
+    font-size: 16px;
+    background: #F4F8F7;
+    transition: border-color 0.2s;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.nid-password-form input[type="password"]:focus {
+    border-color: #2EA886;
+    outline: none;
+}
+
+.nid-password-form button[type="submit"], .show-btn {
+    background: #2EA886;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 2px;
+    box-shadow: 0 4px 6px rgba(46, 168, 134, 0.10);
+    transition: background 0.2s, box-shadow 0.2s, background-color 0.3s;
+    display: block;
+    /* Center button */
+    margin-left: auto;
+    margin-right: auto;
+}
+.nid-password-form button[type="submit"]:hover, .show-btn:hover {
+    background: #25896c;
+}
+
+.nid-password-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nid-password-form p {
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #2EA886;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+}
+
+/* Error message styling */
+.nid-password-form p[style*='color:red'],
+.nid-password-form .error-message {
+    color: #e74c3c !important;
+    font-size: 0.96em;
+    margin-top: 8px;
+    margin-bottom: 0;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+}
+
+/* Password form inline links */
+.nid-password-form a {
+    margin-top: 10px;
+    display: inline-block;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* NID Reset Link */
+.nid-reset-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #fff;
+    background-color: #1e88e5;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+.nid-reset-link:hover {
+    background-color: #1565c0;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(21, 101, 192, 0.4);
+    text-decoration: none;
+}
+.nid-image.blur {
+    filter: blur(7px) grayscale(0.7);
+    pointer-events: none;
+    user-select: none;
+    transition: filter 0.3s cubic-bezier(.4,2,.6,1);
+}
+
+label {
+   display: block;
+    margin-top: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"],
+input[type="email"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+input:disabled,
+select:disabled {
+    background-color: #F0F4F4;
+    color: #A0A7AB;
+    cursor: not-allowed;
+}
+
+input:focus,
+select:focus {
+    border-color: #2EA886;
+    outline: none;
+    background: #fff;
+    color: #111;
+}
+/* ====== General Button Style ====== */
+form button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+}
+.edit-button {
+        background-color: #6b7280; /* Cool Gray */
+
+}
+.edit-button:hover {
+   background-color: #4b5563; /* Slightly darker gray */
+    transform: translateY(-1px);
+}
+/* 🔲 Accessibility Focus */
+form button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.4); /* Blue glow for focus */
+}
+
+/* Responsive adjustments */
+@media (max-width: 700px) {
+    .form-container {
+        padding: 14px 3vw 20px 3vw;
+        max-width: 99vw;
+    }
+    .profile-nid-row {
+        flex-direction: column;
+        gap: 0;
+        margin-top: 20px;
+    }
+    .profile-image-box, .nid-image-box {
+        width: 80px;
+        height: 80px;
+    }
+    .profile-image, .nid-image {
+        width: 65px;
+        height: 65px;
+    }
+    .edit-button {
+        font-size: 1rem;
+    }
+}
+/* Blurred NID image */
+.blurred-nid {
+    filter: blur(5px);
+    cursor: pointer;
+}
+
+/* NID Password Popup Overlay */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5); /* semi-transparent black */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Popup Box */
+.popup-box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 32px 24px 24px 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    animation: popupFadeIn 0.3s;
+}
+
+.popup-box h4 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.popup-box form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.popup-box input[type="password"] {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.popup-box input[type="password"]:focus {
+    border-color: #009688;
+}
+
+.popup-box button[type="submit"] {
+    padding: 10px 0;
+    border-radius: 6px;
+    border: none;
+    background: #009688;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.popup-box button[type="submit"]:hover {
+    background: #00796b;
+}
+
+.popup-box p {
+    margin-top: 10px;
+    color: #e53935;
+    font-size: 14px;
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

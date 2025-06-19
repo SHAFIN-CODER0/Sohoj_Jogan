@@ -1,0 +1,461 @@
+
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px; /* Root font size */
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 70px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    z-index: 1000; 
+}
+
+
+header .logo {
+    display: flex;
+    align-items: center;
+}
+
+header .logo img {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+}
+
+header h2 {
+    font-size: 1.5em; /* 32px */
+    font-weight: bold;
+    color: #333;
+}
+
+header nav ul {
+    display: flex;
+    list-style-type: none;
+}
+
+header nav ul li {
+    margin-left: 25px;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    font-size:1.2em; /* 16px */
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+header nav ul li a:hover {
+
+    border-bottom: 2px solid black;
+}
+
+header .icons {
+    display: flex;
+    align-items: center;
+    margin: 25px;
+}
+
+header .icons button {
+    background-color: transparent;
+    border: none;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+header .icons button img {
+    width: 30px;
+    height: 30px;
+}
+
+/* Hover effects for icons */
+header .icons button:hover img {
+    filter: brightness(1.2); /* Slightly brighten on hover */
+   
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header .logo {
+        margin-bottom: 20px;
+    }
+
+    header nav ul {
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    header nav ul li {
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+
+    header .icons {
+        margin-top: 10px;
+    }
+}
+
+
+
+body {
+    margin: 0; /* Remove or adjust margin here */
+    font-family: 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    background-color: #fdfdfd;
+    color: #333;
+}
+
+img {
+    max-width: 120%;
+    display: block;
+    max-height: 100%;
+}
+button {
+    padding: 10px 16px;
+    background-color: #e91e63;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+button:hover {
+    background-color: #c2185b;
+}
+
+/* ======= Gift Banner Section ======= */
+.gift-banner {
+    position: relative;
+    width: 100%;
+    height: 450px;
+    overflow: hidden;
+    margin-top: 150px;
+}
+.banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.5s ease;
+    transform: scale(1.1); /* Start slightly zoomed in */
+}
+.gift-banner:hover .banner-img {
+    transform: scale(1); /* Zooms out smoothly */
+}
+
+.banner-text {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    transform: translateY(-50%);
+    color: white;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+}
+.banner-text h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+.banner-text p {
+    font-size: 1.2rem;
+}
+
+/* ======= Gift Categories ======= */
+.gift-categories {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #fff3f7;
+}
+.gift-categories h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+.category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+.category-buttons button {
+    background-color: #ff6090;
+    font-weight: bold;
+}
+
+/* ======= Gift Categories ======= */
+.gift-categories {
+    text-align: center;
+    padding: 40px 15px;
+    background-color: #f9f9f9;
+}
+.gift-categories h2 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #333;
+}
+.category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+.category-buttons button {
+    background-color: #f4a6b1;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.category-buttons button:hover {
+    background-color: #e5909d;
+}
+/* ===== Gift Categories ===== */
+.gift-categories {
+    text-align: center;
+    padding: 30px 20px;
+    background-color: #fafafa;
+}
+
+.gift-categories h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.category-buttons button {
+    padding: 10px 16px;
+    font-size: 14px;
+    border: none;
+    background-color: #0a6ebd;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.category-buttons button:hover {
+    background-color: #094f8a;
+}
+
+/* Section Styles */
+.gift-products {
+    padding: 50px 10%;
+    background-color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    margin: 40px 0;
+    border-top: 5px solid #4CAF50;
+}
+
+.gift-products h2 {
+    text-align: center;
+    font-size: 36px;
+    margin-bottom: 30px;
+    color: #333;
+    font-weight: 600;
+}
+
+/* Product Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    justify-items: center;
+}
+
+/* Product Card */
+.product-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 25px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.product-card img {
+    width: 100%;
+    height: 230px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Product Title and Price */
+.product-card h4 {
+    font-size: 20px;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.product-card p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+/* Shop Name */
+.shop-name {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 20px;
+}
+
+/* Buttons */
+.product-card button {
+    padding: 12px 25px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin: 8px 0;
+    display: inline-block;
+}
+
+.product-card button:hover {
+    transform: scale(1.05);
+}
+
+.product-card button:first-of-type {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.product-card button:first-of-type:hover {
+    background-color: #45a049;
+}
+
+.buy-btn {
+    background-color: #FF5722;
+    color: white;
+}
+
+.buy-btn:hover {
+    background-color: #e64a19;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .gift-products {
+        padding: 50px 5%;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .gift-products {
+        padding: 30px 2%;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.footer-column h4 {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+    text-decoration: none;
+    color: #ddd;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.footer-column ul li a:hover {
+    color: #2ecc71;
+    transform: translateX(5px);
+}
+
+.link-icon {
+    width: 18px;
+    height: 18px;
+    filter: brightness(90%);
+    transition: filter 0.3s ease;
+}
+
+.footer-column ul li a:hover .link-icon {
+    filter: brightness(120%);
+}
+
+
+.footer {
+    background-color: #f8f8f8;
+    padding: 30px;
+    font-family: Arial, sans-serif;
+}
+
+/* Removed .newsletter and .newsletter-signup styles */
+
+.footer-links {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.footer-column h4 {
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li a {
+    text-decoration: none;
+    color: black;
+    font-size: 1.2em;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+}

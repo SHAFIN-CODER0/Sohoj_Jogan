@@ -1,0 +1,575 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px;
+    padding-top: 80px; /* Space for fixed header */
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+}
+
+header .logo img {
+    width: 120px;
+    height: auto;
+    margin-right: 10px;
+}
+
+header h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+header .icons {
+    display: flex;
+    align-items: center;
+}
+
+header .icons button {
+    background: transparent;
+    border: none;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+header .icons button img {
+    width: 40px;
+    height: 40px;
+}
+
+header .icons button:hover img {
+    filter: brightness(1.2);
+}
+
+/* Notification Dot */
+#notificationIcon {
+    position: relative;
+}
+
+#notificationIcon::after {
+    content: "●";
+    font-size: 12px;
+    color: red;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+/* Main Content */
+main {
+    margin-top: 100px;
+    padding: 20px;
+}
+/* Container for the entire form */
+.form-container {
+    background-color: white;
+    padding: 30px;
+    width: 100%;
+    max-width: 900px;
+    margin: 90px auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Form heading */
+.form-container h3 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Container for Profile and NID upload */
+.profile-nid-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* Common box styles */
+.profile-upload,
+.nid-upload {
+  flex: 1 1 45%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Labels */
+.profile-label,
+.nid-label {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+/* Image box styling */
+.profile-image-box,
+.nid-image-box {
+  border: 2px dashed #ccc;
+  padding: 16px;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+}
+
+.profile-image-box:hover,
+.nid-image-box:hover {
+  border-color: #007bff;
+}
+
+/* File input styling (clearly visible) */
+input[type="file"] {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+
+/* Responsive stacking on small screens */
+@media (max-width: 768px) {
+  .profile-upload,
+  .nid-upload {
+    flex: 1 1 100%;
+  }
+}
+
+/* Hide the plus icon if a preview is shown */
+
+
+/* Responsive adjustments */
+@media (max-width: 700px) {
+    .profile-nid-row {
+        flex-direction: column;
+        gap: 0;
+        margin-top: 20px;
+    }
+    .profile-image-box, .nid-image-box {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 12px;
+    }
+   
+}
+
+/* ====== Input Fields ====== */
+form label {
+    display: block;
+    margin-top: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+form input,
+form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+form input:disabled,
+form select:disabled {
+    background-color: #f0f0f0;
+    color: #777;
+}
+
+/* ====== Button Container ====== */
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 15px;
+}
+
+/* ====== General Button Style ====== */
+form button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+/* Map button next to address */
+.map-button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.map-button:hover {
+    background-color: #2563eb;
+}
+
+/* Buttons container for save & cancel side by side */
+.button-container {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+
+/* ✅ Save Button - Dark Green */
+.save-button {
+    background-color: #2d6a4f; /* Dark Green */
+}
+.save-button:hover {
+    background-color: #1f5d43; /* Slightly darker shade */
+    transform: translateY(-1px);
+}
+
+/* ❌ Cancel Button - Muted Red */
+.cancel-button {
+    background-color: #9b2226; /* Muted Red */
+}
+.cancel-button:hover {
+    background-color: #7f1d21; /* Slightly darker shade */
+    transform: translateY(-1px);
+}
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .profile-nid-row {
+        flex-direction: column;
+    }
+    .profile-upload, .nid-upload {
+        flex: 1 1 100%;
+    }
+    .button-container {
+        flex-direction: column;
+    }
+    .save-button, .cancel-button {
+        flex: none;
+        width: 100%;
+    }
+}
+
+
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -50%; /* Initially hidden */
+    width: 30%; /* Adjusted to take half the screen */
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    transition: right 0.4s ease;
+    z-index: 980;
+    padding: 20px;
+     padding-top: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Sidebar Content */
+.sidebar-content {
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+
+/* Sidebar content links */
+.sidebar-content a {
+    display: block;
+    text-decoration: none;
+    color: #fff;
+    margin: 15px 0;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding: 15px;
+    width: auto; /* Let the link width adjust to its content */
+    background-color: #FF9800; /* Vibrant Yellow-Orange Background */
+    border-radius: 12px;
+    text-align: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Added transition for smooth effect */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4); /* Light shadow for depth */
+}
+
+/* Hover effect */
+.sidebar-content a:hover {
+    background-color: #F57C00; /* Darker shade of Yellow-Orange on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow on hover */
+}
+
+/* Message Section Styling */
+.sidebar-content p {
+    display: block;
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 8px;
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Show Sidebar (when toggled) */
+.sidebar.show {
+    right: 0;
+}
+
+/* Close Button inside Sidebar */
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 30px;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 130px;
+}
+
+.close-btn:hover {
+    color: #4B014B;
+}
+
+/* Heading Styling for Sidebars */
+.sidebar h3 {
+    font-size: 24px;
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 50px;
+}
+
+/* Overlay (background behind the sidebar) */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 950;
+    display: none;
+}
+
+/* Show Overlay (when sidebar is open) */
+.overlay.show {
+    display: block;
+}
+
+/* User Icon & Notification Icon */
+#userIcon, #notificationIcon, #messengerBtn {
+    cursor: pointer;
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 600px) {
+    .sidebar {
+        width: 250px;
+    }
+}
+/* General Button Styling */
+button.map-button {
+    padding: 12px 25px;
+    border-radius: 8px; /* Rounded corners */
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    color: white;
+    background-color: #007BFF; /* Default blue color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+
+button.map-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-3px); /* Raise button on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhance shadow */
+}
+
+/* Specific styling for Locate Button */
+#locateButton {
+    padding: 12px 30px;
+    border-radius: 8px;
+    background-color: #28a745; /* Green color */
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+#locateButton:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: translateY(-3px); /* Button raises slightly */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhance shadow */
+}
+
+#locateButton:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.6); /* Green glow */
+}
+
+
+#closeMap:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 76, 76, 0.6); /* Red glow */
+}
+/* Close Button Style */
+.close-icon {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+    transition: color 0.2s;
+}
+
+/* Hover Effect */
+.close-icon:hover {
+    color: red; /* Change color to red on hover */
+}
+
+
+/* Modal Styling */
+.map-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 1000px;
+    height: 80vh;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2); /* Modal shadow */
+    padding: 20px;
+    overflow: hidden; /* Avoid overflow from map */
+}
+
+/* Map Styling */
+#map {
+    width: 100%;
+    height: 75%; /* Map height */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Map shadow */
+}
+
+/* Modal Heading */
+h3 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    padding: 12px 0;
+}
+
+/* Responsiveness for Small Screens */
+@media (max-width: 768px) {
+    .map-modal {
+        width: 95vw;
+        height: 85vh;
+    }
+
+    #map {
+        height: 70%;
+    }
+}
+
+@media (max-width: 480px) {
+    .map-modal {
+        width: 95vw;
+        height: 90vh;
+    }
+
+    #map {
+        height: 65%;
+    }
+}
+#saveLocation {
+    background-color: #28a745; /* সবুজ রঙ */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#saveLocation:hover {
+    background-color: #218838;
+    transform: scale(1.03);
+}
+
+#saveLocation:active {
+    background-color: #1e7e34;
+    transform: scale(0.98);
+}
+.close-form {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-form:hover {
+    color: red;
+}

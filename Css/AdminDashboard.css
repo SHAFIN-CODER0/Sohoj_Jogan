@@ -1,0 +1,261 @@
+
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px; /* Root font size */
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 70px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    z-index: 1000; 
+}
+
+
+header .logo {
+    display: flex;
+    align-items: center;
+}
+
+header .logo img {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+}
+
+header h2 {
+    font-size: 1.5em; /* 32px */
+    font-weight: bold;
+    color: #333;
+}
+
+header nav ul {
+    display: flex;
+    list-style-type: none;
+}
+
+header nav ul li {
+    margin-left: 25px;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    font-size:1.2em; /* 16px */
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+header nav ul li a:hover {
+
+    border-bottom: 2px solid black;
+}
+
+header .icons {
+    display: flex;
+    align-items: center;
+    margin: 25px;
+}
+
+header .icons button {
+    background-color: transparent;
+    border: none;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+header .icons button img {
+    width: 30px;
+    height: 30px;
+}
+
+/* Hover effects for icons */
+header .icons button:hover img {
+    filter: brightness(1.2); /* Slightly brighten on hover */
+   
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header .logo {
+        margin-bottom: 20px;
+    }
+
+    header nav ul {
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    header nav ul li {
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+
+    header .icons {
+        margin-top: 10px;
+    }
+}
+
+h1 {
+    text-align: center;
+    background: #2d3e50;
+    color: #fff;
+    padding: 24px 0 12px 0;
+    margin-top: 0;
+    letter-spacing: 2px;
+}
+
+section {
+    margin: 40px auto 0 auto;
+    max-width: 1200px;
+    background: #fff;
+    padding: 25px 28px 20px 28px;
+    border-radius: 14px;
+    box-shadow: 0 2px 20px 0 rgba(44, 54, 75, 0.08);
+}
+
+h2 {
+    background: #eaeaea;
+    margin-top: 0;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 22px;
+    color: #23272f;
+}
+
+.warn {
+    color: #e93b3b;
+    font-weight: bold;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    font-size: 16px;
+    background: #fff;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 9px 7px;
+    text-align: left;
+}
+
+th {
+    background: #f5f5f5;
+    color: #222;
+    font-size: 17px;
+}
+
+tr:nth-child(even) {
+    background: #f6f7fa;
+}
+
+tr:hover {
+    background: #f2f5ff;
+}
+
+.report-img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1.5px solid #ddd;
+}
+
+.delete-btn {
+    background: #e93b3b;
+    border: none;
+    color: #fff;
+    padding: 5px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-right: 6px;
+    transition: background 0.2s;
+    margin-bottom: 10px;
+}
+.delete-btn:hover {
+    background: #b21d1d;
+}
+
+.warn-btn {
+    background: #ffc107;
+    border: none;
+    color: #333;
+    padding: 5px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.2s;
+}
+.warn-btn:hover {
+    background: #ff9800;
+    color: #fff;
+}
+
+@media (max-width: 900px) {
+    section {
+        max-width: 98%;
+        padding: 9px 3px 14px 3px;
+    }
+    table, th, td {
+        font-size: 14px;
+    }
+    h2 {
+        font-size: 18px;
+    }
+}
+ table {width: 100%;border-collapse: collapse;margin-bottom: 30px;}
+        th, td {border: 1px solid #ccc;padding: 8px;text-align: left;}
+        th {background: #f5f5f5;}
+        section {margin-bottom: 40px;}
+        h2 {background: #eaeaea;padding: 10px;}
+        .report-img { width: 70px; height: 70px; object-fit: cover; border-radius: 5px; }
+        .delete-btn {
+            background: #e93b3b;
+            border: none;
+            color: #fff;
+            padding: 5px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-right: 6px;
+        }
+        .delete-btn:hover { background: #b21d1d; }
+        .warn-btn {
+            background: #ffc107;
+            border: none;
+            color: #333;
+            padding: 5px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .warn-btn:hover { background: #ff9800; color: #fff;}
+        .warn { color:#e93b3b; font-weight:bold;}

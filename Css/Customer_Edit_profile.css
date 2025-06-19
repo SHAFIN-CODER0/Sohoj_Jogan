@@ -1,0 +1,391 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px; /* Root font size */
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 70px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    z-index: 1000; 
+}
+
+
+header .logo {
+    display: flex;
+    align-items: center;
+}
+
+header .logo img {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+}
+
+header h2 {
+    font-size: 1.5em; /* 32px */
+    font-weight: bold;
+    color: #333;
+}
+
+header nav ul {
+    display: flex;
+    list-style-type: none;
+}
+
+header nav ul li {
+    margin-left: 25px;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    font-size:1.2em; /* 16px */
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+header nav ul li a:hover {
+
+    border-bottom: 2px solid black;
+}
+
+header .icons {
+    display: flex;
+    align-items: center;
+    margin: 25px;
+}
+
+header .icons button {
+    background-color: transparent;
+    border: none;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+header .icons button img {
+    width: 30px;
+    height: 30px;
+}
+
+/* Hover effects for icons */
+header .icons button:hover img {
+    filter: brightness(1.2); /* Slightly brighten on hover */
+   
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header .logo {
+        margin-bottom: 20px;
+    }
+
+    header nav ul {
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    header nav ul li {
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+
+    header .icons {
+        margin-top: 10px;
+    }
+}
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -50%; /* Initially hidden */
+    width: 30%; /* Adjusted to take half the screen */
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    transition: right 0.4s ease;
+    z-index: 980;
+    padding: 20px;
+padding-top: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Sidebar Content */
+.sidebar-content {
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+/* Sidebar content links */
+.sidebar-content a {
+    display: block;
+    text-decoration: none;
+    color: #fff;
+    margin: 15px 0;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding: 15px;
+    width: auto; /* Let the link width adjust to its content */
+    background-color: #FF9800; /* Vibrant Yellow-Orange Background */
+    border-radius: 12px;
+    text-align: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Added transition for smooth effect */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4); /* Light shadow for depth */
+}
+/* Hover effect */
+.sidebar-content a:hover {
+    background-color: #F57C00; /* Darker shade of Yellow-Orange on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow on hover */
+}
+/* Message Section Styling */
+.sidebar-content p {
+    display: block;
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 8px;
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Show Sidebar (when toggled) */
+.sidebar.show {
+    right: 0;
+}
+
+/* Close Button inside Sidebar */
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 30px;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 130px;
+}
+.close-btn:hover {
+    color: #4B014B;
+}
+
+/* Heading Styling for Sidebars */
+.sidebar h3 {
+    font-size: 24px;
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 40px;
+}
+
+/* Overlay (background behind the sidebar) */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 950;
+    display: none;
+}
+
+/* Show Overlay (when sidebar is open) */
+.overlay.show {
+    display: block;
+}
+
+/* User Icon & Notification Icon */
+#userIcon, #notificationIcon, #messengerBtn {
+    cursor: pointer;
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 600px) {
+    .sidebar {
+        width: 250px;
+    }
+}
+/* Profile Container */
+.profile-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    margin-top: 180px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.4);
+    text-align: center;
+}
+
+/* Profile Heading */
+.profile-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Profile Picture */
+.profile-pic {
+    position: relative;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.profile-pic img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%; /* Circular profile picture */
+    border: 3px solid #fff; /* White border around the image */
+}
+
+.profile-pic button {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    z-index: 10;
+}
+
+/* Change Picture Button Image */
+.profile-pic button img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Hover effect for Change Picture Button */
+.profile-pic button:hover img {
+    filter: brightness(1.2);
+}
+
+/* Profile Form */
+#profileForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+#profileForm label {
+    text-align: left;
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+}
+
+#profileForm input, #profileForm select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+
+
+#savedata {
+    background-color: #008CBA; /* Blue background */
+    color: white; /* White text */
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+#savedata:hover {
+    background-color: #007bb5; /* Darker blue on hover */
+}
+
+#canceldata {
+    background-color: #f44336; /* Red background */
+    color: white; /* White text */
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+#canceldata:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
+
+#changePic {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+#changePic img {
+    width: 40px; /* adjust size as needed */
+    height: 40px;
+    object-fit: cover;
+}.profile-pic-container {
+    text-align: center;
+    padding: 20px;
+    background-color: #f8f9fa; /* light background */
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.profile-pic-container h3 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.profile-pic-container p {
+    color: #555;
+    font-size: 14px;
+    margin-bottom: 15px;
+}

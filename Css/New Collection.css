@@ -1,0 +1,361 @@
+/* Reset & General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px;
+    padding-top: 120px; /* Space for fixed header */
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 70px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+}
+
+header .logo img {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+}
+
+header h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+}
+
+header nav ul {
+    display: flex;
+    list-style-type: none;
+}
+
+header nav ul li {
+    margin-left: 25px;
+}
+
+header nav ul li a {
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 1.2em;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+header nav ul li a:hover {
+    border-bottom: 2px solid black;
+}
+
+header .icons {
+    display: flex;
+    align-items: center;
+    margin: 25px;
+}
+
+header .icons button {
+    background-color: transparent;
+    border: none;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+header .icons button img {
+    width: 30px;
+    height: 30px;
+}
+
+header .icons button:hover img {
+    filter: brightness(1.2);
+}
+
+
+.offer-banner {
+    background-color: #e64519; /* গাঢ় লালচে কমলা */
+    padding: 80px 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    max-width: 100%;
+}
+
+.offer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.text-block {
+    color: #000;
+    flex: 1;
+}
+
+.label {
+    font-size: 24px;
+    font-weight: 300;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.sub-label {
+    font-size: 28px;
+    margin-top: 10px;
+}
+
+.discount {
+    font-size: 80px;
+    font-weight: bold;
+    margin-top: 10px;
+    line-height: 1.1;
+}
+
+.discount span {
+    display: block;
+    font-size: 50px;
+    font-weight: 500;
+}
+
+.shop-now-button {
+    background-color: #90a8e0;
+    color: #000;
+    text-decoration: none;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    flex-shrink: 0;
+}
+
+.shop-now-button:hover {
+    background-color: #728cc5;
+}
+
+/* মোবাইল রেসপন্সিভ */
+@media (max-width: 768px) {
+    .offer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .discount {
+        font-size: 60px;
+    }
+
+    .discount span {
+        font-size: 40px;
+    }
+}
+
+/* Filters Section */
+.filters {
+    margin: 30px 70px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 350px; /* Adjusted for fixed header */
+}
+
+.filters h3 {
+    margin-right: 15px;
+    font-size: 1em;
+    color: #333;
+}
+
+.filters select {
+    padding: 8px 12px;
+    font-size: 1em;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+}
+
+/* Product Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 30px;
+    padding: 30px 70px;
+}
+
+.product-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+.product-card h4 {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.product-card p {
+    font-size: 1em;
+    margin-bottom: 10px;
+    color: #777;
+}
+
+.buy-button {
+    background-color: #00796b;
+    color: white;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.buy-button:hover {
+    background-color: #004d40;
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px 30px;
+    }
+
+    .filters, .product-grid {
+        padding: 20px 30px;
+    }
+
+    .hero-text h1 {
+        font-size: 1.5em;
+    }
+
+    .hero-banner {
+        height: 220px;
+    }
+
+    .product-card img {
+        height: 160px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cta-button {
+        font-size: 0.9em;
+        padding: 8px 18px;
+    }
+}
+
+.product-card .shop-name {
+    font-size: 0.95em;
+    color: #888;
+    margin: 5px 0;
+}
+.offer-banner {
+    margin: 40px 70px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.offer-banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .offer-banner {
+        margin: 30px 20px 0;
+    }
+}
+@media (max-width: 480px) {
+    .offer-banner {
+        margin: 20px 10px 0;
+    }
+}
+
+.blur-effect {
+    filter: blur(5px);
+    pointer-events: none;
+    user-select: none;
+    transition: all 0.3s ease;
+}
+.product-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.wishlist-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.2s;
+}
+.wishlist-button img {
+    width: 28px;
+    height: 28px;
+    transition: filter 0.2s, transform 0.2s;
+    filter: grayscale(60%);
+}
+
+/* Hover: show red tint */
+.wishlist-button:hover img,
+.wishlist-button:focus img {
+    filter: brightness(0) saturate(100%) invert(21%) sepia(97%) saturate(7482%) hue-rotate(355deg) brightness(100%) contrast(104%);
+    /* Red filter */
+    transform: scale(1.2) rotate(-8deg);
+}
+
+/* Liked (clicked) state: always red */
+.wishlist-button.liked img {
+    filter: brightness(0) saturate(100%) invert(21%) sepia(97%) saturate(7482%) hue-rotate(355deg) brightness(100%) contrast(104%);
+    transform: scale(1.13);
+}
+

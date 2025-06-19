@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সহজ যোগান</title>
+    <link rel="stylesheet" href="../CSS/Man.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="../Images/Logo.png" alt="Sohaj Jogan logo">
+            <h2>সহজ যোগান</h2>
+        </div>
+        <nav>
+            <ul>
+               
+            </ul>
+        </nav>
+        <div class="icons">
+  <div class="search-bar">
+        <form method="get" action="" class="search-bar-form">
+            <input type="text" name="search" placeholder="পণ্যের নাম লিখুন..." value="" required>
+            <button id="submit"><img src="../Images/search-icon.jpg" alt="Search"></button>
+        </form>
+    </div>             <button id="userIcon"><img src="../Images/Sample_User_Icon.png" alt="User"></button>
+            <button><img src="../Images/heart.png" alt="Wishlist"></button>
+        </div>
+    </header>
+
+    <main>
+        <section class="banner">
+            <img src="../Images/Man-banner.jpg" alt="Men's Fashion Banner">
+            <div class="banner-text">
+                <h2>নিজেকে আরও স্মার্ট আর আত্মবিশ্বাসী দেখাতে চাও?</h2>
+                <p>এই পাতায় থাকছে তোমার জন্য স্টাইলিশ ও প্রয়োজনীয় সব কিছু। ফ্যাশনেবল, আরামদায়ক, আর প্রতিদিনের জন্য পারফেক্ট। দেখে নাও আজকের কালেকশন!</p>
+            </div>
+        </section>
+
+        <section class="intro">
+            <h1>পুরুষদের জন্য সেরা কালেকশন</h1>
+            <p>এখানে আপনি পাবেন স্টাইলিশ জামা-কাপড়, আনুষঙ্গিক পণ্য এবং দৈনন্দিন ব্যবহারের সেরা আইটেম। প্রতিটি পণ্য আপনার প্রতিদিনের লুক ও আত্মবিশ্বাস বাড়াতে সাহায্য করবে। চলো দেখে নিই কী আছে আজকের কালেকশনে!</p>
+        </section>
+        
+        <label for="categorySelect">একটি ক্যাটাগরি বাছাই করুন:</label>
+        <select id="categorySelect" name="category">
+            <optgroup label="পোশাক">
+                <option value="shirt">শার্ট</option>
+                <option value="tshirt">টি-শার্ট</option>
+                <option value="panjabi">পাঞ্জাবি</option>
+                <option value="jacket">জ্যাকেট</option>
+                <option value="blazer">ব্লেজার</option>
+            </optgroup>
+
+            <optgroup label="প্যান্ট">
+                <option value="jeans">জিন্স</option>
+                <option value="formal">ফরমাল প্যান্ট</option>
+                <option value="chinos">চিনোস</option>
+                <option value="joggers">জগারস</option>
+            </optgroup>
+
+            <optgroup label="ফুটওয়ার">
+                <option value="sneakers">স্নিকার্স</option>
+                <option value="formal-shoes">ফরমাল জুতা</option>
+                <option value="sandals">স্যান্ডেল</option>
+            </optgroup>
+
+            <optgroup label="আনুষাঙ্গিক">
+                <option value="watch">ঘড়ি</option>
+                <option value="belt">বেল্ট</option>
+                <option value="sunglass">সানগ্লাস</option>
+                <option value="wallet">ওয়ালেট</option>
+            </optgroup>
+
+            <optgroup label="সৌন্দর্য ও যত্ন">
+                <option value="perfume">পারফিউম</option>
+                <option value="grooming">গ্রুমিং কিট</option>
+            </optgroup>
+        </select>
+    
+        <section class="product-grid">
+            <div class="product-card">
+                <img src="../Images/gift.jpg" alt="Product 1">
+                <h3>সামার কুর্তি</h3>
+                <p>৳ ৫৫০</p>
+                <p class="store-name">দোকান: Style Hub</p>
+                <button class="buy-btn">এখন কিনুন</button>
+                <button class="cart-btn">কার্টে যোগ করুন</button>
+            </div>
+            <div class="product-card">
+                <img src="../Images/gift.jpg" alt="Product 2">
+                <h3>কটন টপ</h3>
+                <p>৳ ৪২০</p>
+                <p class="store-name">দোকান: Fashion Galore</p>
+                <button class="buy-btn">এখন কিনুন</button>
+                <button class="cart-btn">কার্টে যোগ করুন</button>
+            </div>
+            <div class="product-card">
+                <img src="../Images/gift.jpg" alt="Product 3">
+                <h3>ফ্লোরাল শাড়ি</h3>
+                <p>৳ ৭৫০</p>
+                <p class="store-name">দোকান: Saree World</p>
+                <button class="buy-btn">এখন কিনুন</button>
+                <button class="cart-btn">কার্টে যোগ করুন</button>
+            </div>
+            <div class="product-card">
+                <img src="../Images/gift.jpg" alt="Product 4">
+                <h3>ওয়েস্টার্ন গাউন</h3>
+                <p>৳ ১২০০</p>
+                <p class="store-name">দোকান: Elite Fashion</p>
+                <button class="buy-btn">এখন কিনুন</button>
+                <button class="cart-btn">কার্টে যোগ করুন</button>
+            </div>
+            <div class="product-card">
+                <img src="../Images/gift.jpg" alt="Product 5">
+                <h3>সিল্ক শাড়ি</h3>
+                <p>৳ ৯৫০</p>
+                <p class="store-name">দোকান: Saree Magic</p>
+                <button class="buy-btn">এখন কিনুন</button>
+                <button class="cart-btn">কার্টে যোগ করুন</button>
+            </div>
+            <div class="product-card">
+                <img src="../Images/gift.jpg" alt="Product 6">
+                <h3>পকেট শার্ট</h3>
+                <p>৳ ৬০০</p>
+                <p class="store-name">দোকান: Casual Wear</p>
+                <button class="buy-btn">এখন কিনুন</button>
+                <button class="cart-btn">কার্টে যোগ করুন</button>
+            </div>
+            <div class="product-card">
+                <img src="../Images/gift.jpg" alt="Product 7">
+                <h3>লেদার জ্যাকেট</h3>
+                <p>৳ ১৫০০</p>
+                <p class="store-name">দোকান: Leather Luxe</p>
+                <button class="buy-btn">এখন কিনুন</button>
+                <button class="cart-btn">কার্টে যোগ করুন</button>
+            </div>
+            <div class="product-card">
+                <img src="../Images/gift.jpg" alt="Product 8">
+                <h3>জিন্স প্যান্ট</h3>
+                <p>৳ ৮৫০</p>
+                <p class="store-name">দোকান: Denim World</p>
+                <button class="buy-btn">এখন কিনুন</button>
+                <button class="cart-btn">কার্টে যোগ করুন</button>
+            </div>
+        </section>
+        
+    </main>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <div class="footer-column">
+                <h4>শপিং অনলাই </h4>
+                <ul>
+                    <li><a href="#">ডেলিভারি</a></li>
+                    <li><a href="#">অর্ডার হিস্টোরি</a></li>
+                    <li><a href="#">উইস লিস্ট</a></li>
+                    <li><a href="#">পেমেন্ট </a></li>
+                </ul>
+            </div>
+    
+            <div class="footer-column">
+                <h4>আমাদের সম্পর্কে</h4>
+                <ul>
+                    <li>
+                        <a href="../Html/About_us.html">
+                            <img src="../Images/light-bulb.png" alt="info icon" class="link-icon">
+                            আমাদের সম্পর্কে বিস্তারিত জানুন
+                        </a>
+                    </li>
+                </ul>
+            </div>
+    
+            <div class="footer-column">
+                <h4>যোগাযোগের তথ্য</h4>
+                <ul>
+                    <li><a href="#">📞 ফোন</a></li>
+                    <li><a href="#">✉ ইমেইল</a></li>
+                </ul>
+            </div>
+        </div>
+    
+        
+    </footer>
+    </script>
+<style>.search-bar-form {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: #f6faf7;
+    border-radius: 8px;
+    padding: 7px 12px;
+    box-shadow: 0 1px 6px 0 rgba(28,124,84,0.04);
+}
+
+.search-bar-form input[type="text"] {
+    padding: 9px 14px;
+    border: 1px solid #c2eccb;
+    border-radius: 7px;
+    font-size: 1rem;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+}
+
+.search-bar-form input[type="text"]:focus {
+    border-color: #1c7c54;
+}
+
+.search-bar-form button {
+    background: #1c7c54;
+    border: none;
+    border-radius: 7px;
+    padding: 7px 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.search-bar-form button:hover {
+    background: #0a4025;
+}
+
+.search-bar-form button img {
+    width: 24px;
+    height: 24px;
+    display: block;
+}</style>
+</body>
+</html>

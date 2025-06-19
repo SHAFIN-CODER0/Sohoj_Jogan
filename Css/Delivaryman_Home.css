@@ -1,0 +1,559 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fff;
+    font-size: 16px;
+    padding-top: 80px; /* Prevents content from being overlapped by fixed header */
+}
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 30px; /* আগের চেয়ে কম padding */
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+header .logo img {
+    width: 90px; /* লোগো ছোট করা */
+    margin-right: 8px;
+}
+
+header h2 {
+    font-size: 1.5rem; /* টাইটেল ছোট করা */
+}
+
+header .icons button img {
+    width: 32px; /* আইকন ছোট করা */
+    height: 32px;
+}
+
+header .icons button {
+    margin-left: 12px; /* কম মার্জিন */
+}
+
+header .icons button img {
+    width: 40px;
+    height: 40px;
+}
+
+header .icons button:hover img {
+    filter: brightness(1.2);
+}
+
+/* Main Content */
+main {
+    margin-top: 100px;
+    padding: 20px;
+}
+
+
+
+.shop-now-btn:hover {
+    background: #dddddd;
+}
+
+/* Notification Icon */
+#notificationIcon {
+    position: relative;
+}
+
+#notificationIcon::after {
+    content: "●";
+    font-size: 12px;
+    color: red;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+/* New Collection Button */
+.new-collection {
+    text-align: center;
+    margin-top: 50px;
+}
+
+#newCollectionBtn {
+    background: linear-gradient(135deg, #e44a4a, #a02b2b);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+#newCollectionBtn:hover {
+    background: linear-gradient(135deg, #b52b27, #7a1d1d);
+    transform: scale(1.05);
+}
+
+/* Messenger Icon */
+.messenger {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+
+.messenger img {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.messenger img:hover {
+    transform: scale(1.1);
+}
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -50%; /* Initially hidden */
+    width: 30%; /* Adjusted to take half the screen */
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+    transition: right 0.4s ease;
+    z-index: 980;
+    padding: 20px;
+     padding-top: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Sidebar Content */
+.sidebar-content {
+    margin-top: 20px;
+    font-size: 16px;
+}
+
+
+/* Sidebar content links */
+.sidebar-content a {
+    display: block;
+    text-decoration: none;
+    color: #fff;
+    margin: 15px 0;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding: 15px;
+    width: auto; /* Let the link width adjust to its content */
+    background-color: #FF9800; /* Vibrant Yellow-Orange Background */
+    border-radius: 12px;
+    text-align: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Added transition for smooth effect */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4); /* Light shadow for depth */
+}
+
+/* Hover effect */
+.sidebar-content a:hover {
+    background-color: #F57C00; /* Darker shade of Yellow-Orange on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow on hover */
+}
+
+/* Message Section Styling */
+.sidebar-content p {
+    display: block;
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-radius: 8px;
+    color: #333;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Show Sidebar (when toggled) */
+.sidebar.show {
+    right: 0;
+}
+
+/* Close Button inside Sidebar */
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 30px;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 130px;
+}
+
+.close-btn:hover {
+    color: #4B014B;
+}
+
+/* Heading Styling for Sidebars */
+.sidebar h3 {
+    font-size: 24px;
+    color: #000;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 50px;
+}
+
+/* Overlay (background behind the sidebar) */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 950;
+    display: none;
+}
+
+/* Show Overlay (when sidebar is open) */
+.overlay.show {
+    display: block;
+}
+
+/* User Icon & Notification Icon */
+#userIcon, #notificationIcon {
+    cursor: pointer;
+}
+
+/* Responsive Design for smaller screens */
+@media (max-width: 600px) {
+    .sidebar {
+        width: 250px;
+    }
+}
+
+.footer-column h4 {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+    text-decoration: none;
+    color: #ddd;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.footer-column ul li a:hover {
+    color: #2ecc71;
+    transform: translateX(5px);
+}
+
+.link-icon {
+    width: 18px;
+    height: 18px;
+    filter: brightness(90%);
+    transition: filter 0.3s ease;
+}
+
+.footer-column ul li a:hover .link-icon {
+    filter: brightness(120%);
+}
+
+
+.footer {
+    background-color: #f8f8f8;
+    padding: 30px;
+    font-family: Arial, sans-serif;
+}
+
+/* Removed .newsletter and .newsletter-signup styles */
+
+.footer-links {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.footer-column h4 {
+    font-size: 1.4em;
+    font-weight: bold;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li a {
+    text-decoration: none;
+    color: black;
+    font-size: 1.2em;
+}
+
+
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+}
+
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    header {
+        padding: 15px 30px;
+    }
+
+    .design-masters {
+        flex-direction: column;
+        text-align: center;
+        height: auto;
+        padding: 30px;
+    }
+
+    .design-masters-content {
+        max-width: 80%;
+        text-align: center;
+    }
+
+    .shop-now-btn {
+        width: auto;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-column {
+        margin-bottom: 15px;
+    }
+}
+.deliveryman-banner-section {
+  position: relative;
+  width: 100%;
+  height: 550px;
+  overflow: hidden;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(30, 41, 59, 0.24);
+  background: linear-gradient(120deg, #23272f 0%, #393e46 100%);
+}
+
+.deliveryman-banner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(62%) blur(2px);
+}
+
+.banner-title {
+  position: absolute;
+  top: 10%;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-size: 2.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  z-index: 2;
+  text-shadow: 0 6px 32px rgba(30, 41, 59, 0.7);
+  filter: drop-shadow(0 2px 10px rgba(30, 41, 59, 0.11));
+}
+
+/* Deliveryman Info Box */
+.deliveryman-info-box {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  background: rgba(34, 43, 56, 0.48);
+  backdrop-filter: blur(16px) saturate(140%);
+  padding: 18px 22px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  border: 1.5px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 6px 24px rgba(33, 51, 74, 0.25);
+}
+
+.deliveryman-img {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #fff;
+  margin-right: 20px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.13);
+}
+
+.deliveryman-name h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-shadow: 0px 1.5px 10px rgba(30,41,59,0.32);
+}
+
+.report-btn {
+  position: absolute;
+  padding: 10px 23px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 4px 14px rgba(220, 60, 60, 0.25);
+  background-color: #e74c3c; /* Soft but strong red */
+  color: #fff;
+  letter-spacing: 0.03em;
+  outline: none;
+}
+
+.report-btn:hover {
+  background-color: #c0392b; /* Darker red */
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 30px rgba(220, 60, 60, 0.35);
+}
+
+.review-toggle-btn {
+  position: absolute;
+  padding: 10px 23px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 4px 14px rgba(52, 152, 219, 0.25);
+  background-color: #3498db; /* Modern blue */
+  color: #fff;
+  letter-spacing: 0.03em;
+  outline: none;
+}
+
+.review-toggle-btn:hover {
+  background-color: #2980b9; /* Darker blue */
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 30px rgba(52, 152, 219, 0.35);
+}
+
+
+.report-btn {
+  top: 24px;
+  right: 24px;
+}
+
+.review-toggle-btn {
+  bottom: 24px;
+  right: 24px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .banner-title {
+    font-size: 1.2rem;
+    padding: 0 10px;
+  }
+
+  .deliveryman-info-box {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 10px;
+    left: 10px;
+    bottom: 10px;
+    border-radius: 13px;
+  }
+
+  .deliveryman-img {
+    margin-bottom: 10px;
+    margin-right: 0;
+    width: 60px;
+    height: 60px;
+  }
+
+  .report-btn,
+  .review-toggle-btn {
+    font-size: 0.9rem;
+    padding: 8px 13px;
+    border-radius: 7px;
+    right: 10px;
+  }
+
+  .report-btn {
+    top: 10px;
+  }
+
+  .review-toggle-btn {
+    bottom: 10px;
+  }
+}
+
+
+  .review-section {
+    background-color: #f9f9f9;
+    padding: 40px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.review-section h2 {
+    font-size: 2em;
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+.review-section .review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.review-section .review-item {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.review-section .review-item .review-author {
+    font-weight: bold;
+    color: #007BFF;
+}
+
+.review-section .review-item .review-text {
+    margin-top: 10px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.review-section .review-item .review-rating {
+    margin-top: 10px;
+    font-size: 1.2em;
+    color: #FFD700;
+}
