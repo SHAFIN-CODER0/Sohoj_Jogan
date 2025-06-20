@@ -17,15 +17,17 @@ $result = mysqli_query($conn, $sql);
 if (!$result) {
     die("Database query failed: " . mysqli_error($conn));
 }
-// Get customer coin balance
+
+// Get customer coin balance and ID
 $customer_email = $_SESSION['customer_email'];
-$coin_sql = "SELECT customer_coins FROM customers WHERE customer_email = ?";
+$coin_sql = "SELECT customer_coins, customer_id FROM customers WHERE customer_email = ?";
 $coin_stmt = $conn->prepare($coin_sql);
 $coin_stmt->bind_param('s', $customer_email);
 $coin_stmt->execute();
-$coin_stmt->bind_result($customer_coins);
+$coin_stmt->bind_result($customer_coins, $customer_id);
 $coin_stmt->fetch();
 $coin_stmt->close();
+$_SESSION['customer_id'] = $customer_id;
 
 // Function to convert to Bangla numerals
 function bn_number($number) {
@@ -52,191 +54,202 @@ if (isset($_GET['search']) && trim($_GET['search']) !== '') {
     $stmt->close();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>সহজ যোগান (Sohaj Jogan)</title>
-    <link rel="stylesheet" href="../CSS/Customer_Home.css?=1"> <!-- Correct CSS path -->
+    <link rel="stylesheet" href="../CSS/Customer_Home.css?=1">
 </head>
 <body>
  <header>
-       <div class="logo" id="logoClickable" style="cursor:pointer;">
-    <img src="../Images/Logo.png" alt="Liberty Logo">
-    <h2>সহজ যোগান</h2>
-</div>
-<script>
-    document.getElementById('logoClickable').addEventListener('click', function() {
-        window.location.href = '../Html/Customer_Home.php';
-    });
-</script>
-
+    <div class="logo" id="logoClickable" style="cursor:pointer;">
+        <img src="../Images/Logo.png" alt="Liberty Logo">
+        <h2>সহজ যোগান</h2>
+    </div>
+    <script>
+        document.getElementById('logoClickable').addEventListener('click', function() {
+            window.location.href = '../Html/Customer_Home.php';
+        });
+    </script>
     <nav>
         <ul>
-                <li><a href="../Html/New_Collection.html">নতুন এসেছে</a></li>
-                <li><a href="../Html/Women.html">নারী</a></li>
-                <li><a href="../Html/Man.html">পুরুষ</a></li>
-                <li><a href="../Html/Gift.html">উপহার</a></li>
-        <li><a href="../Html/Histrory.php?customer_id=<?= $_SESSION['customer_id'] ?>">লাইব্রেরি</a></li>
-            </ul>
+            <li><a href="../Html/New_Collection.html">নতুন এসেছে</a></li>
+            <li><a href="../Html/Women.html">নারী</a></li>
+            <li><a href="../Html/Man.html">পুরুষ</a></li>
+            <li><a href="../Html/Gift.html">উপহার</a></li>
+            <li><a href="../Html/Histrory.php?customer_id=<?= $_SESSION['customer_id'] ?>">লাইব্রেরি</a></li>
+        </ul>
     </nav>
+    <div class="icons">
+        <!-- Coin Balance -->
+        <div class="coin-balance">
+            <img src="../Images/coin-icon.png" alt="Coins" class="coin-icon">
+            <span id="coinCount">
+                <?php echo isset($customer_coins) ? bn_number($customer_coins) : '০'; ?>
+            </span>
+        </div>
+        <!-- Product Search Bar (Form) -->
+        <div class="search-bar">
+            <form method="get" action="" class="search-bar-form">
+                <input type="text" name="search" placeholder="পণ্যের নাম লিখুন..." value="<?php echo htmlspecialchars($search_query); ?>" required>
+                <button id="submit"><img src="../Images/search.png" alt="Search"></button>
+            </form>
+        </div>
+        <!-- Icons -->
+        <button id="userIcon"><img src="../Images/Sample_User_Icon.png" alt="User"></button>
+       <button id="notificationIcon" style="position:relative;">
+    <img src="../Images/notification.png" alt="Notifications">
+  
+</button>
 
-<div class="icons">
-    <!-- Coin Balance -->
-    <div class="coin-balance">
-        <img src="../Images/coin-icon.png" alt="Coins" class="coin-icon">
-        <span id="coinCount">
-            <?php echo isset($customer_coins) ? bn_number($customer_coins) : '০'; ?>
-        </span>
+
+        <button id="messengerBtn"><img src="../Images/messenger-icon.png" alt="Messenger"></button>
+        <button id="wishlistbtn"><img src="../Images/heart.png" alt="Wishlist"></button>
     </div>
-    <!-- Product Search Bar (Form) -->
-    <div class="search-bar">
-        <form method="get" action="" class="search-bar-form">
-            <input type="text" name="search" placeholder="পণ্যের নাম লিখুন..." value="<?php echo htmlspecialchars($search_query); ?>" required>
-            <button id="submit"><img src="../Images/search-icon.jpg" alt="Search"></button>
-        </form>
-    </div>
-    <!-- Icons -->
-    <button id="userIcon"><img src="../Images/Sample_User_Icon.png" alt="User"></button>
-    <button id="notificationIcon"><img src="../Images/notification.png" alt="Notifications"></button>
-    <button id="messengerBtn"><img src="../Images/messenger-icon.png" alt="Messenger"></button>
-    <!-- Wishlist Button -->
-    <button id="wishlistbtn"><img src="../Images/heart.png" alt="Wishlist"></button>
-</div>
 </header>
-<script>// Add this script to enable the wishlist button to navigate to wishlist.html on click
+<script>
 document.addEventListener("DOMContentLoaded", function() {
     var wishlistBtn = document.getElementById("wishlistbtn");
     if (wishlistBtn) {
         wishlistBtn.addEventListener("click", function(e) {
-            e.preventDefault(); // Prevent form submission if inside a form
+            e.preventDefault();
             window.location.href = "../Html/Wish_lisit.php";
         });
     }
-});</script>
-
-
+});
+</script>
 <!-- OVERLAY (for background when sidebar is open) -->
 <div id="overlay" class="overlay"></div>
 <!-- User Sidebar -->
 <div id="userSidebar" class="sidebar">
     <span id="closeUserSidebar" class="close-btn">&times;</span>
-    <h3>ব্যবহারকারী মেনু</h3> <!-- Changed 'User Menu' to 'ব্যবহারকারী মেনু' -->
+    <h3>ব্যবহারকারী মেনু</h3>
     <div class="sidebar-content">
-        <a href="../Html/Customer_profile.php" id="profileLink">প্রোফাইল</a> <!-- 'New Collection' in Bangla -->
-        <a href="../Html/Customer_settings.php" id="settingsLink">সেটিংস</a> <!-- 'Settings' in Bangla -->
+        <a href="../Html/Customer_profile.php" id="profileLink">প্রোফাইল</a>
+        <a href="../Html/Customer_settings.php" id="settingsLink">সেটিংস</a>
         <a href="#" id="logoutLink">লগ আউট</a>
     </div>
 </div>
-
 <!-- Notification Sidebar -->
 <div id="notificationSidebar" class="sidebar">
     <span id="closeNotification" class="close-btn">&times;</span>
-    <h3>নোটিফিকেশন</h3> <!-- Changed 'Notifications' to 'নোটিফিকেশন' -->
+    <h3>নোটিফিকেশন</h3>
     <div class="sidebar-content">
-        <p>নতুন কোনো নোটিফিকেশন নেই</p> <!-- 'No new notifications' in Bangla -->
+        <p>নতুন কোনো নোটিফিকেশন নেই</p>
     </div>
 </div>
 
+<style>button[name="mark_all_read"] {
+    background: #ff9800;
+    color: #fff;
+    border: none;
+    padding: 10px 26px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    letter-spacing: 0.5px;
+}
+
+button[name="mark_all_read"]:hover,
+button[name="mark_all_read"]:focus {
+    background: #f57c00;
+    color: #fff;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.14);
+    outline: none;
+}</style>
+
+<style></style>
 <!-- Messenger Sidebar -->
 <div id="messengerSidebar" class="sidebar">
     <span id="closeMessenger" class="close-btn">&times;</span>
-    <h3>মেসেজ</h3> <!-- Changed 'Messages' to 'মেসেজ' -->
+    <h3>মেসেজ</h3>
     <div class="sidebar-content">
-        <p>কোনো নতুন মেসেজ নেই</p> <!-- 'No new messages' in Bangla -->
+        <p>কোনো নতুন মেসেজ নেই</p>
     </div>
 </div>
+<script src="../java_script/Customer_Home.js"></script>
+<section class="design-masters">
+    <div class="design-masters-content">
+        <h1 class="title"></h1>
+        <p class="description"></p>
+    </div>
+    <div class="button-wrapper">
+        <a href="../Html/map.html" class="shop-now-btn">
+            অবস্থান
+            <img src="../Images/location.png" alt="Location Icon" style="width: 50px; height: 50px; vertical-align: middle; margin-left: 10px;">
+        </a>
+    </div>
+</section>
 
-
-
-<script src="../java_script/Customer_Home.js"></script> <!-- Link to JS -->
-
-    <section class="design-masters">
-        <div class="design-masters-content">
-            <h1 class="title"></h1>
-         
-            <p class="description"></p>
+<section class="shop-showcase">
+    <div class="shop-title">
+        <h1>আপনার আশে-পাশের দোকান</h1>
+    </div>
+    <div class="gallery-container">
+        <div class="gallery-item">
+            <img src="../Images/dokan1.jpg" alt="Fabric Design">
+            <p class="item-label">লিবারটি ফ্যাব্রিক এসএস২৫: রিটোল্ড</p>
         </div>
-        <div class="button-wrapper">
-            <a href="../Html/map.html" class="shop-now-btn">
-                অবস্থান
-                <img src="../Images/location.png" alt="Location Icon" style="width: 50px; height: 50px; vertical-align: middle; margin-left: 10px;">
-            </a>
-            
-            
+        <div class="gallery-item">
+            <img src="../Images/Up.jpg" alt="Fragrance">
+            <p class="item-label">লিবারটি এলবিটি. ফ্র্যাগ্রান্স</p>
         </div>
-    </section>
-    <section class="shop-showcase">
-        <!-- Title Section -->
-        <div class="shop-title">
-            <h1>আপনার আশে-পাশের দোকান</h1>
+        <div class="gallery-item">
+            <img src="../Images/Courier.png" alt="Luxury Dress">
+            <p class="item-label">ড্রেস</p>
         </div>
-    
-        <!-- Gallery Section -->
-        <div class="gallery-container">
-            <div class="gallery-item">
-                <img src="../Images/dokan1.jpg" alt="Fabric Design">
-                <p class="item-label">লিবারটি ফ্যাব্রিক এসএস২৫: রিটোল্ড</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/Up.jpg" alt="Fragrance">
-                <p class="item-label">লিবারটি এলবিটি. ফ্র্যাগ্রান্স</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/Courier.png" alt="Luxury Dress">
-                <p class="item-label">ড্রেস</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/comment.jpg" alt="Luxury Bags">
-                <p class="item-label">ব্যাগ</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/home_delivery.jpg" alt="Jewellery">
-                <p class="item-label">নতুন আসা: জুয়েলারি</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/home_delivery.jpg" alt="Jewellery">
-                <p class="item-label">নতুন আসা: জুয়েলারি</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/home_delivery.jpg" alt="Jewellery">
-                <p class="item-label">নতুন আসা: জুয়েলারি</p>
-            </div>
-    
-            <!-- Duplicate the items for seamless scrolling -->
-            <div class="gallery-item">
-                <img src="../Images/dokan1.jpg" alt="Fabric Design">
-                <p class="item-label">লিবারটি ফ্যাব্রিক এসএস২৫: রিটোল্ড</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/Up.jpg" alt="Fragrance">
-                <p class="item-label">লিবারটি এলবিটি. ফ্র্যাগ্রান্স</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/Courier.png" alt="Luxury Dress">
-                <p class="item-label">ড্রেস</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/comment.jpg" alt="Luxury Bags">
-                <p class="item-label">ব্যাগ</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/home_delivery.jpg" alt="Jewellery">
-                <p class="item-label">নতুন আসা: জুয়েলারি</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/home_delivery.jpg" alt="Jewellery">
-                <p class="item-label">নতুন আসা: জুয়েলারি</p>
-            </div>
-            <div class="gallery-item">
-                <img src="../Images/home_delivery.jpg" alt="Jewellery">
-                <p class="item-label">নতুন আসা: জুয়েলারি</p>
-            </div>
+        <div class="gallery-item">
+            <img src="../Images/comment.jpg" alt="Luxury Bags">
+            <p class="item-label">ব্যাগ</p>
         </div>
-    </section>
-    
+        <div class="gallery-item">
+            <img src="../Images/home_delivery.jpg" alt="Jewellery">
+            <p class="item-label">নতুন আসা: জুয়েলারি</p>
+        </div>
+        <div class="gallery-item">
+            <img src="../Images/home_delivery.jpg" alt="Jewellery">
+            <p class="item-label">নতুন আসা: জুয়েলারি</p>
+        </div>
+        <div class="gallery-item">
+            <img src="../Images/home_delivery.jpg" alt="Jewellery">
+            <p class="item-label">নতুন আসা: জুয়েলারি</p>
+        </div>
+        <!-- Duplicate the items for seamless scrolling -->
+        <div class="gallery-item">
+            <img src="../Images/dokan1.jpg" alt="Fabric Design">
+            <p class="item-label">লিবারটি ফ্যাব্রিক এসএস২৫: রিটোল্ড</p>
+        </div>
+        <div class="gallery-item">
+            <img src="../Images/Up.jpg" alt="Fragrance">
+            <p class="item-label">লিবারটি এলবিটি. ফ্র্যাগ্রান্স</p>
+        </div>
+        <div class="gallery-item">
+            <img src="../Images/Courier.png" alt="Luxury Dress">
+            <p class="item-label">ড্রেস</p>
+        </div>
+        <div class="gallery-item">
+            <img src="../Images/comment.jpg" alt="Luxury Bags">
+            <p class="item-label">ব্যাগ</p>
+        </div>
+        <div class="gallery-item">
+            <img src="../Images/home_delivery.jpg" alt="Jewellery">
+            <p class="item-label">নতুন আসা: জুয়েলারি</p>
+        </div>
+        <div class="gallery-item">
+            <img src="../Images/home_delivery.jpg" alt="Jewellery">
+            <p class="item-label">নতুন আসা: জুয়েলারি</p>
+        </div>
+        <div class="gallery-item">
+            <img src="../Images/home_delivery.jpg" alt="Jewellery">
+            <p class="item-label">নতুন আসা: জুয়েলারি</p>
+        </div>
+    </div>
 </section>
 <section class="game-section">
     <h2>🎮 গেম খেলে কয়েন জিতুন!</h2>
@@ -246,13 +259,10 @@ document.addEventListener("DOMContentLoaded", function() {
         <a href="../Html/Game.php" class="play-now-btn">গেম খেলুন</a>
     </div>
 </section>
-
 <!-- Shops Section -->
 <section class="shops-section">
-    
     <h2>দোকানসমূহ</h2>
    <div class="shops-list">
-
     <?php
     if(mysqli_num_rows($result) > 0){
         while ($row = mysqli_fetch_assoc($result)) {
@@ -273,10 +283,8 @@ document.addEventListener("DOMContentLoaded", function() {
         echo '<p>কোনও দোকান পাওয়া যায়নি।</p>';
     }
     ?>
-</div>
-
+    </div>
 </section>
-
 <?php if ($product_results !== null): ?>
     <section>
         <h2 class="centered-text">অনুসন্ধান ফলাফল: "<?php echo htmlspecialchars($search_query); ?>"</h2>
@@ -302,7 +310,6 @@ document.addEventListener("DOMContentLoaded", function() {
         <?php endif; ?>
     </section>
 <?php endif; ?>
-
 <footer class="footer">
     <div class="footer-links">
         <div class="footer-column">
@@ -313,7 +320,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 <li><a href="#">পেমেন্ট </a></li>
             </ul>
         </div>
-
         <div class="footer-column">
             <h4>আমাদের সম্পর্কে</h4>
             <ul>
@@ -325,7 +331,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 </li>
             </ul>
         </div>
-
         <div class="footer-column">
             <h4>যোগাযোগের তথ্য</h4>
             <ul>
@@ -334,12 +339,7 @@ document.addEventListener("DOMContentLoaded", function() {
             </ul>
         </div> 
     </div>
-
-    <div class="footer-bottom">
-        </div>
-
-       
+    <div class="footer-bottom"></div>
 </footer>
-
 </body>
-</html>  
+</html>
