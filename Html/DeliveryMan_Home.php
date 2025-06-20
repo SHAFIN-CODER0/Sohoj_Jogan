@@ -4,110 +4,11 @@ include '../PHP/db_connect.php'; // Database connection
 
 $isDeliveryman = false;
 $deliverymanId = null;
-$deliverymanName = '';
-$deliverymanPic = '';
-$deliverymanPhone = '';
 
-// =============================
-// Accept/Cancel Handler (Pure PHP)
-// =============================
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] == 'accept' && isset($_SESSION['delivery_man_email'])) {
-        $oid = intval($_POST['oid'] ?? 0);
-
-        // ডেলিভারিম্যান ইনফো
-        $email = $_SESSION['delivery_man_email'];
-        $sql = "SELECT delivery_man_id, delivery_man_name, delivery_man_phone FROM delivery_men WHERE delivery_man_email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        $deliverymanId = $row['delivery_man_id'];
-        $deliverymanName = $row['delivery_man_name'];
-        $deliverymanPhone = $row['delivery_man_phone'];
-        $stmt->close();
-
-        // Check if already accepted by someone else
-        $check_sql = "SELECT status FROM orders WHERE order_id=? AND status='accepted'";
-        $check_stmt = $conn->prepare($check_sql);
-        $check_stmt->bind_param("i", $oid);
-        $check_stmt->execute();
-        $check_stmt->store_result();
-        if ($check_stmt->num_rows > 0) {
-            echo "<script>alert('অর্ডার ইতিমধ্যে এক্সেপ্ট হয়েছে!');window.location='".$_SERVER['PHP_SELF']."';</script>";
-            exit();
-        }
-        $check_stmt->close();
-
-        // Order status change (accepted)
-        $sql = "UPDATE orders SET status='accepted' WHERE order_id=?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $oid);
-        $stmt->execute();
-        $stmt->close();
-
-        // Notification add (accepted_by & accepted_at goes to notification table only)
-        $sql = "INSERT INTO notifications (
-            user_id, user_type, order_id, message, is_read, created_at,
-            accepted_by, accepted_by_name, accepted_by_phone, accepted_at
-        ) VALUES (?, 'delivery_man', ?, 'অর্ডার এক্সেপ্ট হয়েছে', 0, NOW(), ?, ?, ?, NOW())";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("iisss", $deliverymanId, $oid, $deliverymanId, $deliverymanName, $deliverymanPhone);
-        $stmt->execute();
-        $stmt->close();
-
-        echo "<script>alert('অর্ডার এক্সেপ্ট হয়েছে!');window.location='".$_SERVER['PHP_SELF']."';</script>";
-        exit();
-    }
-    // Cancel handler for pending order (just reload)
-    elseif ($_POST['action'] == 'cancel_pending' && isset($_POST['oid'])) {
-        echo "<script>alert('অর্ডার বাতিল করা হয়নি। (শুধু পেন্ডিং থেকে সরানো যাবে না)');window.location='".$_SERVER['PHP_SELF']."';</script>";
-        exit();
-    }
-    // Cancel Handler (for notification history)
-    elseif ($_POST['action'] == 'cancel' && isset($_POST['nid'])) {
-        $nid = intval($_POST['nid']);
-
-        // Find the order_id before deleting notification
-        $sql = "SELECT order_id FROM notifications WHERE notification_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $nid);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $order_id = 0;
-        if ($row = $result->fetch_assoc()) {
-            $order_id = $row['order_id'];
-        }
-        $stmt->close();
-
-        // 1. Delete the notification
-        $sql = "DELETE FROM notifications WHERE notification_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $nid);
-        $stmt->execute();
-        $stmt->close();
-
-        // 2. Change order status to pending (if order_id found)
-        if ($order_id) {
-            $sql = "UPDATE orders SET status='pending' WHERE order_id=?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $order_id);
-            $stmt->execute();
-            $stmt->close();
-        }
-
-        echo "<script>alert('নোটিফিকেশন বাতিল হয়েছে! অর্ডার আবার পেন্ডিং এ গেছে!');window.location='".$_SERVER['PHP_SELF']."';</script>";
-        exit();
-    }
-}
-
-// =============================
-// Authentication & Info Fetch
-// =============================
+// ডেলিভারিম্যান নিজে লগইন করলে (session আছে, URL-এ id নাই)
 if (isset($_SESSION['delivery_man_email']) && !isset($_GET['id'])) {
     $email = $_SESSION['delivery_man_email'];
-    $sql = "SELECT delivery_man_id, delivery_man_name, delivery_man_image_path, delivery_man_phone FROM delivery_men WHERE delivery_man_email = ?";
+    $sql = "SELECT delivery_man_id, delivery_man_name, delivery_man_image_path FROM delivery_men WHERE delivery_man_email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -117,7 +18,6 @@ if (isset($_SESSION['delivery_man_email']) && !isset($_GET['id'])) {
         $deliverymanId = $row['delivery_man_id'];
         $deliverymanName = $row['delivery_man_name'];
         $deliverymanPic = $row['delivery_man_image_path'];
-        $deliverymanPhone = $row['delivery_man_phone'];
         $isDeliveryman = true;
     } else {
         echo "<script>
@@ -157,50 +57,7 @@ else {
     </script>";
     exit();
 }
-
-// =============================
-// Pending Order Fetch (shop_owner address/phone & payment)
-// =============================
-$orders = null;
-if ($isDeliveryman) {
-    $order_sql = "
-        SELECT o.*, so.shop_name, so.shop_owner_address, so.shop_owner_phone, p.payment_method, p.bkash_txid, pr.price
-        FROM orders o
-        LEFT JOIN shop_owners so ON o.shop_owner_id = so.shop_owner_id
-        LEFT JOIN payments p ON o.order_id = p.order_id
-        LEFT JOIN products pr ON o.product_id = pr.product_id
-        WHERE o.status = 'pending'
-        ORDER BY o.order_time DESC
-    ";
-    $order_stmt = $conn->prepare($order_sql);
-    $order_stmt->execute();
-    $orders = $order_stmt->get_result();
-    $order_stmt->close();
-}
-
-// =============================
-// Accepted Notification Fetch (history)
-// =============================
-$notifications = null;
-if ($isDeliveryman) {
-    $notif_sql = "
-        SELECT n.*, o.customer_name, o.customer_phone, o.customer_address, o.customer_comment,
-        so.shop_name, so.shop_owner_address, so.shop_owner_phone, pr.price, o.quantity, o.delivery_charge,
-        p.payment_method, p.bkash_txid
-        FROM notifications n
-        LEFT JOIN orders o ON n.order_id = o.order_id
-        LEFT JOIN shop_owners so ON o.shop_owner_id = so.shop_owner_id
-        LEFT JOIN payments p ON o.order_id = p.order_id
-        LEFT JOIN products pr ON o.product_id = pr.product_id
-        WHERE n.user_id = ? AND n.user_type = 'delivery_man'
-        ORDER BY n.created_at DESC
-    ";
-    $notif_stmt = $conn->prepare($notif_sql);
-    $notif_stmt->bind_param("i", $deliverymanId);
-    $notif_stmt->execute();
-    $notifications = $notif_stmt->get_result();
-    $notif_stmt->close();
-}
+$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="bn">
@@ -208,38 +65,7 @@ if ($isDeliveryman) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>সহজ যোগান (Sohaj Jogan)</title>
-    <link rel="stylesheet" href="../CSS/Delivaryman_Home.css">
-    <style>
-        .notif-badge {
-            background: #ff5722;
-            color: #fff;
-            border-radius: 50%;
-            padding: 2px 7px;
-            font-size: 12px;
-            position: absolute;
-            top: -4px; right: -4px;
-        }
-        .notification-item.unread {background:#fff7e6;}
-        .review-author {font-weight:bold;}
-        .review-rating {color: #ffa726;}
-        .sidebar-content .notification-item {margin-bottom: 12px; border-bottom:1px solid #eee; padding-bottom:8px;}
-        .accept-btn, .cancel-btn {
-            padding: 3px 10px;
-            margin: 2px 5px 2px 0;
-            border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            cursor: pointer;
-        }
-        .accept-btn { background: #1c7c54; color: #fff; }
-        .cancel-btn { background: #e94f37; color: #fff; }
-        .accept-info {color:green;}
-        .tabs {display:flex;gap:10px;margin-bottom:10px;}
-        .tab-btn {padding:6px 16px;border:1px solid #ccc;background:#f7f7f7;cursor:pointer;}
-        .tab-btn.active {background:#1c7c54;color:#fff;}
-        .tab-content {display:none;}
-        .tab-content.active {display:block;}
-    </style>
+    <link rel="stylesheet" href="../CSS/Delivaryman_Home.css?v=1">
 </head>
 <body>
 
@@ -249,24 +75,14 @@ if ($isDeliveryman) {
             <img src="../Images/Logo.png" alt="Liberty Logo">
             <h2>সহজ যোগান</h2>
         </div>
+        <!-- Top Icons: শুধু ডেলিভারিম্যান নিজে দেখবে -->
         <?php if ($isDeliveryman): ?>
         <div class="icons">
             <button id="userIcon">
                 <img src="../Images/Sample_User_Icon.png" alt="User">
             </button>
-            <button id="notificationIcon" style="position:relative;">
+            <button id="notificationIcon">
                 <img src="../Images/notification.png" alt="Notifications">
-                <?php
-                // Unread count for notification history
-                $unread = 0;
-                if ($notifications) {
-                    foreach($notifications as $n) {
-                        if ($n['is_read']==0) $unread++;
-                    }
-                    if ($unread > 0) echo "<span class=\"notif-badge\">$unread</span>";
-                    $notifications->data_seek(0);
-                }
-                ?>
             </button>
         </div>
         <?php endif; ?>
@@ -276,118 +92,30 @@ if ($isDeliveryman) {
     <?php if ($isDeliveryman): ?>
     <div id="overlay" class="overlay"></div>
     <div id="userSidebar" class="sidebar">
-    <span id="closeUserSidebar" class="close-btn">&times;</span>
-    <h3>ডেলিভারিম্যান মেনু</h3>
-    <div class="sidebar-content">
-        <a href="../Html/Delivaryman_setting.php">সেটিংস</a>
-        <a href="../Html/Deliveryman_ChangePassword.php">পাসওয়ার্ড পরিবর্তন</a>
-        <a href="../Html/Deliveryman_MyDeliveries.php">আমার ডেলিভারি</a>
-        <a href="#" id="logoutLink">লগ আউট</a>
+        <span id="closeUserSidebar" class="close-btn">&times;</span>
+        <h3>ডেলিভারিম্যান মেনু</h3>
+        <div class="sidebar-content">
+            <a href="../Html/Delivaryman_setting.php">সেটিংস</a>
+            <a href="../Html/Deliveryman_ChangePassword.php">পাসওয়ার্ড পরিবর্তন</a>
+            <a href="#" id="logoutLink">লগ আউট</a>
+        </div>
     </div>
-</div>
-    <?php endif; ?>
-     
     <div id="notificationSidebar" class="sidebar">
         <span id="closeNotification" class="close-btn">&times;</span>
         <h3>নোটিফিকেশন</h3>
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="pending-orders">Pending Orders</button>
-            <button class="tab-btn" data-tab="accepted-orders">Accepted/History</button>
-        </div>
-        <!-- Pending Orders -->
-        <div class="tab-content active" id="pending-orders">
-        <?php if ($orders && $orders->num_rows > 0): ?>
-            <?php while($row = $orders->fetch_assoc()): ?>
-            <div class="notification-item">
-                <p>নতুন অর্ডার: #<?= htmlspecialchars($row['order_id']) ?></p>
-                <?php if(!empty($row['shop_name'])): ?>
-                    <small>দোকান: <b><?= htmlspecialchars($row['shop_name']) ?></b></small><br>
-                <?php endif; ?>
-                <?php if(!empty($row['shop_owner_address'])): ?>
-                    <small>দোকান মালিকের ঠিকানা: <?= htmlspecialchars($row['shop_owner_address']) ?></small><br>
-                <?php endif; ?>
-                <?php if(!empty($row['shop_owner_phone'])): ?>
-                    <small>দোকান মালিকের ফোন: <?= htmlspecialchars($row['shop_owner_phone']) ?></small><br>
-                <?php endif; ?>
-                <small>অর্ডার মূল্য: <?= htmlspecialchars($row['price'] * $row['quantity'] + $row['delivery_charge']) ?> টাকা</small><br>
-                <small>কাস্টমার: <?= htmlspecialchars($row['customer_name']) ?> (<?= htmlspecialchars($row['customer_phone']) ?>)</small><br>
-                <small>ঠিকানা: <?= htmlspecialchars($row['customer_address']) ?></small><br>
-                <?php if(!empty($row['customer_comment'])): ?>
-                    <small>কমেন্ট: <?= htmlspecialchars($row['customer_comment']) ?></small><br>
-                <?php endif; ?>
-                <?php if(!empty($row['payment_method'])): ?>
-                    <small>পেমেন্ট: 
-                        <?= $row['payment_method']=='bkash' ? 'bKash (TxID: '.htmlspecialchars($row['bkash_txid']).')' : 'Cash On Delivery' ?>
-                    </small><br>
-                <?php endif; ?>
-                <small><?= date('d M, H:i', strtotime($row['order_time'])) ?></small><br>
-                <form method="post" style="display:inline;">
-                    <input type="hidden" name="action" value="accept">
-                    <input type="hidden" name="oid" value="<?= $row['order_id'] ?>">
-                    <button type="submit" class="accept-btn">গ্রহণ করুন</button>
-                </form>
-                <form method="post" style="display:inline;">
-                    <input type="hidden" name="action" value="cancel_pending">
-                    <input type="hidden" name="oid" value="<?= $row['order_id'] ?>">
-                    <button type="submit" class="cancel-btn">বাতিল</button>
-                </form>
-            </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <p>নতুন কোনো অর্ডার নেই</p>
-        <?php endif; ?>
-        </div>
-        <!-- Accepted Orders / History -->
-        <div class="tab-content" id="accepted-orders">
-        <?php if ($notifications && $notifications->num_rows > 0): ?>
-            <?php while($row = $notifications->fetch_assoc()): ?>
-            <div class="notification-item<?= $row['is_read']==0 ? ' unread' : '' ?>">
-                <p><?= htmlspecialchars($row['message']) ?></p>
-                <?php if(!empty($row['shop_name'])): ?>
-                    <small>দোকান: <b><?= htmlspecialchars($row['shop_name']) ?></b></small><br>
-                <?php endif; ?>
-                <?php if(!empty($row['shop_owner_address'])): ?>
-                    <small>দোকান মালিকের ঠিকানা: <?= htmlspecialchars($row['shop_owner_address']) ?></small><br>
-                <?php endif; ?>
-                <?php if(!empty($row['shop_owner_phone'])): ?>
-                    <small>দোকান মালিকের ফোন: <?= htmlspecialchars($row['shop_owner_phone']) ?></small><br>
-                <?php endif; ?>
-                <?php if(isset($row['price']) && isset($row['quantity'])): ?>
-                    <small>অর্ডার মূল্য: <?= htmlspecialchars($row['price'] * $row['quantity'] + $row['delivery_charge']) ?> টাকা</small><br>
-                <?php endif; ?>
-                <?php if(!empty($row['customer_name'])): ?>
-                    <small>কাস্টমার: <?= htmlspecialchars($row['customer_name']) ?> (<?= htmlspecialchars($row['customer_phone']) ?>)</small><br>
-                    <small>ঠিকানা: <?= htmlspecialchars($row['customer_address']) ?></small><br>
-                <?php endif; ?>
-                <?php if(!empty($row['customer_comment'])): ?>
-                    <small>কমেন্ট: <?= htmlspecialchars($row['customer_comment']) ?></small><br>
-                <?php endif; ?>
-                <?php if(!empty($row['payment_method'])): ?>
-                    <small>পেমেন্ট: 
-                        <?= $row['payment_method']=='bkash' ? 'bKash (TxID: '.htmlspecialchars($row['bkash_txid']).')' : 'Cash On Delivery' ?>
-                    </small><br>
-                <?php endif; ?>
-                <small><?= date('d M, H:i', strtotime($row['created_at'])) ?></small><br>
-                <?php if ($row['accepted_by']): ?>
-                    <div class="accept-info">
-                        <b>Accepted By:</b>
-                        <?= htmlspecialchars($row['accepted_by_name']) ?> (<?= htmlspecialchars($row['accepted_by_phone']) ?>)<br>
-                        <b>Time:</b> <?= htmlspecialchars($row['accepted_at']) ?>
-                    </div>
-                    
-                <?php endif; ?>
-            </div>
-            <?php endwhile; ?>
-        <?php else: ?>
+        <div class="sidebar-content">
             <p>নতুন কোনো নোটিফিকেশন নেই</p>
-        <?php endif; ?>
         </div>
     </div>
+    <?php endif; ?>
 
     <main>
       <section class="deliveryman-banner-section">
         <div class="deliveryman-banner">
+          <!-- Background Image -->
           <img src="../Images/deliveryman.jpeg" alt="Deliveryman Background" class="banner-bg-img" />
+
+          <!-- Deliveryman Info Box -->
           <div class="deliveryman-info-box">
             <img 
               src="../uploads/<?php echo htmlspecialchars($deliverymanPic); ?>" 
@@ -398,11 +126,15 @@ if ($isDeliveryman) {
               <h2><?php echo htmlspecialchars($deliverymanName); ?></h2>
             </div>
           </div>
+
+          <!-- Top Right: কাস্টমার/ভিজিটর দেখলে রিপোর্ট বাটন -->
           <?php if (!$isDeliveryman): ?>
           <button class="report-btn" type="button" onclick="window.location.href='../Html/report.html'">
             রিপোর্ট করুন
           </button>
           <?php endif; ?>
+
+          <!-- Bottom Right: Review Button (সবাই দেখতে পাবে)-->
           <button class="review-toggle-btn" type="button">
             রিভিউ দেখুন
           </button>
@@ -413,6 +145,7 @@ if ($isDeliveryman) {
     <section class="review-section">
         <h2>রিভিউ</h2>
         <div class="review-list">
+            <!-- এখানে ডাটাবেজ থেকে রিভিউ ফেচ করে লুপ চালাতে পারো -->
             <div class="review-item">
                 <div class="review-author">জন ডো</div>
                 <div class="review-text">অসাধারণ সেবা! পণ্যটি দ্রুত পেয়েছি এবং গুণগত মান খুবই ভালো।</div>
@@ -426,6 +159,7 @@ if ($isDeliveryman) {
         </div>
     </section>
 
+    <!-- FOOTER SECTION -->
     <footer class="footer">
         <div class="footer-links">
             <div class="footer-column">
@@ -459,47 +193,5 @@ if ($isDeliveryman) {
     </footer>
 
     <script src="../java_script/DeliveryMan_home.js"></script>
-    <script>
-    // Tabs for sidebar
-    document.addEventListener("DOMContentLoaded", function(){
-        var tabs = document.querySelectorAll('.tab-btn');
-        var tabContents = document.querySelectorAll('.tab-content');
-        tabs.forEach(function(tab){
-            tab.onclick = function(){
-                tabs.forEach(t=>t.classList.remove('active'));
-                tabContents.forEach(c=>c.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
-            }
-        });
-        // Overlay sidebar
-        var overlay = document.getElementById('overlay');
-        var userSidebar = document.getElementById('userSidebar');
-        var notifSidebar = document.getElementById('notificationSidebar');
-        var userIcon = document.getElementById('userIcon');
-        var notifIcon = document.getElementById('notificationIcon');
-        if(userIcon) userIcon.onclick = function(){
-            userSidebar.style.display = 'block';
-            overlay.style.display = 'block';
-        };
-        if(notifIcon) notifIcon.onclick = function(){
-            notifSidebar.style.display = 'block';
-            overlay.style.display = 'block';
-        };
-        var closeBtns = document.querySelectorAll('.close-btn');
-        closeBtns.forEach(function(btn){
-            btn.onclick = function(){
-                userSidebar && (userSidebar.style.display = 'none');
-                notifSidebar && (notifSidebar.style.display = 'none');
-                overlay.style.display = 'none';
-            };
-        });
-        if(overlay) overlay.onclick = function(){
-            userSidebar && (userSidebar.style.display = 'none');
-            notifSidebar && (notifSidebar.style.display = 'none');
-            overlay.style.display = 'none';
-        };
-    });
-    </script>
 </body>
 </html>
