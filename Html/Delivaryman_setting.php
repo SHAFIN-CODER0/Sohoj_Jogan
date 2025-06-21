@@ -11,7 +11,7 @@ if (isset($_GET['reset']) && $_GET['reset'] === 'true') {
 
 // --- Login Check ---
 if (!isset($_SESSION['delivery_man_email'])) {
-    echo "<script>alert('আপনাকে প্রথমে লগইন করতে হবে!'); window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('আপনাকে প্রথমে লগইন করতে হবে!'); window.location.href='../Html/index.php';</script>";
     exit();
 }
 
@@ -45,13 +45,13 @@ if ($stmt = $conn->prepare($sql)) {
         $profilePic      = $row['delivery_man_image_path'];
         $encryptHash     = $row['encrypt_pass_hash'];     // Encryption password
     } else {
-        echo "<script>alert('ডেলিভারি ম্যান এর তথ্য পাওয়া যায়নি।'); window.location.href='../Html/index.html';</script>";
+        echo "<script>alert('ডেলিভারি ম্যান এর তথ্য পাওয়া যায়নি।'); window.location.href='../Html/index.php';</script>";
         exit();
     }
 
     $stmt->close();
 } else {
-    echo "<script>alert('ডাটাবেস ত্রুটি: তথ্য প্রস্তুত করতে ব্যর্থ।'); window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('ডাটাবেস ত্রুটি: তথ্য প্রস্তুত করতে ব্যর্থ।'); window.location.href='../Html/index.php';</script>";
     exit();
 }
 

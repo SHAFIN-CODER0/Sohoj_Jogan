@@ -4,7 +4,7 @@ include '../PHP/db_connect.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['customer_email'])) {
-    echo "<script>alert('You must log in first!'); window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('You must log in first!'); window.location.href='../Html/index.php';</script>";
     exit();
 }
 
@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $update_stmt->bind_param("si", $newPasswordHash, $customer_id);
             if ($update_stmt->execute()) {
                 // Success message and redirect to Customer_Home.html
-                echo "<script>alert('পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে।'); window.location.href='../Html/Customer_Home.html';</script>";
+                echo "<script>alert('পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে।'); window.location.href='../Html/Customer_Home.php';</script>";
                 exit(); // Ensure the script stops here
             } else {
                 $error = "পাসওয়ার্ড পরিবর্তনে সমস্যা হয়েছে।"; // Error updating the password

@@ -6,7 +6,7 @@ include '../PHP/db_connect.php';
 if (!isset($_SESSION['customer_email'])) {
     echo "<script>
         alert('You must log in first!');
-        window.location.href = '../Html/index.html';
+        window.location.href = '../Html/index.php';
     </script>";
     exit();
 }

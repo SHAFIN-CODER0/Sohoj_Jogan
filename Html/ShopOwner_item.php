@@ -4,7 +4,7 @@ include '../PHP/db_connect.php';
 
 // Check if the shop owner is logged in by email
 if (!isset($_SESSION['shop_owner_email'])) {
-    echo "<script>alert('You must log in first!'); window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('You must log in first!'); window.location.href='../Html/index.php';</script>";
     exit();
 }
 
@@ -15,7 +15,7 @@ $stmt->bind_param("s", $email);
 $stmt->execute();
 $stmt->bind_result($shop_owner_id);
 if (!$stmt->fetch()) {
-    echo "<script>alert('Shop owner not found!'); window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('Shop owner not found!'); window.location.href='../Html/index.php';</script>";
     exit();
 }
 $stmt->close();

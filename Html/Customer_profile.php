@@ -4,7 +4,7 @@ include '../PHP/db_connect.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['customer_email'])) {
-    echo "<script>alert('You must log in first!'); window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('You must log in first!'); window.location.href='../Html/index.php';</script>";
     exit();
 }
 
@@ -26,7 +26,7 @@ if ($result->num_rows > 0) {
     $customerEmail = $row['customer_email'];
     $profilePic = $row['profile_pic'];
 } else {
-    echo "<script>alert('User data not found!'); window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('User data not found!'); window.location.href='../Html/index.php';</script>";
     exit();
 }
 
@@ -116,6 +116,8 @@ $stmt->close();
     <div class="sidebar-content">
         <a href="../Html/Customer_Home.php" id="profileLink">হোম</a>
         <a href="../Html/Customer_settings.php" id="settingsLink">সেটিংস</a>
+         <a href="../Html/Deliveryman_MyDeliveries.php">আমার ডেলিভারি</a>
+
         <a href="#" id="logoutLink">লগ আউট</a>
     </div>
 </div>

@@ -75,7 +75,7 @@ function getLatLngFromAddress($address) {
     return false;
 }
 
-// Extract latitude/longitude from the address (show error if address is missing or incorrect)
+// ঠিকানাটি থেকে latitude/longitude বের করুন (address না থাকলে বা ভুল থাকলে error দেখান)
 if ($shop_address && strtolower($shop_address) !== ', , , ,') {
     $latlng = getLatLngFromAddress($shop_address);
     if ($latlng) {
@@ -98,7 +98,7 @@ $errorMessage = '';
 
 // ---- Main Order Handling (POST to this page) ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-// Collect POST data
+    // POST ডেটা সংগ্রহ
     $product_id = (int)$_POST['product_id'];
     $quantity = max(1, (int)$_POST['quantity']);
     $delivery = $_POST['delivery'] ?? '';
@@ -138,15 +138,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $showError = true;
         $errorMessage = "bKash Transaction ID দিন।";
     } else {
-// (1) Save to order table (including payment_method, bkash_txid)
+        // (১) অর্ডার টেবিলে সেভ করুন (payment_method, bkash_txid সহ)
      // Order Insert
 $sql = "INSERT INTO orders 
 (product_id, shop_owner_id, customer_id, quantity, delivery_method, customer_name, customer_address, customer_phone, customer_comment, distance, delivery_charge, order_time)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
 $stmt5 = $conn->prepare($sql);
 $stmt5->bind_param(
-    'iiiisssssid', // Use FLOAT if delivery_charge is float, use 'i' if it's int
-
+    'iiiisssssid', // delivery_charge যদি FLOAT হয়, যদি INT হয় তাহলে শেষটা 'i'
     $product_id, $shop_owner_id, $customer_id, $quantity,
     $delivery, $customer_name, $customer_address, $customer_phone, $customer_comment,
     $distance, $delivery_charge
@@ -163,8 +162,7 @@ if ($success) {
              VALUES (?, ?, ?, ?, ?, NOW())";
     $stmt6 = $conn->prepare($sql2);
     $stmt6->bind_param(
-        'issis', // If amount is int, otherwise 'd' if it's float/double
-
+        'issis', // amount যদি int হয়, যদি float/double হয় তাহলে 'd'
         $order_id, $payment_method, $bkash_txid, $amount, $payment_status
     );
     $stmt6->execute();
@@ -172,7 +170,7 @@ if ($success) {
     // ...
 }
 
-// (2) Reduce stock from the product table
+        // (২) product টেবিল থেকে stock কমান
         if ($success) {
             $update_sql = "UPDATE products SET stock = stock - ? WHERE product_id = ?";
             $update_stmt = $conn->prepare($update_sql);
@@ -180,7 +178,7 @@ if ($success) {
             $update_stmt->execute();
             $update_stmt->close();
 
-// (3) Deduct coins if free delivery is used via coins (if logged in, delivery == coin)
+            // (৩) কয়েন দিয়ে ফ্রি ডেলিভারি হলে কয়েন কেটে ফেলুন (if logged in, delivery == coin)
             if ($delivery === 'coin' && isset($_SESSION['customer_email'])) {
                 $update_coins_sql = "UPDATE customers SET customer_coins = customer_coins - ? WHERE customer_email = ?";
                 $update_coins_stmt = $conn->prepare($update_coins_sql);
@@ -195,6 +193,26 @@ if ($success) {
             $errorMessage = "❌ অর্ডার গ্রহণে ত্রুটি হয়েছে, আবার চেষ্টা করুন।";
         }
     }
+    if ($success) {
+    // ... stock কমানো, কয়েন কাটা ইত্যাদি ...
+
+    // (১) কাস্টমারকে notification দিন
+    $msg_customer = "আপনার অর্ডারটি গ্রহণ করা হয়েছে!";
+    $stmt_n1 = $conn->prepare("INSERT INTO notifications (user_id, user_type, order_id, message) VALUES (?, 'customer', ?, ?)");
+    $stmt_n1->bind_param('iis', $customer_id, $order_id, $msg_customer);
+    $stmt_n1->execute();
+    $stmt_n1->close();
+
+    // (২) Shop Owner কে notification দিন
+    $msg_shop = "নতুন অর্ডার এসেছে (Order ID: $order_id)। কাস্টমার: $customer_name";
+    $stmt_n2 = $conn->prepare("INSERT INTO notifications (user_id, user_type, order_id, message) VALUES (?, 'shop_owner', ?, ?)");
+    $stmt_n2->bind_param('iis', $shop_owner_id, $order_id, $msg_shop);
+    $stmt_n2->execute();
+    $stmt_n2->close();
+
+    $showSuccess = true;
+    $successMessage = "✅ অর্ডার সফলভাবে গ্রহণ করা হয়েছে! আপনি কিছুক্ষণের মধ্যে হোম পেজে চলে যাবেন...";
+}
 }
 ?>
 <!DOCTYPE html>
@@ -533,7 +551,7 @@ if ($success) {
 
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
-// Show TxID input if bKash is selected, hide it if COD is selected
+    // bKash select করলে TxID input দেখাবে, COD হলে লুকাবে
 document.getElementById('cod').addEventListener('change', function() {
     document.getElementById('bkash-info').style.display = 'none';
 });
@@ -541,7 +559,7 @@ document.getElementById('bkash').addEventListener('change', function() {
     document.getElementById('bkash-info').style.display = 'block';
 });
 window.onload = function() {
-// Correct display even after refresh
+    // রিফ্রেশ হলেও সঠিক display
     if(document.getElementById('bkash').checked) {
         document.getElementById('bkash-info').style.display = 'block';
     } else {
@@ -598,8 +616,8 @@ function findDistance() {
 
         // Leaflet distance calculation (meter)
         const distanceMeter = L.latLng(shopLat, shopLng).distanceTo([userLat, userLng]);
-        const distanceKm = distanceMeter / 1000; // Km
-        const baseCharge = Math.ceil(distanceKm) * 20; // 1 km = 20 coin/20 Taka
+        const distanceKm = distanceMeter / 1000; // কিমি
+        const baseCharge = Math.ceil(distanceKm) * 20; // ১ কিমি = ২০ কয়েন/২০ টাকা
 
         document.getElementById('distance-info').textContent = `দূরত্ব: ${toBengali(distanceKm.toFixed(2))} কিমি`;
         document.getElementById('delivery-charge-info').textContent = ` | ডেলিভারি চার্জ: ${toBengali(baseCharge)} টাকা/কয়েন`;
@@ -620,7 +638,7 @@ function updateDisplay() {
 
     const selected = document.querySelector('input[name="delivery"]:checked').value;
 
-// Coins required (delivery per kg/piece)
+    // কয়েন প্রয়োজন (ডেলিভারি per kg/piece)
     let coinNeeded = deliveryCharge * quantity;
 
     // If distance/charge not calculated yet, show notice
@@ -684,15 +702,15 @@ function confirmOrder() {
         return false;
     }
 
-// Whether distance/charge has been calculated from the address
+    // ঠিকানা থেকে distance/charge বের হয়েছে কিনা
     if (!deliveryCharge || !currentDistance) {
         alert("ঠিকানা দিয়ে দূরত্ব ও চার্জ দেখুন, তারপর অর্ডার করুন!");
         return false;
     }
-// Free delivery option using coins
 
+    // কয়েন দিয়ে ফ্রি ডেলিভারি অপশন
     const selected = document.querySelector('input[name="delivery"]:checked').value;
-// Coins required (delivery per kg/piece)
+    // কয়েন লাগবে (ডেলিভারি per kg/piece)
     let coinNeeded = deliveryCharge * quantity;
 
     if (selected === "coin") {
@@ -701,7 +719,7 @@ function confirmOrder() {
             return false;
         }
     }
-    // bKash  TxID 
+    // bKash হলে TxID লাগবে
     const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
     if (paymentMethod === 'bkash') {
         const txid = document.getElementById('bkash-txid').value.trim();

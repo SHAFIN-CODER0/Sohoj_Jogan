@@ -4,7 +4,7 @@ include '../PHP/db_connect.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['shop_owner_email'])) {
-    echo "<script>alert('প্রথমে লগইন করুন।'); window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('প্রথমে লগইন করুন।'); window.location.href='../Html/index.php';</script>";
     exit();
 }
 

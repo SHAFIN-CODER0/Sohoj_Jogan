@@ -51,7 +51,7 @@ $mail->Body = "আপনার এককালীন পাসকোড (OTP): <
 // ====== আগের ডেলিভারি কোড ======
 
 if (!isset($_SESSION['delivery_man_email'])) {
-    echo "<script>alert('You must log in first!');window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('You must log in first!');window.location.href='../Html/index.php';</script>";
     exit();
 }
 
@@ -64,7 +64,7 @@ $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
 if (!$result->num_rows) {
-    echo "<script>alert('ডেলিভারিম্যান পাওয়া যায়নি!');window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('ডেলিভারিম্যান পাওয়া যায়নি!');window.location.href='../Html/index.php';</script>";
     exit();
 }
 $row = $result->fetch_assoc();

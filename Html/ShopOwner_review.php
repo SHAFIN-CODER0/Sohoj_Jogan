@@ -22,7 +22,7 @@ if (isset($_SESSION['shop_owner_email']) && !isset($_GET['shop_owner_id'])) {
     if ($row = $result->fetch_assoc()) {
         $shopOwnerId = $row['shop_owner_id'];
     } else {
-        echo "<script>alert('Shop owner not found!'); window.location.href='../Html/index.html';</script>";
+        echo "<script>alert('Shop owner not found!'); window.location.href='../Html/index.php';</script>";
         exit();
     }
     $stmt->close();
@@ -30,7 +30,7 @@ if (isset($_SESSION['shop_owner_email']) && !isset($_GET['shop_owner_id'])) {
     // Visitor or customer viewing a shop's reviews
     $shopOwnerId = intval($_GET['shop_owner_id']);
 } else {
-    echo "<script>alert('Shop not found!'); window.location.href='../Html/index.html';</script>";
+    echo "<script>alert('Shop not found!'); window.location.href='../Html/index.php';</script>";
     exit();
 }
 

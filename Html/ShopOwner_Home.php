@@ -25,7 +25,7 @@ if (isset($_SESSION['shop_owner_email']) && !isset($_GET['id'])) {
     } else {
         echo "<script>
             alert('Shop owner data not found!');
-            window.location.href='../Html/index.html';
+            window.location.href='../Html/index.php';
         </script>";
         exit();
     }
