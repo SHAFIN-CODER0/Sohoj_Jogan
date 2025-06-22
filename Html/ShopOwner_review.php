@@ -137,6 +137,30 @@ function getStars($rating) {
     $star = str_repeat('★', $rating) . str_repeat('☆', 5-$rating);
     return $star;
 }
+
+// Notification fetch (shop owner)
+$shopOwnerNotifications = [];
+if ($isOwner && isset($shopOwnerId)) {
+    $notifSql = "
+       SELECT n.*, o.customer_name, o.customer_phone, pr.product_name, pr.price, o.quantity,
+       dm.delivery_man_name, dm.delivery_man_phone
+FROM notifications n
+LEFT JOIN orders o ON n.order_id = o.order_id
+LEFT JOIN products pr ON o.product_id = pr.product_id
+LEFT JOIN delivery_men dm ON n.accepted_by = dm.delivery_man_id
+WHERE n.user_id = ? AND n.user_type = 'shop_owner'
+ORDER BY n.created_at DESC
+LIMIT 30
+    ";
+    $stmt = $conn->prepare($notifSql);
+    $stmt->bind_param("i", $shopOwnerId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while($row = $result->fetch_assoc()) {
+        $shopOwnerNotifications[] = $row;
+    }
+    $stmt->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="bn">

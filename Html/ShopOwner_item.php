@@ -209,6 +209,7 @@ function isProductActive($date_added, $duration) {
 
 
 // Fetch warning for shop owner (if any)
+// Fetch warning for shop owner (if any)
 $warning_message = null;
 if (isset($shop_owner_id)) {
     $warnSql = "SELECT reason, warned_at FROM warned_users WHERE user_type='shop_owner' AND user_id=?";

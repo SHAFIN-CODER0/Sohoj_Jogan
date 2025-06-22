@@ -3,7 +3,7 @@ session_start();
 include '../PHP/db_connect.php';
 
 if (!isset($_SESSION['customer_id'])) {
-    echo "<script>alert('Please login first!'); window.location.href='../Html/login.php';</script>";
+    echo "<script>alert('Please login first!'); window.location.href='../Html/Index.php';</script>";
     exit();
 }
 
