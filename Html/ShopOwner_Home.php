@@ -4,11 +4,27 @@ include '../PHP/db_connect.php';
 
 $isOwner = false;
 $shopOwnerId = null;
+$isActive = 1; // Default value for shop status
+
+// --- SHOP ACTIVE/INACTIVE TOGGLE LOGIC ---
+// Only owner can toggle
+if (isset($_SESSION['shop_owner_email'], $_POST['toggle_active'])) {
+    $email = $_SESSION['shop_owner_email'];
+    $newStatus = ($_POST['active_status'] == '1') ? 1 : 0;
+    $sql = "UPDATE shop_owners SET is_active=? WHERE shop_owner_email=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("is", $newStatus, $email);
+    $stmt->execute();
+    $stmt->close();
+    header("Location: " . $_SERVER['REQUEST_URI']);
+    exit();
+}
 
 // মালিক নিজে লগইন করলে (session আছে, URL-এ id নাই)
 if (isset($_SESSION['shop_owner_email']) && !isset($_GET['id'])) {
     $email = $_SESSION['shop_owner_email'];
-    $sql = "SELECT shop_owner_id, shop_owner_name, shop_name, shop_image_path, shop_owner_image_path FROM shop_owners WHERE shop_owner_email = ?";
+    // !!! এখানে is_active যোগ করো !!!
+    $sql = "SELECT shop_owner_id, shop_owner_name, shop_name, shop_image_path, shop_owner_image_path, is_active FROM shop_owners WHERE shop_owner_email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -21,7 +37,8 @@ if (isset($_SESSION['shop_owner_email']) && !isset($_GET['id'])) {
         $shopImagePath = $row['shop_image_path'];
         $shopOwnerPic = $row['shop_owner_image_path'];
         $isOwner = true;
-          $_SESSION['shop_owner_id'] = $shopOwnerId;
+        $_SESSION['shop_owner_id'] = $shopOwnerId;
+        $isActive = $row['is_active']; // এখানে status আনো
     } else {
         echo "<script>
             alert('Shop owner data not found!');
@@ -34,7 +51,8 @@ if (isset($_SESSION['shop_owner_email']) && !isset($_GET['id'])) {
 // কাস্টমার বা ভিজিটর URL দিয়ে এলে (?id=)
 else if (isset($_GET['id'])) {
     $shopOwnerId = intval($_GET['id']);
-    $sql = "SELECT shop_owner_id, shop_owner_name, shop_name, shop_image_path, shop_owner_image_path FROM shop_owners WHERE shop_owner_id = ?";
+    // !!! এখানে is_active যোগ করো !!!
+    $sql = "SELECT shop_owner_id, shop_owner_name, shop_name, shop_image_path, shop_owner_image_path, is_active FROM shop_owners WHERE shop_owner_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $shopOwnerId);
     $stmt->execute();
@@ -45,6 +63,7 @@ else if (isset($_GET['id'])) {
         $shopName = $row['shop_name'];
         $shopImagePath = $row['shop_image_path'];
         $shopOwnerPic = $row['shop_owner_image_path'];
+        $isActive = $row['is_active']; // এখানে status আনো
     } else {
         echo "<script>
             alert('Shop not found!');
@@ -192,9 +211,47 @@ if (isset($_POST['toggle_love'], $_POST['product_id']) && isset($_SESSION['custo
     exit();
 }
 
-// Only now, after ALL DB work, close the connection ONCE:
-$conn->close();
 
+// Notification fetch (shop owner)
+$shopOwnerNotifications = [];
+if ($isOwner && isset($shopOwnerId)) {
+    $notifSql = "
+       SELECT n.*, o.customer_name, o.customer_phone, pr.product_name, pr.price, o.quantity,
+       dm.delivery_man_name, dm.delivery_man_phone
+FROM notifications n
+LEFT JOIN orders o ON n.order_id = o.order_id
+LEFT JOIN products pr ON o.product_id = pr.product_id
+LEFT JOIN delivery_men dm ON n.accepted_by = dm.delivery_man_id
+WHERE n.user_id = ? AND n.user_type = 'shop_owner'
+ORDER BY n.created_at DESC
+LIMIT 30
+    ";
+    $stmt = $conn->prepare($notifSql);
+    $stmt->bind_param("i", $shopOwnerId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while($row = $result->fetch_assoc()) {
+        $shopOwnerNotifications[] = $row;
+    }
+    $stmt->close();
+}
+
+// Fetch warning for shop owner (if any)
+$warning_message = null;
+if (isset($shopOwnerId)) {
+    $warnSql = "SELECT reason, warned_at FROM warned_users WHERE user_type='shop_owner' AND user_id=?";
+    $warnStmt = $conn->prepare($warnSql);
+    $warnStmt->bind_param("i", $shopOwnerId);
+    $warnStmt->execute();
+    $warnStmt->bind_result($reason, $warned_at);
+    if ($warnStmt->fetch()) {
+        $warning_message = [
+            'reason' => $reason,
+            'warned_at' => $warned_at
+        ];
+    }
+    $warnStmt->close();
+}
 ?>
 
 <!DOCTYPE html>
@@ -247,42 +304,124 @@ $conn->close();
 <?php endif; ?>
     </header>
 
-    <!-- Only show sidebar if owner -->
     <?php if ($isOwner): ?>
-    <!-- OVERLAY (for background when sidebar is open) -->
-    <div id="overlay" class="overlay"></div>
-    <!-- User Sidebar -->
-    <div id="userSidebar" class="sidebar">
-        <span id="closeUserSidebar" class="close-btn">&times;</span>
-        <h3>ব্যবহারকারী মেনু</h3>
-        <<div class="sidebar-content">
-    <a href="../Html/ShopOwner_item.php" id="profileLink">নতুন সংগ্রহ</a>
-    <a href="../Html/ShopOwner_settings.php" id="settingsLink">সেটিংস</a>
-    <a href="../Html/ShopOwner_settings_password.php" id="changePasswordLink">পাসওয়ার্ড পরিবর্তন</a>
-    <a href="../Html/Histrory.php?shop_owner_id=<?= urlencode($_SESSION['shop_owner_id']) ?>">লাইব্রেরি</a>
-    <a href="#" id="logoutLink">লগ আউট</a>
+<!-- OVERLAY (for background when sidebar is open) -->
+<div id="overlay" class="overlay"></div>
+<!-- User Sidebar -->
+<div id="userSidebar" class="sidebar">
+    <span id="closeUserSidebar" class="close-btn">&times;</span>
+    <h3>ব্যবহারকারী মেনু</h3>
+    <div class="sidebar-content">
+        <a href="../Html/ShopOwner_item.php" id="profileLink">নতুন সংগ্রহ</a>
+        <a href="../Html/ShopOwner_settings.php" id="settingsLink">সেটিংস</a>
+        <a href="../Html/ShopOwner_settings_password.php" id="changePasswordLink">পাসওয়ার্ড পরিবর্তন</a>
+        <a href="../Html/Histrory.php?shop_owner_id=<?= urlencode($_SESSION['shop_owner_id']) ?>">লাইব্রেরি</a>
+
+        <!-- Shop Active/Inactive Toggle Button -->
+        <form method="post" style="margin: 16px 0; text-align:left;">
+            <input type="hidden" name="active_status" value="<?php echo $isActive ? '0' : '1'; ?>">
+            <button type="submit" name="toggle_active" class="active-toggle-btn"
+                style="display:flex;align-items:center;background:<?php echo $isActive ? '#36e77a' : '#f66'; ?>;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:1rem;cursor:pointer;">
+                <?php if ($isActive): ?>
+                    <img src="../Images/Closing-hour.png" alt="Shop Open" style="height:20px;margin-right:8px;">
+                    দোকান চালু <span style="margin-left:8px;font-size:0.95em;opacity:0.7;">(বন্ধ করতে ক্লিক করুন)</span>
+                <?php else: ?>
+                    <img src="../Images/opening-hours.png" alt="Shop Closed" style="height:20px;margin-right:8px;">
+                    দোকান বন্ধ <span style="margin-left:8px;font-size:0.95em;opacity:0.7;">(চালু করতে ক্লিক করুন)</span>
+                <?php endif; ?>
+            </button>
+        </form>
+
+        <a href="#" id="logoutLink">লগ আউট</a>
+    </div>
 </div>
-    </div>
-    <?php endif; ?>
+<?php endif; ?>
 
-    <!-- Notification Sidebar (both can see, you can restrict if you want) -->
-    <div id="notificationSidebar" class="sidebar">
-        <span id="closeNotification" class="close-btn">&times;</span>
-        <h3>নোটিফিকেশন</h3>
-        <div class="sidebar-content">
+  <div id="notificationSidebar" class="sidebar">
+    <span id="closeNotification" class="close-btn">&times;</span>
+    <h3>নোটিফিকেশন</h3>
+    <div class="sidebar-content" style="max-height: 85%; overflow-y: auto;">
+        <?php if ($warning_message): ?>
+            <div style="background:#fff3cd;color:#856404;padding:12px 16px;border-radius:8px;margin-bottom:11px;border:1px solid #ffeeba;font-size:1.02em;">
+                <b>⚠️ সতর্কতা / Warning!</b><br>
+                <?= nl2br(htmlspecialchars($warning_message['reason'])) ?><br>
+                <span style="font-size:0.93em;color:#b28b00;">তারিখ: <?= htmlspecialchars(date('d M Y, h:i A', strtotime($warning_message['warned_at']))) ?></span>
+            </div>
+        <?php endif; ?>
+
+        <?php if (empty($shopOwnerNotifications)): ?>
             <p>নতুন কোনো নোটিফিকেশন নেই</p>
-        </div>
+        <?php else: ?>
+            <ul style="padding-left:0;">
+                <?php foreach ($shopOwnerNotifications as $notif): ?>
+                    <li style="
+                        margin-bottom:14px; 
+                        border-bottom:1px solid #eee; 
+                        padding-bottom:10px; 
+                        list-style:none;
+                        <?= $notif['is_read']==0 ? 'font-weight:bold;background:#fffbe6;' : '' ?>
+                    ">
+                        <div>
+                            <b>Order ID:</b> <?= htmlspecialchars($notif['order_id']) ?>
+                        </div>
+                        <?php if (!empty($notif['customer_name'])): ?>
+                            <div>
+                                <b>কাস্টমার:</b> <?= htmlspecialchars($notif['customer_name']) ?> 
+                                (<?= htmlspecialchars($notif['customer_phone']) ?>)
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($notif['product_name'])): ?>
+                            <div>
+                                <b>পণ্য:</b> <?= htmlspecialchars($notif['product_name']) ?> × <?= (int)$notif['quantity'] ?>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($notif['price'])): ?>
+                            <div>
+                                <b>অর্ডার মূল্য:</b> <?= htmlspecialchars($notif['price'] * $notif['quantity']) ?> টাকা
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($notif['accepted_by']): ?>
+                            <div style="color:green;">
+                                <b>ডেলিভারি ম্যান:</b>
+                                <a href="../Html/DeliveryMan_Home.php?id=<?= urlencode($notif['accepted_by']) ?>" style="color:green;text-decoration:underline;">
+                                    <?= htmlspecialchars($notif['delivery_man_name']) ?>
+                                </a>
+                                (<?= htmlspecialchars($notif['delivery_man_phone']) ?>)
+                            </div>
+                            <div>
+                                <b>Accepted At:</b> <?= htmlspecialchars($notif['accepted_at']) ?>
+                            </div>
+                        <?php else: ?>
+                            <div style="color:#888;">এখনো কোনো ডেলিভারি ম্যান এক্সেপ্ট করেনি</div>
+                        <?php endif; ?>
+                        <div style="color:#888; font-size:0.9em;">
+                            <?= date('d M, h:i A', strtotime($notif['created_at'])) ?>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
     </div>
-    <!-- Messenger Sidebar (both can see, you can restrict if you want) -->
-    <div id="messengerSidebar" class="sidebar">
-        <span id="closeMessenger" class="close-btn">&times;</span>
-        <h3>মেসেজ</h3>
-        <div class="sidebar-content">
-            <p>কোনো নতুন মেসেজ নেই</p>
-        </div>
-    </div>
-
+</div>
+<style>
+    .sidebar-close-icon {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+      transition: color 0.3s ease, transform 0.3s ease;
+      margin-top: 170px;
+    }
+    .sidebar-close-icon:hover {
+      color: #d00;
+      transform: scale(1.2);
+    }
+    </style>
  <main>
+    
   <section class="shop-banner-section">
     <div class="shop-banner">
       <img src="../uploads/<?php echo htmlspecialchars($shopImagePath); ?>" alt="Shop Background Image" />
@@ -292,8 +431,47 @@ $conn->close();
       </div>
 
   <div class="owner-info">
-  <img src="../uploads/<?php echo htmlspecialchars($shopOwnerPic); ?>" alt="Shop Owner Image" />
-
+  <div class="owner-image-wrapper" style="position: relative; display: inline-block;">
+    <img src="../uploads/<?php echo htmlspecialchars($shopOwnerPic); ?>" alt="Shop Owner Image" style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+    <?php if ($isActive): ?>
+      <!-- Active: Show green dot -->
+      <span class="active-indicator" style="
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        width: 20px;
+        height: 20px;
+        background: #39e273;
+        border: 3px solid #fff;
+        border-radius: 50%;
+        display: block;
+        box-shadow: 0 0 8px #39e273, 0 0 2px #fff;">
+        
+      </span>
+    <?php endif; ?>
+  </div>
+<style>.owner-image-wrapper {
+  position: relative;
+  display: inline-block;
+}
+.owner-image-wrapper img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.active-indicator {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  background: #39e273;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  display: block;
+  box-shadow: 0 0 8px #39e273, 0 0 2px #fff;
+}</style>
   <div class="owner-name">
     <h3><?php echo htmlspecialchars($shopOwnerName); ?></h3>
   </div>
@@ -301,6 +479,8 @@ $conn->close();
   <div class="follower-count" id="followerCount">
     ❤️ <span id="followerNumber"><?php echo $followerCount; ?></span> জন অনুসরণকারী
   </div>
+
+ 
 
   <?php if (!$isOwner): ?>
     <button class="messenger-btn" title="মেসেজ পাঠান">
@@ -355,7 +535,16 @@ $conn->close();
 }
 .follow-btn:hover {
   background: #ffebee;
-}</style>
+}
+.active-toggle-btn {
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.active-toggle-btn:hover {
+  filter: brightness(0.9);
+}
+</style> 
 
       <!-- Product Search: Only for visitors/customers -->
       <?php if (!$isOwner): ?>
@@ -391,6 +580,83 @@ $conn->close();
     </div> <!-- End of .shop-banner -->
   </section>
 </main>
+<?php if (!$isActive): ?>
+  <?php if ($isOwner): ?>
+    <div id="shopOwnerClosedModal" class="shop-closed-popup-overlay">
+      <div class="shop-closed-popup-content">
+        <span class="shop-closed-popup-close" onclick="document.getElementById('shopOwnerClosedModal').style.display='none'">&times;</span>
+        <div style="color:#ce9100;font-weight:bold;font-size:1.15em;margin-bottom:10px;">
+          ⚠️ আপনার দোকানটি বর্তমানে বন্ধ
+        </div>
+        <form method="post" style="margin:0;">
+          <input type="hidden" name="active_status" value="1">
+          <button type="submit" name="toggle_active" class="active-toggle-btn"
+            style="background:#36e77a;color:#fff;border:none;border-radius:8px;padding:9px 23px;cursor:pointer;font-size:1.07em;">
+            <img src="../Images/opening-hours.png" alt="Shop Open" style="height:19px;vertical-align:middle;margin-right:7px;">
+            এখন চালু করুন
+          </button>
+        </form>
+      </div>
+    </div>
+  <?php else: ?>
+    <div id="shopClosedModal" class="shop-closed-popup-overlay">
+      <div class="shop-closed-popup-content">
+        <span class="shop-closed-popup-close" onclick="document.getElementById('shopClosedModal').style.display='none'">&times;</span>
+        <div style="color:#d00;font-weight:bold;font-size:1.2em;">
+          🚫 এই মুহূর্তে দোকানটি বন্ধ
+        </div>
+        <div style="margin:12px 0 0 0; color:#555;font-size:1em;">
+          আমরা খুব শীঘ্রই আবার চালু করব, দয়া করে অপেক্ষা করুন।
+        </div>
+      </div>
+    </div>
+  <?php endif; ?>
+  <style>
+    .shop-closed-popup-overlay {
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .shop-closed-popup-content {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px 36px 24px 36px;
+      box-shadow: 0 4px 28px #0002;
+      text-align: center;
+      min-width: 320px;
+      position: relative;
+      animation: popIn 0.27s cubic-bezier(.7,-0.3,.7,1.6);
+    }
+    .shop-closed-popup-close {
+      position: absolute; top: 10px; right: 18px;
+      font-size: 1.7em; color: #888;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 1;
+    }
+    .shop-closed-popup-close:hover {
+      color: #c00;
+    }
+    @keyframes popIn {
+      0% {transform: scale(0.7); opacity:0;}
+      100% {transform: scale(1); opacity:1;}
+    }
+    .active-toggle-btn:hover {
+      filter: brightness(0.92);
+    }
+  </style>
+  <script>
+    // Auto-hide for customer modal (not for owner)
+    setTimeout(function(){
+      var modal = document.getElementById('shopClosedModal');
+      if(modal) modal.style.display = 'none';
+    }, 3000);
+  </script>
+<?php endif; ?>
+
+
 
 <section class="product-display-section">
   <h2>

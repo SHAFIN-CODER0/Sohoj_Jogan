@@ -71,15 +71,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $phone     = $_POST['phone'];
         $email     = $_POST['email'];
 
-        $sms_message = "প্রিয় $name, আপনাকে সতর্ক করা হলো। পরবর্তীতে এমন কিছু করলে চিরতরে ব্যান হতে পারেন।";
+$sms_message = "প্রিয় $name, আপনার কার্যকলাপের জন্য আপনাকে সতর্ক করা হলো। ভবিষ্যতে একই ধরনের কাজ পুনরাবৃত্তি হলে স্থায়ী ব্যান করা হতে পারে।
+আপনার যদি কোনো প্রশ্ন বা অভিযোগ থাকে, দয়া করে আমাদের সাথে যোগাযোগ করুন: sohojjogan@gmail.com";
 
         $stmt = $conn->prepare("INSERT INTO warned_users (user_type, user_id, name, phone, email, reason) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("sissss", $user_type, $user_id, $name, $phone, $email, $sms_message);
         if ($stmt->execute()) {
-            echo "<script>alert('Warning saved!');window.history.back();</script>";
+            echo "<script>alert('সতর্কতা সংরক্ষিত হয়েছে!');window.history.back();</script>";
             exit;
         } else {
-            echo "<script>alert('Warning failed to save!');window.history.back();</script>";
+            echo "<script>alert('সতর্কতা সংরক্ষণ ব্যর্থ হয়েছে!');window.history.back();</script>";
             exit;
         }
     }

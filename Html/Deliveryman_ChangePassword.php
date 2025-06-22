@@ -85,6 +85,23 @@ if (!empty($deliverymanId)) {
     }
     $notif_stmt->close();
 }
+// Fetch warning for this delivery man (if any)
+$warning_message = null;
+if (isset($_SESSION['delivery_man_id'])) {
+    $deliveryManId = $_SESSION['delivery_man_id'];
+    $warnSql = "SELECT reason, warned_at FROM warned_users WHERE user_type='delivery_man' AND user_id=?";
+    $warnStmt = $conn->prepare($warnSql);
+    $warnStmt->bind_param("i", $deliveryManId);
+    $warnStmt->execute();
+    $warnStmt->bind_result($reason, $warned_at);
+    if ($warnStmt->fetch()) {
+        $warning_message = [
+            'reason' => $reason,
+            'warned_at' => $warned_at
+        ];
+    }
+    $warnStmt->close();
+}
 ?>
 
 <!DOCTYPE html>
@@ -141,60 +158,70 @@ if (!empty($deliverymanId)) {
      <a href="#" id="logoutLink">লগ আউট</a>
     </div>
 </div>
+<div id="notificationSidebar" class="sidebar">
+    <span id="closeNotification" class="close-btn">&times;</span>
+    <h3>নোটিফিকেশন</h3>
 
- <div id="notificationSidebar" class="sidebar">
-        <span id="closeNotification" class="close-btn">&times;</span>
-        <h3>নোটিফিকেশন</h3>
+    <!-- Show warning message if exists -->
+    <?php if (isset($warning_message) && $warning_message): ?>
+        <div style="background:#fff3cd;color:#856404;padding:12px 16px;border-radius:8px;margin-bottom:11px;border:1px solid #ffeeba;font-size:1.02em;">
+            <b>⚠️ সতর্কতা / Warning!</b><br>
+            <?= nl2br(htmlspecialchars($warning_message['reason'])) ?><br>
+            <span style="font-size:0.93em;color:#b28b00;">
+                তারিখ: <?= htmlspecialchars(date('d M Y, h:i A', strtotime($warning_message['warned_at']))) ?>
+            </span>
+        </div>
+    <?php endif; ?>
 
-
-
+    <div class="sidebar-content">
         <!-- Accepted Orders / History Tab -->
         <div class="tab-content active" id="accepted-orders">
             <?php if (!empty($notifications)): ?>
-                
                 <?php foreach ($notifications as $row): ?>
-                <div class="notification-item<?= $row['is_read']==0 ? ' unread' : '' ?>">
-                    <p><?= htmlspecialchars($row['message']) ?></p>
-                    <?php if(!empty($row['shop_name'])): ?>
-                        <small>দোকান: <b><?= htmlspecialchars($row['shop_name']) ?></b></small><br>
-                    <?php endif; ?>
-                    <?php if(!empty($row['shop_owner_address'])): ?>
-                        <small>দোকান মালিকের ঠিকানা: <?= htmlspecialchars($row['shop_owner_address']) ?></small><br>
-                    <?php endif; ?>
-                    <?php if(!empty($row['shop_owner_phone'])): ?>
-                        <small>দোকান মালিকের ফোন: <?= htmlspecialchars($row['shop_owner_phone']) ?></small><br>
-                    <?php endif; ?>
-                    <?php if(isset($row['price']) && isset($row['quantity'])): ?>
-                        <small>অর্ডার মূল্য: <?= htmlspecialchars($row['price'] * $row['quantity'] + $row['delivery_charge']) ?> টাকা</small><br>
-                    <?php endif; ?>
-                    <?php if(!empty($row['customer_name'])): ?>
-                        <small>কাস্টমার: <?= htmlspecialchars($row['customer_name']) ?> (<?= htmlspecialchars($row['customer_phone']) ?>)</small><br>
-                        <small>ঠিকানা: <?= htmlspecialchars($row['customer_address']) ?></small><br>
-                    <?php endif; ?>
-                    <?php if(!empty($row['customer_comment'])): ?>
-                        <small>কমেন্ট: <?= htmlspecialchars($row['customer_comment']) ?></small><br>
-                    <?php endif; ?>
-                    <?php if(!empty($row['payment_method'])): ?>
-                        <small>পেমেন্ট: 
-                            <?= $row['payment_method']=='bkash' ? 'bKash (TxID: '.htmlspecialchars($row['bkash_txid']).')' : 'Cash On Delivery' ?>
-                        </small><br>
-                    <?php endif; ?>
-                    <small><?= date('d M, H:i', strtotime($row['created_at'])) ?></small><br>
-                    <?php if (!empty($row['accepted_by'])): ?>
-                        <div class="accept-info">
-                            <b>Accepted By:</b>
-                            <?= htmlspecialchars($row['accepted_by_name']) ?? '' ?> (<?= htmlspecialchars($row['accepted_by_phone']) ?? '' ?>)<br>
-                            <b>Time:</b> <?= htmlspecialchars($row['accepted_at']) ?? '' ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
+                    <div class="notification-item<?= (isset($row['is_read']) && $row['is_read']==0) ? ' unread' : '' ?>">
+                        <p><?= htmlspecialchars($row['message'] ?? '') ?></p>
+                        <?php if(!empty($row['shop_name'])): ?>
+                            <small>দোকান: <b><?= htmlspecialchars($row['shop_name']) ?></b></small><br>
+                        <?php endif; ?>
+                        <?php if(!empty($row['shop_owner_address'])): ?>
+                            <small>দোকান মালিকের ঠিকানা: <?= htmlspecialchars($row['shop_owner_address']) ?></small><br>
+                        <?php endif; ?>
+                        <?php if(!empty($row['shop_owner_phone'])): ?>
+                            <small>দোকান মালিকের ফোন: <?= htmlspecialchars($row['shop_owner_phone']) ?></small><br>
+                        <?php endif; ?>
+                        <?php if(isset($row['price']) && isset($row['quantity'])): ?>
+                            <small>অর্ডার মূল্য: <?= htmlspecialchars($row['price'] * $row['quantity'] + ($row['delivery_charge'] ?? 0)) ?> টাকা</small><br>
+                        <?php endif; ?>
+                        <?php if(!empty($row['customer_name'])): ?>
+                            <small>কাস্টমার: <?= htmlspecialchars($row['customer_name']) ?> (<?= htmlspecialchars($row['customer_phone']) ?>)</small><br>
+                            <small>ঠিকানা: <?= htmlspecialchars($row['customer_address']) ?></small><br>
+                        <?php endif; ?>
+                        <?php if(!empty($row['customer_comment'])): ?>
+                            <small>কমেন্ট: <?= htmlspecialchars($row['customer_comment']) ?></small><br>
+                        <?php endif; ?>
+                        <?php if(!empty($row['payment_method'])): ?>
+                            <small>পেমেন্ট: 
+                                <?= $row['payment_method']=='bkash' ? 'bKash (TxID: '.htmlspecialchars($row['bkash_txid'] ?? '').')' : 'Cash On Delivery' ?>
+                            </small><br>
+                        <?php endif; ?>
+                        <?php if(!empty($row['created_at'])): ?>
+                            <small><?= date('d M, H:i', strtotime($row['created_at'])) ?></small><br>
+                        <?php endif; ?>
+                        <?php if (!empty($row['accepted_by'])): ?>
+                            <div class="accept-info">
+                                <b>Accepted By:</b>
+                                <?= htmlspecialchars($row['accepted_by_name'] ?? '') ?> (<?= htmlspecialchars($row['accepted_by_phone'] ?? '') ?>)<br>
+                                <b>Time:</b> <?= htmlspecialchars($row['accepted_at'] ?? '') ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 <?php endforeach; ?>
             <?php else: ?>
                 <p>নতুন কোনো নোটিফিকেশন নেই</p>
             <?php endif; ?>
         </div>
     </div>
-
+</div>
     <style>/* Center the "Mark all as read" button above the tab content */
 #notificationSidebar form[method="post"] {
     display: flex;

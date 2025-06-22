@@ -148,12 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <button id="userIcon">
                 <img src="../Images/Sample_User_Icon.png" alt="User">
             </button>
-            <button id="notificationIcon">
-                <img src="../Images/notification.png" alt="Notifications">
-            </button>
-            <button id="messengerBtn">
-                <img src="../Images/messenger-icon.png" alt="Messenger">
-            </button>
+          
         </div>
     </header>
    
@@ -161,8 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div id="overlay" class="overlay"></div>
 <!-- User Sidebar -->
 <div id="userSidebar" class="sidebar">
-    <span id="closeUserSidebar" class="close-btn">&times;</span>
-    <h3>ব্যবহারকারী মেনু</h3> <!-- Changed 'User Menu' to 'ব্যবহারকারী মেনু' -->
+    <br>
+<span id="closeUserSidebar" class="sidebar-close-icon">&times;</span>
+<h3 style="text-align:center;">ব্যবহারকারী মেনু</h3>
     <div class="sidebar-content">
         <a href="../Html/ShopOwner_item.html" id="profileLink">নতুন সংগ্রহ</a> <!-- 'New Collection' in Bangla -->
         <a href="../Html/ShopOwner_Home.php" id="settingsLink">হোম</a> <!-- 'Settings' in Bangla -->
@@ -171,24 +167,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <a href="" id="logoutLink">লগ আউট</a>
     </div>
 </div>
-
-<!-- Notification Sidebar -->
-<div id="notificationSidebar" class="sidebar">
-    <span id="closeNotification" class="close-btn">&times;</span>
-    <h3>নোটিফিকেশন</h3> <!-- Changed 'Notifications' to 'নোটিফিকেশন' -->
-    <div class="sidebar-content">
-        <p>নতুন কোনো নোটিফিকেশন নেই</p> <!-- 'No new notifications' in Bangla -->
-    </div>
-</div>
-
-<!-- Messenger Sidebar -->
-<div id="messengerSidebar" class="sidebar">
-    <span id="closeMessenger" class="close-btn">&times;</span> <!-- Ensure this ID matches the JavaScript -->
-    <h3>মেসেজ</h3> <!-- 'Messages' to 'মেসেজ' -->
-    <div class="sidebar-content">
-        <p>কোনো নতুন মেসেজ নেই</p> <!-- 'No new messages' in Bangla -->
-    </div>
-</div>
+<style>
+    .sidebar-close-icon {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+      transition: color 0.3s ease, transform 0.3s ease;
+      margin-top: 140px;
+    }
+    .sidebar-close-icon:hover {
+      color: #d00;
+      transform: scale(1.2);
+    }
+    </style>
 
 
 

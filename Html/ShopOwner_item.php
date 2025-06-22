@@ -20,8 +20,32 @@ if (!$stmt->fetch()) {
 }
 $stmt->close();
 
+// ---- NOTIFICATION LOGIC ----
+$isOwner = true; // Always true on this page
+$shopOwnerNotifications = [];
+if ($isOwner && isset($shop_owner_id)) {
+    $notifSql = "
+       SELECT n.*, o.customer_name, o.customer_phone, pr.product_name, pr.price, o.quantity,
+       dm.delivery_man_name, dm.delivery_man_phone
+FROM notifications n
+LEFT JOIN orders o ON n.order_id = o.order_id
+LEFT JOIN products pr ON o.product_id = pr.product_id
+LEFT JOIN delivery_men dm ON n.accepted_by = dm.delivery_man_id
+WHERE n.user_id = ? AND n.user_type = 'shop_owner'
+ORDER BY n.created_at DESC
+LIMIT 30
+    ";
+    $stmt = $conn->prepare($notifSql);
+    $stmt->bind_param("i", $shop_owner_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while($row = $result->fetch_assoc()) {
+        $shopOwnerNotifications[] = $row;
+    }
+    $stmt->close();
+}
+
 // ---- AUTO DELETE EXPIRED PRODUCTS START ----
-// Define expiry calculation function first
 function getProductExpiryDate($date_added, $duration) {
     $start = new DateTime($date_added);
     if ($duration === "1") $days = 1;
@@ -49,6 +73,7 @@ while ($row = $result->fetch_assoc()) {
 $stmt->close();
 if (!empty($expired_ids)) {
     $ids_str = implode(",", array_map('intval', $expired_ids));
+    // If your orders table has ON DELETE CASCADE, just delete from products
     $conn->query("DELETE FROM products WHERE product_id IN ($ids_str) AND shop_owner_id = $shop_owner_id");
 }
 // ---- AUTO DELETE EXPIRED PRODUCTS END ----
@@ -65,6 +90,7 @@ if (isset($_POST['delete_product_id'])) {
 }
 
 // Handle product edit
+$message = "";
 if (isset($_POST['edit_product_id'])) {
     $edit_id = intval($_POST['edit_product_id']);
     $edit_name = trim($_POST['edit_product_name']);
@@ -83,7 +109,6 @@ if (isset($_POST['edit_product_id'])) {
 }
 
 // Handle product add
-$message = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['delete_product_id']) && !isset($_POST['edit_product_id'])) {
     $duration = trim($_POST['duration']);
     $advertise_option = isset($_POST['advertise_option']) ? $_POST['advertise_option'] : "";
@@ -98,8 +123,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST['delete_product_id']) 
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0777, true);
     }
-
-    $message = "";
 
     for ($i = 0; $i < count($product_names); $i++) {
         $product_name = isset($product_names[$i]) ? trim($product_names[$i]) : "";
@@ -182,9 +205,26 @@ function isProductActive($date_added, $duration) {
     $end = clone $start;
     $end->modify("+$days days");
     return $now < $end;
-}  
+}
+
+
+// Fetch warning for shop owner (if any)
+$warning_message = null;
+if (isset($shop_owner_id)) {
+    $warnSql = "SELECT reason, warned_at FROM warned_users WHERE user_type='shop_owner' AND user_id=?";
+    $warnStmt = $conn->prepare($warnSql);
+    $warnStmt->bind_param("i", $shop_owner_id);
+    $warnStmt->execute();
+    $warnStmt->bind_result($reason, $warned_at);
+    if ($warnStmt->fetch()) {
+        $warning_message = [
+            'reason' => $reason,
+            'warned_at' => $warned_at
+        ];
+    }
+    $warnStmt->close();
+}
 ?>
-<!-- rest of your HTML (unchanged) -->
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -219,13 +259,72 @@ function isProductActive($date_added, $duration) {
                 <a href="" id="logoutLink">লগ আউট</a>
             </div>
         </div>
-        <div id="notificationSidebar" class="sidebar">
-            <span id="closeNotification" class="close-btn">&times;</span>
-            <h3>নোটিফিকেশন</h3>
-            <div class="sidebar-content">
-                <p>নতুন কোনো নোটিফিকেশন নেই</p>
+        <!-- NOTIFICATION SIDEBAR -->
+    <div id="notificationSidebar" class="sidebar">
+    <span id="closeNotification" class="close-btn">&times;</span>
+    <h3>নোটিফিকেশন</h3>
+    <div class="sidebar-content" style="max-height: 85%; overflow-y: auto;">
+        <?php if ($warning_message): ?>
+            <div style="background:#fff3cd;color:#856404;padding:12px 16px;border-radius:8px;margin-bottom:11px;border:1px solid #ffeeba;font-size:1.02em;">
+                <b>⚠️ সতর্কতা / Warning!</b><br>
+                <?= nl2br(htmlspecialchars($warning_message['reason'])) ?><br>
+                <span style="font-size:0.93em;color:#b28b00;">তারিখ: <?= htmlspecialchars(date('d M Y, h:i A', strtotime($warning_message['warned_at']))) ?></span>
             </div>
-        </div>
+        <?php endif; ?>
+        <?php if (empty($shopOwnerNotifications)): ?>
+            <p>নতুন কোনো নোটিফিকেশন নেই</p>
+        <?php else: ?>
+            <ul style="padding-left:0;">
+                <?php foreach ($shopOwnerNotifications as $notif): ?>
+                    <li style="
+                        margin-bottom:14px; 
+                        border-bottom:1px solid #eee; 
+                        padding-bottom:10px; 
+                        list-style:none;
+                        <?= $notif['is_read']==0 ? 'font-weight:bold;background:#fffbe6;' : '' ?>
+                    ">
+                        <div>
+                            <b>Order ID:</b> <?= htmlspecialchars($notif['order_id']) ?>
+                        </div>
+                        <?php if (!empty($notif['customer_name'])): ?>
+                            <div>
+                                <b>কাস্টমার:</b> <?= htmlspecialchars($notif['customer_name']) ?> 
+                                (<?= htmlspecialchars($notif['customer_phone']) ?>)
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($notif['product_name'])): ?>
+                            <div>
+                                <b>পণ্য:</b> <?= htmlspecialchars($notif['product_name']) ?> × <?= (int)$notif['quantity'] ?>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($notif['price'])): ?>
+                            <div>
+                                <b>অর্ডার মূল্য:</b> <?= htmlspecialchars($notif['price'] * $notif['quantity']) ?> টাকা
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($notif['accepted_by']): ?>
+                            <div style="color:green;">
+                                <b>ডেলিভারি ম্যান:</b>
+                                <a href="../Html/DeliveryMan_Home.php?id=<?= urlencode($notif['accepted_by']) ?>" style="color:green;text-decoration:underline;">
+                                    <?= htmlspecialchars($notif['delivery_man_name']) ?>
+                                </a>
+                                (<?= htmlspecialchars($notif['delivery_man_phone']) ?>)
+                            </div>
+                            <div>
+                                <b>Accepted At:</b> <?= htmlspecialchars($notif['accepted_at']) ?>
+                            </div>
+                        <?php else: ?>
+                            <div style="color:#888;">এখনো কোনো ডেলিভারি ম্যান এক্সেপ্ট করেনি</div>
+                        <?php endif; ?>
+                        <div style="color:#888; font-size:0.9em;">
+                            <?= date('d M, h:i A', strtotime($notif['created_at'])) ?>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+    </div>
+</div>
         <div id="messengerSidebar" class="sidebar">
             <span id="closeMessenger" class="close-btn">&times;</span>
             <h3>মেসেজ</h3>

@@ -65,7 +65,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $updateStmt->close();
 }
+
+// Customer Notifications Fetch
+$customerNotifications = [];
+if (isset($_SESSION['customer_id'])) {
+    $cid = $_SESSION['customer_id'];
+    $notif_sql = "SELECT n.*, 
+    p.product_name, o.quantity, p.price, o.delivery_charge,
+    so.shop_name, so.shop_owner_phone, 
+    dm.delivery_man_name, dm.delivery_man_phone
+FROM notifications n
+LEFT JOIN orders o ON n.order_id = o.order_id
+LEFT JOIN products p ON o.product_id = p.product_id
+LEFT JOIN shop_owners so ON o.shop_owner_id = so.shop_owner_id
+LEFT JOIN delivery_men dm ON n.accepted_by = dm.delivery_man_id
+WHERE n.user_id = ? AND n.user_type = 'customer'
+ORDER BY n.created_at DESC";
+    $stmt = $conn->prepare($notif_sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $customerNotifications[] = $row;
+    }
+    $stmt->close();
+}
+// Fetch warning for this customer (if any)
+$warning_message = null;
+if (isset($_SESSION['customer_id'])) {
+    $customerId = $_SESSION['customer_id'];
+    $warnSql = "SELECT reason, warned_at FROM warned_users WHERE user_type='customer' AND user_id=?";
+    $warnStmt = $conn->prepare($warnSql);
+    $warnStmt->bind_param("i", $customerId);
+    $warnStmt->execute();
+    $warnStmt->bind_result($reason, $warned_at);
+    if ($warnStmt->fetch()) {
+        $warning_message = [
+            'reason' => $reason,
+            'warned_at' => $warned_at
+        ];
+    }
+    $warnStmt->close();
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="bn">
@@ -162,14 +205,166 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </div>
 
-<!-- Notification Sidebar -->
+
 <div id="notificationSidebar" class="sidebar">
-    <span id="closeNotification" class="close-btn">&times;</span>
+   
+    <span id="closeNotification" class="sidebar-close-icon">&times;</span>
     <h3>নোটিফিকেশন</h3>
-    <div class="sidebar-content">
-        <p>নতুন কোনো নোটিফিকেশন নেই</p>
+    
+    <div class="sidebar-content" style="max-height:80%;overflow-y:auto;">
+       
+    <?php if ($warning_message): ?>
+    <div style="background:#fff3cd;color:#856404;padding:12px 16px;border-radius:8px;margin-bottom:11px;border:1px solid #ffeeba;font-size:1.02em;">
+        <b>⚠️ সতর্কতা / Warning!</b><br>
+        <?= nl2br(htmlspecialchars($warning_message['reason'])) ?><br>
+        <span style="font-size:0.93em;color:#b28b00;">তারিখ: <?= htmlspecialchars(date('d M Y, h:i A', strtotime($warning_message['warned_at']))) ?></span>
+    </div>
+<?php endif; ?><?php if (empty($customerNotifications)): ?>
+            <p>নতুন কোনো নোটিফিকেশন নেই</p>
+        <?php else: ?>
+            <ul class="notifications-list">
+                <?php foreach ($customerNotifications as $notif): ?>
+                    <li class="notification-item<?= $notif['is_read']==0 ? ' unread' : '' ?>">
+                        <div class="notification-order-id">
+                            <b>Order ID:</b> <?= htmlspecialchars($notif['order_id']) ?>
+                        </div>
+                        <?php if (!empty($notif['shop_name'])): ?>
+                            <div class="notification-shop">
+                                <b>দোকান:</b> <?= htmlspecialchars($notif['shop_name']) ?>
+                                <?php if (!empty($notif['shop_owner_phone'])): ?>
+                                    (<?= htmlspecialchars($notif['shop_owner_phone']) ?>)
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($notif['product_name'])): ?>
+                            <div class="notification-product">
+                                <b>পণ্য:</b> <?= htmlspecialchars($notif['product_name']) ?> × <?= (int)$notif['quantity'] ?>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($notif['price'])): ?>
+                            <div class="notification-price">
+                                <b>অর্ডার মূল্য:</b> <?= htmlspecialchars($notif['price'] * $notif['quantity']) ?> টাকা
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($notif['accepted_by']): ?>
+                            <div class="deliveryman-info">
+                                <b>ডেলিভারি ম্যান:</b>
+                                <a href="../Html/DeliveryMan_Home.php?id=<?= urlencode($notif['accepted_by']) ?>">
+                                    <?= htmlspecialchars($notif['delivery_man_name']) ?>
+                                </a>
+                                <span class="deliveryman-phone">(<?= htmlspecialchars($notif['delivery_man_phone']) ?>)</span>
+                            </div>
+                            <div class="notification-accepted-at">
+                                <b>Accepted At:</b> <?= htmlspecialchars($notif['accepted_at']) ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="notification-no-delivery">এখনো কোনো ডেলিভারি ম্যান এক্সেপ্ট করেনি</div>
+                        <?php endif; ?>
+                        <div class="notification-time">
+                            <?= date('d M, h:i A', strtotime($notif['created_at'])) ?>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
     </div>
 </div>
+<style>
+.sidebar-close-icon {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+  margin-top: 170px;
+}
+
+.sidebar-close-icon:hover {
+  color: #d00;
+  transform: scale(1.2);
+}
+
+.notifications-list {
+    padding-left: 0;
+    margin: 0;
+    
+}
+
+.notification-item {
+    margin-bottom: 14px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    list-style: none;
+    background: #fff;
+    font-weight: normal;
+    transition: background 0.2s;
+
+}
+* Chrome, Edge, Safari */
+.sidebar-content::-webkit-scrollbar {
+    width: 8px;
+    max-height: 100%;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+    background: #e53935;
+    border-radius: 4px;
+}
+.sidebar-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+.notification-item.unread {
+    font-weight: bold;
+    background: #fffbe6;
+}
+
+.notification-order-id,
+.notification-shop,
+.notification-product,
+.notification-price,
+.notification-accepted-at,
+.notification-deliveryman {
+    margin-bottom: 2px;
+}
+
+.notification-time {
+    color: #888;
+    font-size: 0.9em;
+}
+
+.notification-no-delivery {
+    color: #888;
+}
+
+.deliveryman-info {
+    color: green;
+    font-weight: bold;
+    margin-bottom: 2px;
+    font-size: 1.05em;
+}
+
+.deliveryman-info a {
+    color: green;
+    text-decoration: underline;
+    transition: color 0.2s;
+    font-weight: normal;
+}
+
+.deliveryman-info a:hover {
+    color: darkgreen;
+    text-decoration: none;
+}
+
+.deliveryman-phone {
+    font-weight: normal;
+    color: #333;
+    margin-left: 4px;
+    font-size: 0.95em;
+}</style>
 
 <!-- Messenger Sidebar -->
 <div id="messengerSidebar" class="sidebar">

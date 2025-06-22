@@ -67,12 +67,7 @@ exit();
             <button id="userIcon" class="icon-btn">
                 <img src="../Images/Sample_User_Icon.png" alt="User" class="icon-img">
             </button>
-            <button id="notificationIcon" class="icon-btn">
-                <img src="../Images/notification.png" alt="Notifications" class="icon-img">
-            </button>
-            <button id="messengerBtn" class="icon-btn">
-                <img src="../Images/messenger-icon.png" alt="Messenger" class="icon-img">
-            </button>
+           
         </div>
     </header>
 <!-- OVERLAY (for background when sidebar is open) -->
@@ -90,14 +85,6 @@ exit();
     </div>
 </div>
 
-<!-- Notification Sidebar -->
-<div id="notificationSidebar" class="sidebar">
-    <span id="closeNotification" class="close-btn">&times;</span>
-    <h3>নোটিফিকেশন</h3> <!-- Changed 'Notifications' to 'নোটিফিকেশন' -->
-    <div class="sidebar-content">
-        <p>নতুন কোনো নোটিফিকেশন নেই</p> <!-- 'No new notifications' in Bangla -->
-    </div>
-</div>
 
 <!-- Messenger Sidebar -->
 <div id="messengerSidebar" class="sidebar">
