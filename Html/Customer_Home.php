@@ -150,7 +150,10 @@ if (isset($_SESSION['customer_id'])) {
 </button>
 
 
-        <button id="messengerBtn"><img src="../Images/messenger-icon.png" alt="Messenger"></button>
+<button id="messengerBtn"
+    onclick="window.location.href='../Html/Massenger_chat.php??shop_owner_id=<?= $shopOwnerId ?>'">
+    <img src="../Images/messenger-icon.png" alt="Messenger">
+</button>
         <button id="wishlistbtn"><img src="../Images/heart.png" alt="Wishlist"></button>
     </div>
 </header>

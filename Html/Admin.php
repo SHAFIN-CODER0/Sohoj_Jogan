@@ -252,7 +252,7 @@ if ($search !== '') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>সহজ যোগান (Sohaj Jogan)</title>
-    <link rel="stylesheet" href="../CSS/AdminDashboard.css?v=1.2">
+    <link rel="stylesheet" href="../CSS/AdminDashboard.css?v=1">
     <style>
     .report-img {
         height: 40px;
@@ -305,8 +305,37 @@ if ($search !== '') {
                 <input type="text" name="search" placeholder="নাম লিখুন..." value="<?= htmlspecialchars($search) ?>">
                 <button id="submit"><img src="../Images/search.png" alt="Search"></button>
             </form>
-        </div>
+            </div>
+        <button id="logoutIcon"><img src="../Images/logout.png" alt="User"></button>
     </header>
+    <style>
+        #logoutIcon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+ margin-right: 50px;
+  transition: background-color 0.3s ease;
+}
+
+#logoutIcon img {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+#logoutIcon:hover {
+  background-color: #f2f2f2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+</style>
+<script>
+document.getElementById("logoutIcon").addEventListener("click", function(e) {
+    e.preventDefault();
+    window.location.href = "../PHP/logout.php";
+});
+</script>
     <div class="container">
          <nav class="sidebar">
             <h3>টেবিল</h3>

@@ -23,7 +23,7 @@
                 <li><a href="../Html/Women.html">নারী</a></li>
                 <li><a href="../Html/Man.html">পুরুষ</a></li>
                 <li><a href="../Html/Gift.html">উপহার</a></li>
-                <li><a href="../Html/Admin.php">লাইব্রেরি</a></li>
+                <li><a href="">লাইব্রেরি</a></li>
             </ul>
         </nav>
         <div class="icons">
@@ -36,17 +36,18 @@
             <button><img src="../Images/heart.png" alt="Wishlist"></button>
         </div>
     </header>
- <!-- Login Sidebar -->
+<!-- Login Sidebar -->
 <div id="loginSidebar" class="sidebar">
     <div class="sidebar-content">
         <span id="closeSidebar" class="close-btn">&times;</span>
         <h2>লগইন করুন</h2>
         <form action="../PHP/login.php" method="POST">
             <label for="userType">আপনার পরিচয়:</label>
-            <select name="userType" required>
+            <select name="userType" id="userType" required>
                 <option value="customer" <?php if(isset($_COOKIE['remember_userType']) && $_COOKIE['remember_userType']=='customer') echo 'selected'; ?>>গ্রাহক</option>
                 <option value="shop_owner" <?php if(isset($_COOKIE['remember_userType']) && $_COOKIE['remember_userType']=='shop_owner') echo 'selected'; ?>>দোকান মালিক</option>
                 <option value="delivery_man" <?php if(isset($_COOKIE['remember_userType']) && $_COOKIE['remember_userType']=='delivery_man') echo 'selected'; ?>>ডেলিভারি ম্যান</option>
+                <option value="admin" <?php if(isset($_COOKIE['remember_userType']) && $_COOKIE['remember_userType']=='admin') echo 'selected'; ?>>অ্যাডমিন</option>
             </select>
 
             <label for="emailOrPhone">ইমেইল বা ফোন নম্বর লিখুন:</label>
@@ -73,7 +74,7 @@
     <!-- Forgot Password Modal -->
 <div id="forgotPasswordModal" class="modal">
     <div class="modal-content">
-<span class="forgot-close-btn" id="closeForgotModal">&times;</span>        <h2>পাসওয়ার্ড রিসেট করুন</h2>
+<span class="forgot-close-btn" id="closeForgotModal">&times;</span><h2>পাসওয়ার্ড রিসেট করুন</h2>
         <form action="../PHP/forgot_password.php" method="POST">
             <label for="resetEmailOrPhone">ইমেইল :</label>
             <input type="text" id="resetEmailOrPhone" name="resetEmailOrPhone" required>
