@@ -5,11 +5,32 @@ include 'db_connect.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $emailOrPhone = trim($_POST['emailOrPhone']);
     $password = trim($_POST['password']);
-    $userType = $_POST['userType']; // 'customer', 'shop_owner', 'delivery_man'
+    $userType = $_POST['userType']; // 'customer', 'shop_owner', 'delivery_man', 'admin'
 
     if (empty($emailOrPhone) || empty($password) || empty($userType)) {
         echo "<script>alert('ইমেইল বা ফোন নম্বর, পাসওয়ার্ড এবং পরিচয় প্রয়োজন!'); window.location.href='../Html/index.php';</script>";
         exit();
+    }
+
+    // Admin login logic
+    if ($userType === 'admin') {
+        $adminEmail = "mnajmulhossainnur@gmail.com";
+        $adminPhone = "01743094595";
+        $adminPassword = "12345678";
+
+        if (
+            ($emailOrPhone === $adminEmail || $emailOrPhone === $adminPhone) &&
+            $password === $adminPassword
+        ) {
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_name'] = "Admin";
+            $_SESSION['admin_email'] = $adminEmail;
+            echo "<script>window.location.href='../Html/Admin.php';</script>";
+            exit();
+        } else {
+            echo "<script>alert('ভুল অ্যাডমিন তথ্য!'); window.location.href='../Html/index.php';</script>";
+            exit();
+        }
     }
 
     // Choose the table and redirect page based on user type
