@@ -216,15 +216,18 @@ if (isset($_POST['toggle_love'], $_POST['product_id']) && isset($_SESSION['custo
 $shopOwnerNotifications = [];
 if ($isOwner && isset($shopOwnerId)) {
     $notifSql = "
-       SELECT n.*, o.customer_name, o.customer_phone, pr.product_name, pr.price, o.quantity,
-       dm.delivery_man_name, dm.delivery_man_phone
+    SELECT n.*, 
+       o.customer_name, o.customer_phone, 
+       pr.product_name, pr.price, o.quantity,
+       dm.delivery_man_name, dm.delivery_man_phone,
+       o.shop_owner_id
 FROM notifications n
 LEFT JOIN orders o ON n.order_id = o.order_id
 LEFT JOIN products pr ON o.product_id = pr.product_id
 LEFT JOIN delivery_men dm ON n.accepted_by = dm.delivery_man_id
 WHERE n.user_id = ? AND n.user_type = 'shop_owner'
 ORDER BY n.created_at DESC
-LIMIT 30
+LIMIT 10
     ";
     $stmt = $conn->prepare($notifSql);
     $stmt->bind_param("i", $shopOwnerId);
@@ -303,7 +306,11 @@ if (isset($shopOwnerId)) {
 </div>
 <?php endif; ?>
     </header>
-
+<script>
+    document.getElementById('messengerBtn').addEventListener('click', function() {
+        window.location.href = '../Html/Massenger-chat-shop.php';
+    });
+</script>
     <?php if ($isOwner): ?>
 <!-- OVERLAY (for background when sidebar is open) -->
 <div id="overlay" class="overlay"></div>
@@ -316,6 +323,7 @@ if (isset($shopOwnerId)) {
         <a href="../Html/ShopOwner_settings.php" id="settingsLink">সেটিংস</a>
         <a href="../Html/ShopOwner_settings_password.php" id="changePasswordLink">পাসওয়ার্ড পরিবর্তন</a>
         <a href="../Html/Histrory.php?shop_owner_id=<?= urlencode($_SESSION['shop_owner_id']) ?>">লাইব্রেরি</a>
+        <a href="../Html/ShopOwner_payment.php?shop_owner_id=<?= urlencode($_SESSION['shop_owner_id']) ?>">উত্তোলন</a>
 
         <!-- Shop Active/Inactive Toggle Button -->
         <form method="post" style="margin: 16px 0; text-align:left;">
@@ -381,11 +389,11 @@ if (isset($shopOwnerId)) {
                             </div>
                         <?php endif; ?>
                         <?php if ($notif['accepted_by']): ?>
-                            <div style="color:green;">
+                            <div >
                                 <b>ডেলিভারি ম্যান:</b>
-                                <a href="../Html/DeliveryMan_Home.php?id=<?= urlencode($notif['accepted_by']) ?>" style="color:green;text-decoration:underline;">
-                                    <?= htmlspecialchars($notif['delivery_man_name']) ?>
-                                </a>
+                               <span style="color:green;text-decoration:underline;">
+    <?= htmlspecialchars($notif['delivery_man_name']) ?>
+</span>
                                 (<?= htmlspecialchars($notif['delivery_man_phone']) ?>)
                             </div>
                             <div>
@@ -482,12 +490,12 @@ if (isset($shopOwnerId)) {
 
  
 
-  <?php if (!$isOwner): ?>
-    <button class="messenger-btn" title="মেসেজ পাঠান">
+<?php if (!$isOwner): ?>
+    <a href="../Html/Massenger-chat.php?shop_owner_id=<?= $shopOwnerId ?>" class="messenger-btn" title="মেসেজ পাঠান">
       <img src="../Images/chat.png" alt="Messenger">
       মেসেজ
-    </button>
-  <?php endif; ?>
+    </a>
+<?php endif; ?>
 
   <?php if (!$isOwner && isset($_SESSION['customer_id'])): ?>
     <form method="post" style="display:inline;">
@@ -716,7 +724,7 @@ if (isset($shopOwnerId)) {
         }
             // Only customer/visitor can see Buy button
             if (!$isOwner) {
-                echo '<a href="../Html/Buy.php?product_id=' . (int)$product['product_id'] . '" class="buy-btn">Buy</a>';
+                echo '<a href="../Html/Buy.php?product_id=' . (int)$product['product_id'] . '" class="buy-btn">এখন কিনুন</a>';
             }
             echo '</div>';
         }
@@ -772,9 +780,7 @@ if (isset($shopOwnerId)) {
                 <h4>শপিং অনলাই</h4>
                 <ul>
                     <li><a href="#">ডেলিভারি</a></li>
-                    <li><a href="#">অর্ডার হিস্টোরি</a></li>
-                    <li><a href="#">উইস লিস্ট</a></li>
-                    <li><a href="#">পেমেন্ট</a></li>
+                    
                 </ul>
             </div>
             <div class="footer-column">

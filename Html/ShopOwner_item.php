@@ -25,8 +25,11 @@ $isOwner = true; // Always true on this page
 $shopOwnerNotifications = [];
 if ($isOwner && isset($shop_owner_id)) {
     $notifSql = "
-       SELECT n.*, o.customer_name, o.customer_phone, pr.product_name, pr.price, o.quantity,
-       dm.delivery_man_name, dm.delivery_man_phone
+    SELECT n.*, 
+       o.customer_name, o.customer_phone, 
+       pr.product_name, pr.price, o.quantity,
+       dm.delivery_man_name, dm.delivery_man_phone,
+       o.shop_owner_id
 FROM notifications n
 LEFT JOIN orders o ON n.order_id = o.order_id
 LEFT JOIN products pr ON o.product_id = pr.product_id
@@ -209,7 +212,6 @@ function isProductActive($date_added, $duration) {
 
 
 // Fetch warning for shop owner (if any)
-// Fetch warning for shop owner (if any)
 $warning_message = null;
 if (isset($shop_owner_id)) {
     $warnSql = "SELECT reason, warned_at FROM warned_users WHERE user_type='shop_owner' AND user_id=?";
@@ -247,6 +249,11 @@ if (isset($shop_owner_id)) {
             <button id="messengerBtn"><img src="../Images/messenger-icon.png" alt="Messenger"></button>
         </div>
     </header>
+    <script>
+    document.getElementById('messengerBtn').addEventListener('click', function() {
+        window.location.href = '../Html/Massenger-chat-shop.php';
+    });
+</script>
     <div class="profile-container">
         <!-- OVERLAY, SIDEBARS -->
         <div id="overlay" class="overlay"></div>
@@ -306,9 +313,10 @@ if (isset($shop_owner_id)) {
                         <?php if ($notif['accepted_by']): ?>
                             <div style="color:green;">
                                 <b>ডেলিভারি ম্যান:</b>
-                                <a href="../Html/DeliveryMan_Home.php?id=<?= urlencode($notif['accepted_by']) ?>" style="color:green;text-decoration:underline;">
-                                    <?= htmlspecialchars($notif['delivery_man_name']) ?>
-                                </a>
+                                      <span style="color:green;text-decoration:underline;">
+    <?= htmlspecialchars($notif['delivery_man_name']) ?>
+</span>
+                      
                                 (<?= htmlspecialchars($notif['delivery_man_phone']) ?>)
                             </div>
                             <div>
@@ -326,13 +334,7 @@ if (isset($shop_owner_id)) {
         <?php endif; ?>
     </div>
 </div>
-        <div id="messengerSidebar" class="sidebar">
-            <span id="closeMessenger" class="close-btn">&times;</span>
-            <h3>মেসেজ</h3>
-            <div class="sidebar-content">
-                <p>কোনো নতুন মেসেজ নেই</p>
-            </div>
-        </div>
+        
         <h1>নতুন পণ্য যোগ করুন</h1>
         <div class="button-box">
             <!-- Show "নতুন সংযোজন" only if there are NO products -->
@@ -369,7 +371,7 @@ if (isset($shop_owner_id)) {
                     <label>দাম:</label>
                     <input type="text" name="price[]" required>
                 </div>
-            </div>
+            </div><section>
             <div class="advertise-section">
                 <p>আপনি কি বিজ্ঞাপন দিতে চান?</p>
                 <label><input type="radio" name="advertise_option" value="yes" onclick="toggleAdText(true)"> হ্যাঁ</label>
@@ -377,7 +379,7 @@ if (isset($shop_owner_id)) {
                 <div id="adTextInput" style="display: none;">
                     <input type="text" name="advertise_text" placeholder="বিজ্ঞাপনের তথ্য লিখুন">
                 </div>
-            </div>
+            </div></section>
             <button type="button" id="addProductBtn" onclick="addProductEntry()">আরো পণ্য যোগ করুন</button>
             <button type="submit" id="saveBtn">Save</button>
         </form>

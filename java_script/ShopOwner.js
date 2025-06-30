@@ -34,22 +34,8 @@ document.addEventListener("DOMContentLoaded", function () {
         shopOwnerModal.style.display = "none";
     });
 
-    // Close modal if the user clicks outside the modal
-    window.addEventListener("click", function (event) {
-        if (event.target === shopOwnerModal) {
-            shopOwnerModal.style.display = "none";
-        }
-    });
-
     // Close the registration sidebar when the close button (X) is clicked
     closeRegistrationSidebar.addEventListener("click", function () {
         registrationSidebar.classList.remove("show");
-    });
-
-    // Close the registration sidebar if the user clicks outside of it
-    window.addEventListener("click", function (event) {
-        if (!registrationSidebar.contains(event.target) && event.target !== signupShopOwner) {
-            registrationSidebar.classList.remove("show");
-        }
     });
 });

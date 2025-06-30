@@ -2,7 +2,7 @@
 session_start();
 include '../PHP/db_connect.php';
 
-// Check if the user is logged in
+// ----------- SESSION & LOGIN CHECK -----------
 if (!isset($_SESSION['customer_email'])) {
     echo "<script>
         alert('You must log in first!');
@@ -11,10 +11,10 @@ if (!isset($_SESSION['customer_email'])) {
     exit();
 }
 
-// ----------- Bangla Number Conversion Function -----------
+// ----------- BANGLA NUMBER CONVERSION FUNCTION -----------
 function bn_number($number) {
     $bn_digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
-    return strtr($number, ['0'=>$bn_digits[0],'1'=>$bn_digits[1],'2'=>$bn_digits[2],'3'=>$bn_digits[3],'4'=>$bn_digits[4],'5'=>$bn_digits[5],'6'=>$bn_digits[6],'7'=>$bn_digits[7],'8'=>$bn_digits[8],'9'=>$bn_digits[9]]);
+    return strtr($number, array_combine(range(0, 9), $bn_digits));
 }
 
 // ----------- FETCH COINS FOR INITIAL PAGE LOAD -----------
@@ -32,14 +32,13 @@ $stmt_init->close();
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_coin') {
     header('Content-Type: application/json');
     $email = $_SESSION['customer_email'];
-    // Increment the coin for this user
+
     $sql = "UPDATE customers SET customer_coins = customer_coins + 1 WHERE customer_email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('s', $email);
     $stmt->execute();
 
     if ($stmt->affected_rows > 0) {
-        // Now fetch the new coin count and return it
         $sql2 = "SELECT customer_coins FROM customers WHERE customer_email = ?";
         $stmt2 = $conn->prepare($sql2);
         $stmt2->bind_param('s', $email);
@@ -47,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $stmt2->bind_result($coins);
         $stmt2->fetch();
         $stmt2->close();
-        // Return both English and Bangla numerals
         echo json_encode([
             'success' => true,
             'coins' => $coins,
@@ -71,13 +69,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     $stmt->fetch();
     $stmt->close();
 
-    // Return both English and Bangla numerals
     echo json_encode([
         'success' => true,
         'coins' => $coins,
         'coins_bn' => bn_number($coins)
     ]);
     exit();
+}
+
+// ----------- FETCH ALL PRODUCTS WITH SHOP INFO (RANDOM ORDER) -----------
+$product_list = [];
+$sql = "SELECT 
+            p.product_id, p.product_name, p.product_image_path, p.price,
+            s.shop_owner_id, s.shop_owner_name, s.shop_name
+        FROM products p
+        JOIN shop_owners s ON p.shop_owner_id = s.shop_owner_id
+        ORDER BY RAND()";
+$result = $conn->query($sql);
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $product_list[] = $row;
+    }
+}
+
+// ----------- GET RANDOM AD (Only for first page load) -----------
+$random_ad = null;
+$sql = "SELECT 
+            p.product_id, p.product_name, p.product_image_path, p.price, p.advertise_text,
+            s.shop_owner_id, s.shop_owner_name, s.shop_name
+        FROM products p
+        JOIN shop_owners s ON p.shop_owner_id = s.shop_owner_id
+        WHERE p.advertise_option = 'yes' AND p.stock > 0
+        ORDER BY RAND() LIMIT 1";
+$result = $conn->query($sql);
+if ($result && $row = $result->fetch_assoc()) {
+    $random_ad = [
+        'product_id' => $row['product_id'],
+        'product_name' => $row['product_name'],
+        'product_image_path' => $row['product_image_path'] ?: '../Images/default-product.png',
+        'price' => $row['price'],
+        'advertise_text' => $row['advertise_text'],
+        'shop_owner_id' => $row['shop_owner_id'],
+        'shop_owner_name' => $row['shop_owner_name'],
+        'shop_name' => $row['shop_name']
+    ];
 }
 ?>
 
@@ -475,16 +510,194 @@ canvas.addEventListener('click', ()=>{
 // Initial drawing before game starts
 resetGame();
 </script>
+ <style>
+.slider-container {
+    width: 100%;
+    max-width: 1300px;
+    margin: 40px auto 30px auto;
+    overflow: hidden;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #dfe7ee 60%, #f5f8fa 100%);
+    padding: 14px 0;
+    border: none;
+
+    /* Box shadow added */
+    box-shadow: 0 8px 20px rgba(100, 110, 130, 0.12), 
+                0 4px 12px rgba(100, 110, 130, 0.08);
+}
+
+/* H1 Styling */
+.prduct_add h1 {
+    font-size: 28px;
+    text-align: center;
+    color: #1c1c2a;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    font-family: 'Noto Sans Bengali', sans-serif;
+}
+
+.product-slider {
+    display: flex;
+    align-items: stretch;
+    gap: 24px;
+    width: max-content;
+    animation: scroll-left 7s linear infinite;
+    will-change: transform;
+}
+
+.slider-container:hover .product-slider {
+    animation-play-state: paused;
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Duplicate slider for infinite effect */
+.product-slider::after {
+    content: "";
+    display: block;
+    width: 0;
+    flex: none;
+}
+
+.product {
+    min-width: 340px;
+    max-width: 360px;
+      background: linear-gradient(135deg, #b8d8f4 60%, #ffffff 100%);
+
+box-shadow: 0 2px 12px rgba(120,120,160,0.10);
+    padding: 22px 16px 18px 16px;
+    text-align: center;
+    transition: transform 0.21s, box-shadow 0.21s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.product:hover {
+    transform: translateY(-8px) scale(1.045);
+    box-shadow: 0 10px 28px rgba(80,80,160,0.16);
+}
+.product img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    background: #e9edf3;
+}
+.product-title {
+    font-size: 19px;
+    font-weight: 600;
+    color: #22243a;
+    margin: 12px 0 5px;
+}
+.product-price {
+    font-size: 16px;
+    color: #389e4a;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+.shop-name {
+    font-size: 13px;
+    color: #8b8b9d;
+    margin-top: 6px;
+    letter-spacing: 0.01em;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .product {
+        min-width: 64vw;
+        max-width: 76vw;
+    }
+    .slider-container {
+        padding: 5px 0;
+    }
+}
+@media (max-width: 600px) {
+    .product {
+        min-width: 87vw;
+        max-width: 98vw;
+        padding: 14px 5px 12px 5px;
+    }
+    .product img {
+        width: 80px;
+        height: 80px;
+    }
+}
+    </style>
+<section class="prduct_add">
+        <h1>চলুন ঘুরে আসি নতুন পণ্যের দুনিয়া!</h1>
+
+  <div class="slider-container">
+    <div class="product-slider" id="slider">
+      <?php foreach($product_list as $row): ?>
+        <div class="product">
+          <div class="product-title"><?= htmlspecialchars($row['product_name']) ?></div>
+          <img src="<?= htmlspecialchars($row['product_image_path']) ?>" alt="<?= htmlspecialchars($row['product_name']) ?>" />
+         <div class="shop-owner">
+  <a href="../Html/ShopOwner_Home.php?id=<?= $row['shop_owner_id'] ?>&shop=<?= urlencode($row['shop_name']) ?>" class="shop-link">
+    <?= htmlspecialchars($row['shop_name']) ?>
+  </a>
+</div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+
+    <script>
+        // Infinite auto-scroll slider (seamless loop)
+const slider = document.getElementById("slider");
+const speed = 2; // pixel per frame, adjust for speed
+
+// Duplicate all product nodes for seamless effect
+slider.innerHTML += slider.innerHTML;
+
+let scrollX = 0;
+let maxScroll = slider.scrollWidth / 2;
+
+// Animation function
+function animateSlider() {
+    scrollX += speed;
+    if (scrollX >= maxScroll) {
+        scrollX = 0;
+    }
+    slider.style.transform = `translateX(${-scrollX}px)`;
+    requestAnimationFrame(animateSlider);
+}
+
+// Optional: Pause on hover
+slider.addEventListener("mouseenter", () => speedBackup = speed, {once: true});
+slider.addEventListener("mouseenter", () => window.cancelAnimationFrame(rafID));
+slider.addEventListener("mouseleave", () => {
+    rafID = requestAnimationFrame(animateSlider);
+});
+
+// Start animation
+let rafID = requestAnimationFrame(animateSlider);
+    </script>
     <section class="other-games-vertical">
         <h4>আরো গেম দেখুন</h4>
         <div class="game-list-scroll">
-            <div class="game-card" tabindex="0" title="বস্তু ধরো">
-                <img src="../Images/681ddf33b3586_Shop-Banner-Design-MRA-Graphics-scaled.jpg" alt="বস্তু ধরো গেম">
-                <div>
-                    <strong>বস্তু ধরো</strong><br>
-                    <span>দ্রুত বস্তু ধরুন!</span>
-                </div>
-            </div>
+        <div class="game-card" tabindex="0" title="গতি চ্যালেঞ্জ">
+    <img src="../Images/racing.png" alt="গতি চ্যালেঞ্জ গেম">
+    <div>
+        <strong>গতি চ্যালেঞ্জ</strong><br>
+        <span>দ্রুততম কে?</span>
+    </div>
+</div>
+
             <div class="game-card" tabindex="0" title="ম্যাচিং গেম">
                 <img src="../Images/coin-icon.png" alt="ম্যাচিং গেম">
                 <div>
@@ -493,7 +706,7 @@ resetGame();
                 </div>
             </div>
             <div class="game-card" tabindex="0" title="কুইজ চ্যালেঞ্জ">
-                <img src="../Images/demo.jpg" alt="কুইজ চ্যালেঞ্জ">
+                <img src="../Images/quiz.png" alt="কুইজ চ্যালেঞ্জ">
                 <div>
                     <strong>কুইজ চ্যালেঞ্জ</strong><br>
                     <span>জ্ঞান যাচাই করুন</span>
@@ -507,6 +720,7 @@ resetGame();
         </div>
     </section>
 </main>
+
 <div id="gameModal" class="game-modal" tabindex="-1" aria-modal="true" role="dialog">
   <div class="game-modal-content">
     <span class="game-modal-close" aria-label="Close">&times;</span>

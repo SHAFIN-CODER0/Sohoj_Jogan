@@ -90,7 +90,58 @@ header .icons button:hover img {
     filter: brightness(1.2); /* Slightly brighten on hover */
    
 }
+.search-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0 10px 0;
+}
 
+.search-bar-form {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: #f6faf7;
+    border-radius: 8px;
+    padding: 7px 12px;
+    box-shadow: 0 1px 6px 0 rgba(28,124,84,0.04);
+}
+
+.search-bar-form input[type="text"] {
+    padding: 9px 14px;
+    border: 1px solid #c2eccb;
+    border-radius: 7px;
+    font-size: 1rem;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+}
+
+.search-bar-form input[type="text"]:focus {
+    border-color: #1c7c54;
+}
+
+.search-bar-form button {
+    background: #1c7c54;
+    border: none;
+    border-radius: 7px;
+    padding: 7px 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.search-bar-form button:hover {
+    background: #0a4025;
+}
+
+.search-bar-form button img {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
 /* Wishlist Section */
 .wishlist {
   max-width: 1100px;

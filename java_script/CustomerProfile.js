@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (confirmLogout) {
                 localStorage.clear();
                 sessionStorage.clear();
-                window.location.href = '../Html/index.html'; // 🔥 Use small 'i' here
+                window.location.href = '../Html/Index.php'; // 🔥 Use small 'i' here
             }
         });
     }

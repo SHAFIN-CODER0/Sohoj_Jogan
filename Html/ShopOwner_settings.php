@@ -198,7 +198,11 @@ if (isset($shopOwnerId)) {
         <a href="" id="logoutLink">লগ আউট</a>
     </div>
 </div>
-
+<script>
+    document.getElementById('messengerBtn').addEventListener('click', function() {
+        window.location.href = '../Html/Massenger-chat-shop.php';
+    });
+</script>
 <div id="notificationSidebar" class="sidebar">
     <span id="closeNotification" class="close-btn">&times;</span>
     <h3>নোটিফিকেশন</h3>
@@ -245,9 +249,10 @@ if (isset($shopOwnerId)) {
                         <?php if ($notif['accepted_by']): ?>
                             <div style="color:green;">
                                 <b>ডেলিভারি ম্যান:</b>
-                                <a href="../Html/DeliveryMan_Home.php?id=<?= urlencode($notif['accepted_by']) ?>" style="color:green;text-decoration:underline;">
-                                    <?= htmlspecialchars($notif['delivery_man_name']) ?>
-                                </a>
+                                      <span style="color:green;text-decoration:underline;">
+    <?= htmlspecialchars($notif['delivery_man_name']) ?>
+</span>
+                      
                                 (<?= htmlspecialchars($notif['delivery_man_phone']) ?>)
                             </div>
                             <div>
@@ -265,13 +270,7 @@ if (isset($shopOwnerId)) {
         <?php endif; ?>
     </div>
 </div>
-<div id="messengerSidebar" class="sidebar">
-    <span id="closeMessenger" class="close-btn">&times;</span>
-    <h3>মেসেজ</h3>
-    <div class="sidebar-content">
-        <p>কোনো নতুন মেসেজ নেই</p>
-    </div>
-</div>
+
 
 <div class="form-container">
     <form id="shopForm" action="#" method="POST" enctype="multipart/form-data" autocomplete="off">

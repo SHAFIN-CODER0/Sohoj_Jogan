@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $phone     = $_POST['phone'];
         $email     = $_POST['email'];
 
-$sms_message = "প্রিয় $name, আপনার কার্যকলাপের জন্য আপনাকে সতর্ক করা হলো। ভবিষ্যতে একই ধরনের কাজ পুনরাবৃত্তি হলে স্থায়ী ব্যান করা হতে পারে।
+        $sms_message = "প্রিয় $name, আপনার কার্যকলাপের জন্য আপনাকে সতর্ক করা হলো। ভবিষ্যতে একই ধরনের কাজ পুনরাবৃত্তি হলে স্থায়ী ব্যান করা হতে পারে।
 আপনার যদি কোনো প্রশ্ন বা অভিযোগ থাকে, দয়া করে আমাদের সাথে যোগাযোগ করুন: sohojjogan@gmail.com";
 
         $stmt = $conn->prepare("INSERT INTO warned_users (user_type, user_id, name, phone, email, reason) VALUES (?, ?, ?, ?, ?, ?)");
@@ -226,8 +226,56 @@ if ($conn->query("SHOW TABLES LIKE 'payments'")->num_rows) {
     $hasPayments = !empty($payments);
 }
 
-$conn->close();
+// Withdraw Requests (with shop owner name and email)
+$whereWithdraw = '';
+if ($search !== '') {
+    $whereWithdraw = "WHERE w.amount LIKE '%$safe%' OR w.receiver_number LIKE '%$safe%' OR s.shop_owner_name LIKE '%$safe%' OR w.status LIKE '%$safe%' OR w.tx_id LIKE '%$safe%'";
+}
+$withdraws = $conn->query("
+    SELECT w.*, s.shop_owner_name, s.shop_owner_email
+    FROM withdraw_request w
+    LEFT JOIN shop_owners s ON w.shop_owner_id = s.shop_owner_id
+    $whereWithdraw
+    ORDER BY w.request_date DESC
+")->fetch_all(MYSQLI_ASSOC);
+$hasWithdraws = !empty($withdraws);
 
+
+// Delivery Man Withdraw Requests (with delivery man name and email)
+$whereDeliveryWithdraw = '';
+if ($search !== '') {
+    $whereDeliveryWithdraw = "WHERE dwr.amount LIKE '%$safe%' 
+        OR dwr.receiver_number LIKE '%$safe%' 
+        OR dm.delivery_man_name LIKE '%$safe%' 
+        OR dwr.status LIKE '%$safe%'";
+}
+$delivery_withdraws = $conn->query("
+    SELECT dwr.*, dm.delivery_man_name, dm.delivery_man_email
+    FROM delivery_withdraw_request dwr
+    LEFT JOIN delivery_men dm ON dwr.delivery_man_id = dm.delivery_man_id
+    $whereDeliveryWithdraw
+    ORDER BY dwr.request_date DESC
+")->fetch_all(MYSQLI_ASSOC);
+$hasDeliveryWithdraws = !empty($delivery_withdraws);
+
+// Deliveryman Reports (with delivery man name)
+$deliverymanReports = [];
+$hasDeliverymanReports = false;
+if ($conn->query("SHOW TABLES LIKE 'deliveryman_reports'")->num_rows) {
+    $whereDeliverymanReports = "";
+    if ($search !== '') {
+        $whereDeliverymanReports = "WHERE r.customer_name LIKE '%$safe%' OR dm.delivery_man_name LIKE '%$safe%' OR r.delivery_man_name LIKE '%$safe%'";
+    }
+    $deliverymanReports = $conn->query(
+        "SELECT r.*, dm.delivery_man_name 
+         FROM deliveryman_reports r 
+         LEFT JOIN delivery_men dm ON r.delivery_man_id = dm.delivery_man_id 
+         $whereDeliverymanReports 
+         ORDER BY r.report_id DESC"
+    )->fetch_all(MYSQLI_ASSOC);
+    $hasDeliverymanReports = !empty($deliverymanReports);
+}
+$conn->close();
 // Determine which tab to show first if searching
 $defaultTab = 'customerTab';
 if ($search !== '') {
@@ -237,13 +285,17 @@ if ($search !== '') {
     elseif ($hasProducts) $defaultTab = 'productsTab';
     elseif ($hasOrders) $defaultTab = 'orderTab';
     elseif ($hasShopReports) $defaultTab = 'reportTab';
+    elseif ($hasDeliverymanReports) $defaultTab = 'deliverymanReportTab';
+
     elseif ($hasReviews) $defaultTab = 'reviewTab';
-    elseif ($hasMessages) $defaultTab = 'messagesTab';
     elseif ($hasFollowers) $defaultTab = 'followersTab';
     elseif ($hasLoves) $defaultTab = 'lovesTab';
     elseif ($hasPayments) $defaultTab = 'paymentsTab';
-}
+    elseif ($hasWithdraws) $defaultTab = 'withdrawTab';
+    
+    elseif ($hasDeliveryWithdraws) $defaultTab = 'deliveryWithdrawTab';
 
+}
 
 ?>
 <!DOCTYPE html>
@@ -339,18 +391,47 @@ document.getElementById("logoutIcon").addEventListener("click", function(e) {
     <div class="container">
          <nav class="sidebar">
             <h3>টেবিল</h3>
-            <ul>
-                <li class="<?= $defaultTab == 'customerTab' ? 'active' : '' ?>" data-tab="customerTab" <?= ($search !== '' && !$hasCustomer) ? 'style="display:none;"' : '' ?>><span class="icon">👤</span> <span class="name">কাস্টমার</span></li>
-                <li class="<?= $defaultTab == 'shopOwnerTab' ? 'active' : '' ?>" data-tab="shopOwnerTab" <?= ($search !== '' && !$hasShopOwner) ? 'style="display:none;"' : '' ?>><span class="icon">🏪</span> <span class="name">দোকানদার</span></li>
-                <li class="<?= $defaultTab == 'deliveryManTab' ? 'active' : '' ?>" data-tab="deliveryManTab" <?= ($search !== '' && !$hasDeliveryMan) ? 'style="display:none;"' : '' ?>><span class="icon">🚚</span> <span class="name">ডেলিভারি পার্সন</span></li>
-                <li class="<?= $defaultTab == 'productsTab' ? 'active' : '' ?>" data-tab="productsTab" <?= ($search !== '' && !$hasProducts) ? 'style="display:none;"' : '' ?>><span class="icon">🛒</span> <span class="name">প্রোডাক্ট</span></li>
-                <li class="<?= $defaultTab == 'orderTab' ? 'active' : '' ?>" data-tab="orderTab" <?= ($search !== '' && !$hasOrders) ? 'style="display:none;"' : '' ?>><span class="icon">📦</span> <span class="name">অর্ডার</span></li>
-                <li class="<?= $defaultTab == 'reportTab' ? 'active' : '' ?>" data-tab="reportTab" <?= ($search !== '' && !$hasShopReports) ? 'style="display:none;"' : '' ?>><span class="icon">📊</span> <span class="name">রিপোর্ট</span></li>
-                <li class="<?= $defaultTab == 'reviewTab' ? 'active' : '' ?>" data-tab="reviewTab" <?= ($search !== '' && !$hasReviews) ? 'style="display:none;"' : '' ?>><span class="icon">⭐</span> <span class="name">রিভিউ</span></li>
-                <li class="<?= $defaultTab == 'followersTab' ? 'active' : '' ?>" data-tab="followersTab" <?= ($search !== '' && !$hasFollowers) ? 'style="display:none;"' : '' ?>><span class="icon">👥</span> <span class="name">ফলোকারীরা</span></li>
-                <li class="<?= $defaultTab == 'lovesTab' ? 'active' : '' ?>" data-tab="lovesTab" <?= ($search !== '' && !$hasLoves) ? 'style="display:none;"' : '' ?>><span class="icon">❤️</span> <span class="name">পণ্য পছন্দ</span></li>
-                <li class="<?= $defaultTab == 'paymentsTab' ? 'active' : '' ?>" data-tab="paymentsTab" <?= ($search !== '' && !$hasPayments) ? 'style="display:none;"' : '' ?>><span class="icon">💸</span> <span class="name">পেমেন্ট</span></li>
-            </ul>
+           <ul>
+    <li class="<?= $defaultTab == 'customerTab' ? 'active' : '' ?>" data-tab="customerTab" <?= ($search !== '' && !$hasCustomer) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">👤</span> <span class="name">কাস্টমার</span>
+    </li>
+    <li class="<?= $defaultTab == 'shopOwnerTab' ? 'active' : '' ?>" data-tab="shopOwnerTab" <?= ($search !== '' && !$hasShopOwner) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">🏪</span> <span class="name">দোকানদার</span>
+    </li>
+    <li class="<?= $defaultTab == 'deliveryManTab' ? 'active' : '' ?>" data-tab="deliveryManTab" <?= ($search !== '' && !$hasDeliveryMan) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">🚚</span> <span class="name">ডেলিভারি পার্সন</span>
+    </li>
+    <li class="<?= $defaultTab == 'productsTab' ? 'active' : '' ?>" data-tab="productsTab" <?= ($search !== '' && !$hasProducts) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">🛒</span> <span class="name">প্রোডাক্ট</span>
+    </li>
+    <li class="<?= $defaultTab == 'orderTab' ? 'active' : '' ?>" data-tab="orderTab" <?= ($search !== '' && !$hasOrders) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">📦</span> <span class="name">অর্ডার</span>
+    </li>
+    <li class="<?= $defaultTab == 'reportTab' ? 'active' : '' ?>" data-tab="reportTab" <?= ($search !== '' && !$hasShopReports) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">📊</span> <span class="name">রিপোর্ট</span>
+    </li>
+    <li class="<?= $defaultTab == 'reviewTab' ? 'active' : '' ?>" data-tab="reviewTab" <?= ($search !== '' && !$hasReviews) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">⭐</span> <span class="name">রিভিউ</span>
+    </li>
+    <li class="<?= $defaultTab == 'followersTab' ? 'active' : '' ?>" data-tab="followersTab" <?= ($search !== '' && !$hasFollowers) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">👥</span> <span class="name">ফলোকারীরা</span>
+    </li>
+    <li class="<?= $defaultTab == 'lovesTab' ? 'active' : '' ?>" data-tab="lovesTab" <?= ($search !== '' && !$hasLoves) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">❤️</span> <span class="name">পণ্য পছন্দ</span>
+    </li>
+    <li class="<?= $defaultTab == 'paymentsTab' ? 'active' : '' ?>" data-tab="paymentsTab" <?= ($search !== '' && !$hasPayments) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">💸</span> <span class="name">পেমেন্ট</span>
+    </li>
+    <li class="<?= $defaultTab == 'withdrawTab' ? 'active' : '' ?>" data-tab="withdrawTab" <?= ($search !== '' && !$hasWithdraws) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">💵</span> <span class="name">উত্তোলন</span>
+    </li>
+    <li class="<?= $defaultTab == 'deliveryWithdrawTab' ? 'active' : '' ?>" data-tab="deliveryWithdrawTab" <?= ($search !== '' && !$hasDeliveryWithdraws) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">💰</span> <span class="name">ডেলিভারি উত্তোলন</span>
+    </li>
+    <li class="<?= $defaultTab == 'deliverymanReportTab' ? 'active' : '' ?>" data-tab="deliverymanReportTab" <?= ($search !== '' && !$hasDeliverymanReports) ? 'style="display:none;"' : '' ?>>
+        <span class="icon">🚩</span> <span class="name">ডেলিভারি রিপোর্ট</span>
+    </li>
+</ul>
         </nav>
         <main class="main-content">
     <?php if ($deleteMsg): ?>
@@ -773,7 +854,233 @@ document.getElementById("logoutIcon").addEventListener("click", function(e) {
         </tbody>
     </table>
 </div>
+<div id="withdrawTab" class="tab-pane<?= $defaultTab == 'withdrawTab' ? ' active' : '' ?>" <?= ($search !== '' && !$hasWithdraws) ? 'style="display:none;"' : '' ?>>
+    <h2>Withdraw Requests</h2> <br>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Shop Owner</th>
+                <th>Email</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Receiver Number</th>
+                <th>Status</th>
+                <th>TX ID</th>
+                <th>Request Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($withdraws)): foreach ($withdraws as $w): ?>
+            <tr>
+                <td><?= $w['id'] ?></td>
+                <td><?= highlight($w['shop_owner_name'], $search) ?></td>
+                <td><?= highlight($w['shop_owner_email'], $search) ?></td>
+                <td>৳<?= $w['amount'] ?></td>
+                <td><?= highlight($w['payment_method'], $search) ?></td>
+                <td><?= highlight($w['receiver_number'], $search) ?></td>
+                <td>
+                    <?php
+                    if($w['status']=='pending') echo '<span style="color:orange;">Pending</span>';
+                    elseif($w['status']=='approved') echo '<span style="color:green;">Approved</span>';
+                    elseif($w['status']=='otp_pending') echo '<span style="color:gray;">OTP Check</span>';
+                    elseif($w['status']=='rejected') echo '<span style="color:red;">Rejected</span>';
+                    else echo htmlspecialchars($w['status']);
+                    ?>
+                </td>
+                <td><?= htmlspecialchars($w['tx_id'] ?? '') ?></td>
+                <td><?= $w['request_date'] ?></td>
+                <td>
+                <?php if($w['status']=='pending'): ?>
+                    <!-- Approve Form -->
+                    <form method="post" action="../Html/admin_approve_withdraw.php" style="display:inline-block;" onsubmit="return confirm('Approve & save TX ID?');">
+                        <input type="hidden" name="withdraw_id" value="<?= $w['id'] ?>">
+                        <input type="text" name="tx_id" placeholder="TX ID" required style="width:90px;">
+                        <button type="submit" name="approve_btn" class="approve-btn">Approve</button>
+                    </form>
+                    <!-- Reject Form -->
+                    <form method="post" action="../Html/admin_reject_withdraw.php" style="display:inline-block;" onsubmit="return confirm('Reject this request?');">
+                        <input type="hidden" name="withdraw_id" value="<?= $w['id'] ?>">
+                        <button type="submit" name="reject_btn" class="delete-btn" style="background:#f77;">Reject</button>
+                    </form>
+                <?php elseif($w['status']=='approved'): ?>
+                    <span style="color:green;font-weight:bold;">Paid</span>
+                <?php elseif($w['status']=='rejected'): ?>
+                    <span style="color:red;font-weight:bold;">Rejected</span>
+                <?php else: ?>
+                    <span style="color:grey;">No action</span>
+                <?php endif; ?>
+                </td>
+            </tr>
+            <?php endforeach; else: ?>
+            <tr><td colspan="10" style="text-align:center;">Withdraw request নেই</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+<div id="deliveryWithdrawTab" class="tab-pane<?= $defaultTab == 'deliveryWithdrawTab' ? ' active' : '' ?>" <?= ($search !== '' && !$hasDeliveryWithdraws) ? 'style="display:none;"' : '' ?>>
+    <h2>Delivery Man Withdraw Requests</h2> <br>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Delivery Man</th>
+                <th>Email</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Receiver Number</th>
+                <th>TX ID</th>
+                <th>Status</th>
+                <th>Request Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if ($hasDeliveryWithdraws): foreach ($delivery_withdraws as $w): ?>
+            <tr>
+                <td><?= htmlspecialchars($w['id']) ?></td>
+                <td><?= htmlspecialchars($w['delivery_man_name'] ?? '-') ?></td>
+                <td><?= htmlspecialchars($w['delivery_man_email'] ?? '-') ?></td>
+                <td>৳<?= htmlspecialchars($w['amount']) ?></td>
+                <td><?= htmlspecialchars($w['payment_method']) ?></td>
+                <td><?= htmlspecialchars($w['receiver_number']) ?></td>
+                <td><?= htmlspecialchars($w['tx_id'] ?? '') ?></td>
+                <td>
+                    <?php
+                    if($w['status'] === 'pending') echo '<span style="color:orange;">Pending</span>';
+                    elseif($w['status'] === 'approved') echo '<span style="color:green;">Approved</span>';
+                    elseif($w['status'] === 'otp_pending') echo '<span style="color:gray;">OTP Check</span>';
+                    elseif($w['status'] === 'rejected') echo '<span style="color:red;">Rejected</span>';
+                    else echo htmlspecialchars($w['status']);
+                    ?>
+                </td>
+                <td><?= htmlspecialchars($w['request_date']) ?></td>
+                <td>
+                    <?php if($w['status'] === 'pending'): ?>
+                        <!-- Approve Form with TX ID -->
+                        <form method="post" action="../Html/admin_approve_delivery_withdraw.php" style="display:inline-block;" onsubmit="return confirm('Approve & save TX ID?');">
+                            <input type="hidden" name="withdraw_id" value="<?= htmlspecialchars($w['id']) ?>">
+                            <input type="text" name="tx_id" placeholder="TX ID" required style="width:90px;">
+                            <button type="submit" name="approve_btn" class="approve-btn">Approve</button>
+                        </form>
+                        <!-- Reject Form -->
+                        <form method="post" action="../Html/admin_reject_delivery_withdraw.php" style="display:inline-block;" onsubmit="return confirm('Reject this request?');">
+                            <input type="hidden" name="withdraw_id" value="<?= htmlspecialchars($w['id']) ?>">
+                            <button type="submit" name="reject_btn" class="delete-btn" style="background:#f77;">Reject</button>
+                        </form>
+                    <?php elseif($w['status'] === 'approved'): ?>
+                        <span style="color:green;font-weight:bold;">Paid</span>
+                    <?php elseif($w['status'] === 'rejected'): ?>
+                        <span style="color:red;font-weight:bold;">Rejected</span>
+                    <?php else: ?>
+                        <span style="color:grey;">No action</span>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php endforeach; else: ?>
+            <tr><td colspan="10" style="text-align:center;">Withdraw request নেই</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+<div id="deliverymanReportTab" class="tab-pane<?= $defaultTab == 'deliverymanReportTab' ? ' active' : '' ?>" <?= ($search !== '' && !$hasDeliverymanReports) ? 'style="display:none;"' : '' ?>>
+    <h2>ডেলিভারি পার্সনের বিরুদ্ধে রিপোর্টসমূহ</h2><br>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Delivery Man Name</th>
+                <th>Customer Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Description</th>
+                <th>Image</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($deliverymanReports)): foreach ($deliverymanReports as $r): ?>
+            <tr>
+                <td><?= highlight($r['report_id'], $search) ?></td>
+                <td><?= highlight($r['delivery_man_name'], $search) ?></td>
+                <td><?= highlight($r['customer_name'], $search) ?></td>
+                <td><?= highlight($r['customer_email'], $search) ?></td>
+                <td><?= highlight($r['customer_phone'], $search) ?></td>
+                <td><?= highlight($r['description'], $search) ?></td>
+                <td>
+                    <?php if (!empty($r['image_path'])): ?>
+                        <img src="../uploads/<?= htmlspecialchars($r['image_path']) ?>" alt="Report Image" class="report-img">
+                    <?php else: ?>নেই<?php endif; ?>
+                </td>
+                <td><?= $r['created_at'] ?></td>
+            </tr>
+            <?php endforeach; else: ?>
+            <tr><td colspan="8" style="text-align:center;">রিপোর্ট নেই</td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
 </main>
+<style>
+    input[name="tx_id"] {
+  width: 110px;
+  padding: 7px 10px;
+  font-size: 1.05rem;
+  border: 1.5px solid #fbc02d;
+  border-radius: 6px;
+  background: #fffde7;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(251,192,45,0.06);
+}
+input[name="tx_id"]:focus {
+  border-color: #fbc02d;
+  outline: none;
+  background: #fffde7;
+  box-shadow: 0 2px 8px rgba(251,192,45,0.15);
+}
+.delete-btn {
+  background: #f77;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 26px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-right: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.08);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.12s;
+  letter-spacing: 0.01em;
+}
+.delete-btn:hover,
+.delete-btn:focus {
+  background: #e53935;
+  box-shadow: 0 4px 16px rgba(255, 0, 0, 0.16);
+  outline: none;
+  transform: translateY(-2px) scale(1.04);
+}
+
+.approve-btn {
+  background: #43a047;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 26px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(67, 160, 71, 0.08);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.12s;
+  letter-spacing: 0.01em;
+}
+.approve-btn:hover,
+.approve-btn:focus {
+  background: #388e3c;
+  box-shadow: 0 4px 16px rgba(67, 160, 71, 0.16);
+  outline: none;
+  transform: translateY(-2px) scale(1.04);
+}</style>
     </div>
    <script>
     // Sidebar Tab Switcher

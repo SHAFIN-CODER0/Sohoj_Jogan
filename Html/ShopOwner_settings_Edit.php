@@ -184,23 +184,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       transform: scale(1.2);
     }
     </style>
-<!-- Notification Sidebar -->
-<div id="notificationSidebar" class="sidebar">
-    <span id="closeNotification" class="close-btn">&times;</span>
-    <h3>নোটিফিকেশন</h3> <!-- Changed 'Notifications' to 'নোটিফিকেশন' -->
-    <div class="sidebar-content">
-        <p>নতুন কোনো নোটিফিকেশন নেই</p> <!-- 'No new notifications' in Bangla -->
-    </div>
-</div>
-
-<!-- Messenger Sidebar -->
-<div id="messengerSidebar" class="sidebar">
-    <span id="closeMessenger" class="close-btn">&times;</span> <!-- Ensure this ID matches the JavaScript -->
-    <h3>মেসেজ</h3> <!-- 'Messages' to 'মেসেজ' -->
-    <div class="sidebar-content">
-        <p>কোনো নতুন মেসেজ নেই</p> <!-- 'No new messages' in Bangla -->
-    </div>
-</div>
 
 
 

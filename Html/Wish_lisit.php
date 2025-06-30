@@ -9,30 +9,29 @@ if (!isset($_SESSION['customer_id'])) {
 
 $customer_id = $_SESSION['customer_id'];
 
-// Get followed shops: shop_owner_id, shop_name, shop_image_path, shop_owner_image_path
-$followedShops = [];
-$sql = "SELECT s.shop_owner_id, s.shop_name, s.shop_image_path, s.shop_owner_image_path
-        FROM shop_owners s
-        JOIN shop_followers f ON s.shop_owner_id = f.shop_owner_id
-        WHERE f.customer_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $customer_id);
-$stmt->execute();
-$res = $stmt->get_result();
-while ($row = $res->fetch_assoc()) {
-    $followedShops[] = $row;
+// Product search (by name)
+$search_query = '';
+if (isset($_GET['search']) && trim($_GET['search']) !== '') {
+    $search_query = trim($_GET['search']);
 }
-$stmt->close();
 
-// Get loved products: all products loved by this customer
+// Get loved products: all products loved by this customer, with optional search
 $lovedProducts = [];
 $sql = "SELECT p.*, s.shop_name, s.shop_owner_image_path
         FROM products p
         JOIN product_loves l ON p.product_id = l.product_id
         JOIN shop_owners s ON p.shop_owner_id = s.shop_owner_id
         WHERE l.customer_id = ?";
+if ($search_query !== '') {
+    $sql .= " AND p.product_name LIKE ?";
+}
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $customer_id);
+if ($search_query !== '') {
+    $like_query = "%$search_query%";
+    $stmt->bind_param("is", $customer_id, $like_query);
+} else {
+    $stmt->bind_param("i", $customer_id);
+}
 $stmt->execute();
 $res = $stmt->get_result();
 while ($row = $res->fetch_assoc()) {
@@ -51,19 +50,6 @@ $conn->close();
     <title>সহজ যোগান (Sohaj Jogan) - Wishlist</title>
     <link rel="stylesheet" href="../CSS/wish_lisit.css">
     <style>
-    .shop-card {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        border: 1px solid #d7d7d7;
-        border-radius: 10px;
-        padding: 10px 18px;
-        margin-bottom: 14px;
-        background: #f3f8fd;
-    }
-    .shop-card img {
-        width: 54px; height: 54px; border-radius: 50%; object-fit: cover;
-    }
     .product-card {
         border: 1px solid #e4e4e4;
         border-radius: 12px;
@@ -94,43 +80,82 @@ $conn->close();
 </head>
 <body>
     <header>
-         <div class="logo" id="logoClickable" style="cursor:pointer;">
-    <img src="../Images/Logo.png" alt="Liberty Logo">
-    <h2>সহজ যোগান</h2>
-</div>
-<script>
-    document.getElementById('logoClickable').addEventListener('click', function() {
-        window.location.href = '../Html/Customer_Home.php';
-    });
-</script>
+        <div class="logo" id="logoClickable" style="cursor:pointer;">
+            <img src="../Images/Logo.png" alt="Liberty Logo">
+            <h2>সহজ যোগান</h2>
+        </div>
+        <script>
+            document.getElementById('logoClickable').addEventListener('click', function() {
+                window.location.href = '../Html/Customer_Home.php';
+            });
+        </script>
         <div class="icons">
-            <button><img src="../Images/search-icon.jpg" alt="Search"></button>
+            <!-- Product Search Bar (Form) -->
+            <div class="search-bar">
+                <form method="get" action="" class="search-bar-form">
+                    <input type="text" name="search" placeholder="পণ্যের নাম লিখুন..." value="<?php echo htmlspecialchars($search_query); ?>" required>
+                    <button id="submit"><img src="../Images/search.png" alt="Search"></button>
+                </form>
+            </div>
             <button id="userIcon"><img src="../Images/Sample_User_Icon.png" alt="User"></button>
-            <button><img src="../Images/heart.png" alt="Wishlist"></button>
         </div>
     </header>
     <main>
+        <style>.search-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0 10px 0;
+}
+
+.search-bar-form {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: #f6faf7;
+    border-radius: 8px;
+    padding: 7px 12px;
+    box-shadow: 0 1px 6px 0 rgba(28,124,84,0.04);
+}
+
+.search-bar-form input[type="text"] {
+    padding: 9px 14px;
+    border: 1px solid #c2eccb;
+    border-radius: 7px;
+    font-size: 1rem;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+}
+
+.search-bar-form input[type="text"]:focus {
+    border-color: #1c7c54;
+}
+
+.search-bar-form button {
+    background: #1c7c54;
+    border: none;
+    border-radius: 7px;
+    padding: 7px 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.search-bar-form button:hover {
+    background: #0a4025;
+}
+
+.search-bar-form button img {
+    width: 24px;
+    height: 24px;
+    display: block;
+}</style>
         <section class="wishlist">
             <h1>আপনার ইচ্ছের তালিকা</h1>
-            <p>আপনার পছন্দের পণ্য এবং ফলো করা দোকান</p>
-
-            <h2>ফলো করা দোকানসমূহ</h2>
-            <div class="followed-shops">
-                <?php if (count($followedShops) == 0): ?>
-                    <p>আপনি কোনো দোকান ফলো করেননি।</p>
-                <?php else: ?>
-                    <?php foreach ($followedShops as $shop): ?>
-                        <div class="shop-card">
-                            <img src="../uploads/<?php echo htmlspecialchars($shop['shop_owner_image_path']); ?>" alt="Shop Owner">
-                            <div>
-                                <strong><?php echo htmlspecialchars($shop['shop_name']); ?></strong>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-            
-            <h2 style="margin-top:30px;">আপনার পছন্দের পণ্য</h2>
+            <p>আপনার পছন্দের পণ্যসমূহ</p>
             <div class="wishlist-items">
                 <?php if (count($lovedProducts) == 0): ?>
                     <p>আপনি কোনো পণ্য পছন্দ করেননি।</p>

@@ -95,9 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             $pay_stmt->execute();
             $pay_stmt->close();
 
-            $order_sql = "UPDATE orders SET status='delivered' WHERE order_id=? AND status='accepted'";
+            // ডেলিভারি সম্পন্ন হলে deliveryman_id সেভ করো
+            $order_sql = "UPDATE orders SET status='delivered', delivery_man_id=? WHERE order_id=? AND status='accepted'";
             $order_stmt = $conn->prepare($order_sql);
-            $order_stmt->bind_param("i", $oid);
+            $order_stmt->bind_param("ii", $deliverymanId, $oid);
             $order_stmt->execute();
             $order_stmt->close();
 
@@ -115,9 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         $pay_stmt->execute();
         $pay_stmt->close();
 
-        $order_sql = "UPDATE orders SET status='delivered' WHERE order_id=? AND status='accepted'";
+        // ডেলিভারি সম্পন্ন হলে deliveryman_id সেভ করো
+        $order_sql = "UPDATE orders SET status='delivered', delivery_man_id=? WHERE order_id=? AND status='accepted'";
         $order_stmt = $conn->prepare($order_sql);
-        $order_stmt->bind_param("i", $oid);
+        $order_stmt->bind_param("ii", $deliverymanId, $oid);
         $order_stmt->execute();
         $order_stmt->close();
 
@@ -359,7 +361,6 @@ main h2 {
     outline: none;
     transition: border 0.2s;
 }
-
 .input-bkash:focus {
     border-color: #2d6a4f;
 }
@@ -382,7 +383,6 @@ b {
     font-size: 13px;
     color: #555;
 }
-
 /* ===== Responsive Table ===== */
 @media (max-width: 768px) {
     .delivery-table th, .delivery-table td {
@@ -404,5 +404,4 @@ b {
     }
 }
 </style>
-
 </html>

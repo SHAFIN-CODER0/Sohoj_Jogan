@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (confirmLogout) {
                 localStorage.clear();
                 sessionStorage.clear();
-                window.location.href = '../Html/index.html'; // Redirect to login page
+                window.location.href = '../Html/index.php'; // Redirect to login page
             }
         });
     }
@@ -101,34 +101,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Cancel button: redirect to the profile page
-    document.getElementById('canceldata').addEventListener('click', function () {
-        window.location.href = "../Html/Customer_profile.php";  // Redirect to Customer_profile.php
-    });
+    
 
-    // Save button (Submit the form and update the profile data in the database)
-    document.getElementById('savedata').addEventListener('click', function (event) {
-        // Prevent default form submission (to handle it via AJAX or other custom methods if needed)
-        event.preventDefault();
-
-        // Get the form data (you can submit this via AJAX if you don't want to reload the page)
-        const form = document.getElementById('profileForm');
-        const formData = new FormData(form); // Create a FormData object to handle form data
-
-        // Send the data using fetch or XMLHttpRequest (for asynchronous submission)
-        fetch(form.action, {
-            method: 'POST',
-            body: formData, // Send the form data, including the profile image if uploaded
-        })
-        .then(response => response.text())
-        .then(result => {
-            console.log(result);  // Debugging: check the server response
-            window.location.href = "../Html/Customer_Home.html";  // Redirect to home page after successful update
-        })
-        .catch(error => {
-            console.error('Error:', error); // Handle errors
-            alert('Error updating profile. Please try again.'); // Notify user of the error
-        });
-    });
+ 
 
 });

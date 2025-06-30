@@ -281,8 +281,63 @@ if (isset($_SESSION['delivery_man_id'])) {
     }
     $warnStmt->close();
 }
+// =============================
+// Deliveryman Review Section (for customer only)
+// =============================
+
+// Only customer can review
+$can_review = false;
+$reviewer_type = '';
+$reviewer_id = 0;
+if (isset($_SESSION['customer_id'])) {
+    $can_review = true;
+    $reviewer_type = 'customer';
+    $reviewer_id = $_SESSION['customer_id'];
+}
+
+// Handle review form submit (only if can_review)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['review_action'], $_POST['delivery_man_id'], $_POST['rating'], $_POST['review_text']) && $can_review) {
+    // Prevent double submission for review
+    $delivery_man_id = intval($_POST['delivery_man_id']);
+    $rating = intval($_POST['rating']);
+    $review_text = trim($_POST['review_text']);
+
+    // Prevent duplicate review from same user for same deliveryman (optional)
+    $stmt = $conn->prepare("SELECT review_id FROM deliveryman_reviews WHERE delivery_man_id=? AND reviewer_type=? AND reviewer_id=?");
+    $stmt->bind_param("isi", $delivery_man_id, $reviewer_type, $reviewer_id);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows === 0) {
+        $stmt->close();
+        $stmt = $conn->prepare("INSERT INTO deliveryman_reviews (delivery_man_id, reviewer_type, reviewer_id, review_text, rating) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("isisi", $delivery_man_id, $reviewer_type, $reviewer_id, $review_text, $rating);
+        $stmt->execute();
+        $stmt->close();
+        echo "<script>alert('রিভিউ সফল হয়েছে!');window.location.reload();</script>";
+        exit();
+    } 
+}
+
+// Fetch reviews for this deliveryman
+$reviews = [];
+if ($deliverymanId) {
+    $sql = "SELECT r.*, 
+        CASE WHEN r.reviewer_type='customer' THEN c.customer_name ELSE so.shop_owner_name END as reviewer_name
+        FROM deliveryman_reviews r
+        LEFT JOIN customers c ON r.reviewer_type='customer' AND r.reviewer_id=c.customer_id
+        LEFT JOIN shop_owners so ON r.reviewer_type='shop_owner' AND r.reviewer_id=so.shop_owner_id
+        WHERE r.delivery_man_id=?
+        ORDER BY r.created_at DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $deliverymanId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while($row = $result->fetch_assoc()) {
+        $reviews[] = $row;
+    }
+    $stmt->close();
+}
 ?>
-<!-- Your HTML and sidebar code will go below this as before -->
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -320,6 +375,15 @@ if (isset($_SESSION['delivery_man_id'])) {
         .tab-btn.active {background:#1c7c54;color:#fff;}
         .tab-content {display:none;}
         .tab-content.active {display:block;}
+        .reviewer-badge {
+            font-size: 0.96em;
+            color: #666;
+            background: #f2f2f2;
+            border-radius: 8px;
+            padding: 1px 8px;
+            margin-left: 6px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -360,11 +424,13 @@ if (isset($_SESSION['delivery_man_id'])) {
     <span id="closeUserSidebar" class="close-btn">&times;</span>
     <h3>ডেলিভারিম্যান মেনু</h3>
     <div class="sidebar-content">
-        <a href="../Html/Delivaryman_setting.php">সেটিংস</a>
-        <a href="../Html/Deliveryman_ChangePassword.php">পাসওয়ার্ড পরিবর্তন</a>
-        <a href="../Html/Deliveryman_MyDeliveries.php">আমার ডেলিভারি</a>
-        <a href="#" id="logoutLink">লগ আউট</a>
-    </div>
+    <a href="../Html/Delivaryman_setting.php">সেটিংস</a>
+    <a href="../Html/Deliveryman_ChangePassword.php">পাসওয়ার্ড পরিবর্তন</a>
+    <a href="../Html/Deliveryman_MyDeliveries.php">আমার ডেলিভারি</a>
+    <a href="../Html/Deliveryman_payment.php?delivery_man_id=<?= urlencode($deliverymanId) ?>">উত্তোলন</a>
+    <a href="../Html/cod_delivered_orders.php?delivery_man_id=<?= urlencode($deliverymanId) ?>">টাকা জমা দিন</a>
+    <a href="#" id="logoutLink">লগ আউট</a>
+</div>
 </div>
     <?php endif; ?>
    <div id="notificationSidebar" class="sidebar">
@@ -478,47 +544,187 @@ if (isset($_SESSION['delivery_man_id'])) {
     </div>
 </div>
     <main>
-      <section class="deliveryman-banner-section">
-        <div class="deliveryman-banner">
-          <img src="../Images/deliveryman.jpeg" alt="Deliveryman Background" class="banner-bg-img" />
-          <div class="deliveryman-info-box">
+     <section class="deliveryman-banner-section">
+    <div class="deliveryman-banner">
+        <img src="../Images/deliveryman.jpeg" alt="Deliveryman Background" class="banner-bg-img" />
+        <div class="deliveryman-info-box">
             <img 
-              src="../uploads/<?php echo htmlspecialchars($deliverymanPic); ?>" 
-              alt="Deliveryman Image" 
-              class="deliveryman-img" 
+                src="../uploads/<?= htmlspecialchars($deliverymanPic); ?>" 
+                alt="Deliveryman Image" 
+                class="deliveryman-img" 
             />
             <div class="deliveryman-name">
-              <h2><?php echo htmlspecialchars($deliverymanName); ?></h2>
+                <h2><?= htmlspecialchars($deliverymanName); ?></h2>
             </div>
-          </div>
-          <?php if (!$isDeliveryman): ?>
-          <button class="report-btn" type="button" onclick="window.location.href='../Html/report.html'">
-            রিপোর্ট করুন
-          </button>
-          <?php endif; ?>
-          <button class="review-toggle-btn" type="button">
-            রিভিউ দেখুন
-          </button>
         </div>
-      </section>
+        <?php if (!$isDeliveryman): ?>
+            <button class="report-btn" type="button"
+                onclick="window.location.href='../Html/Delivaryman_report.php?delivery_man_id=<?= (int)$deliverymanId ?>&delivery_man_name=<?= urlencode($deliverymanName) ?>'">
+                রিপোর্ট করুন
+            </button>
+        <?php endif; ?>
+    </div>
+</section>
     </main>
-
-    <section class="review-section">
-        <h2>রিভিউ</h2>
-        <div class="review-list">
+ <!-- ডেলিভারিম্যান, শপ মালিক শুধু review-list দেখতে পারবে, শুধু কাস্টমার review দিতে পারবে -->
+<section class="review-section">
+    <h2>রিভিউ</h2>
+    <!-- শুধু কাস্টমার review দিতে পারবে -->
+    <?php if (!$isDeliveryman): ?>
+    <form method="post" class="review-form">
+        <input type="hidden" name="review_action" value="submit">
+        <input type="hidden" name="delivery_man_id" value="<?= htmlspecialchars($deliverymanId) ?>">
+        <label class="review-label">রেটিং:
+            <select name="rating" required>
+                <option value="">রেটিং দিন</option>
+                <option value="5">⭐⭐⭐⭐⭐</option>
+                <option value="4">⭐⭐⭐⭐</option>
+                <option value="3">⭐⭐⭐</option>
+                <option value="2">⭐⭐</option>
+                <option value="1">⭐</option>
+            </select>
+        </label>
+        <br>
+        <label class="review-label">রিভিউ: 
+            <textarea name="review_text" required rows="2" cols="40"></textarea>
+        </label>
+        <br>
+        <button type="submit" class="review-submit-btn">সাবমিট</button>
+    </form>
+    <?php endif; ?>
+    <!-- সবাই review-list দেখতে পারবে -->
+    <div class="review-list">
+        <?php if (!empty($reviews)): foreach ($reviews as $r): ?>
             <div class="review-item">
-                <div class="review-author">জন ডো</div>
-                <div class="review-text">অসাধারণ সেবা! পণ্যটি দ্রুত পেয়েছি এবং গুণগত মান খুবই ভালো।</div>
-                <div class="review-rating">⭐⭐⭐⭐⭐</div>
+                <div class="review-author">
+                    <?= htmlspecialchars($r['reviewer_name'] ?? 'Unknown') ?>
+                    <span class="reviewer-badge">
+                        <?php
+                            if (isset($r['reviewer_type'])) {
+                                if ($r['reviewer_type'] === 'customer') echo '(কাস্টমার)';
+                                elseif ($r['reviewer_type'] === 'shop_owner') echo '(দোকানদার)';
+                            }
+                        ?>
+                    </span>
+                </div>
+                <div class="review-text"><?= htmlspecialchars($r['review_text']) ?></div>
+                <div class="review-rating"><?= str_repeat('⭐', intval($r['rating'])) ?></div>
+                <div class="review-date"><?= date('d M Y, h:i A', strtotime($r['created_at'])) ?></div>
             </div>
-            <div class="review-item">
-                <div class="review-author">মি. শাহিন</div>
-                <div class="review-text">ভাল পণ্য, কিন্তু ডেলিভারি একটু দেরি হয়েছিল।</div>
-                <div class="review-rating">⭐⭐⭐⭐</div>
-            </div>
-        </div>
-    </section>
+        <?php endforeach; else: ?>
+            <div class="review-item">এখনো কোনো রিভিউ নেই</div>
+        <?php endif; ?>
+    </div>
+</section>
 
+<style>.review-section {
+    max-width: 480px;
+    margin: 35px auto 30px auto;
+    background: #fff;
+    padding: 22px 26px 20px 26px;
+    border-radius: 14px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.07), 0 1.5px 4px rgba(251,192,45,.04);
+    border: 1.3px solid #fbc02d1a;
+}
+
+.review-section h2 {
+    margin-top: 0;
+    color: #1c7c54;
+    font-size: 1.45rem;
+    text-align: center;
+    margin-bottom: 18px;
+    letter-spacing: 0.03em;
+}
+.review-list {
+    margin-top: 8px;
+}
+.review-item {
+    background: #fffde7;
+    border: 1px solid #ffe082;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    padding: 12px 15px 8px 15px;
+    box-shadow: 0 1px 6px rgba(251,192,45,.07);
+    transition: box-shadow .15s;
+}
+.review-author {
+    color: #1c7c54;
+    font-weight: 700;
+    font-size: 1.07em;
+    margin-bottom: 2px;
+}
+.review-text {
+    color: #444;
+    font-size: 1em;
+    margin: 3px 0 5px 0;
+}
+.review-rating {
+    color: #fbc02d;
+    font-size: 1.13em;
+    letter-spacing: 2px;
+    margin-bottom: 1px;
+}
+.review-date {
+    font-size: 0.92em;
+    color: #888;
+    margin-top: 2px;
+    text-align: right;
+}
+.review-form {
+    background: #f7f7f7;
+    border: 1px solid #e0e0e0;
+    padding: 17px 14px 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 19px;
+    box-shadow: 0 1px 4px rgba(1,124,84,.05);
+}
+.review-label {
+    font-weight: 600;
+    color: #1c7c54;
+}
+.review-form textarea {
+    width: 98%;
+    resize: vertical;
+    min-height: 42px;
+    font-size: 1.02em;
+    border-radius: 6px;
+    border: 1px solid #ffe082;
+    background: #fffde7;
+    padding: 5px 8px;
+    transition: border .15s;
+}
+.review-form textarea:focus {
+    border-color: #fbc02d;
+    outline: none;
+}
+.review-form select {
+    font-size: 1em;
+    border-radius: 6px;
+    border: 1px solid #ffe082;
+    background: #fffde7;
+    padding: 3px 9px;
+}
+.review-submit-btn {
+    margin-top: 8px;
+    background: #1c7c54;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 22px;
+    font-size: 1.08em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(28,124,84,.10);
+    transition: background .2s, transform .12s;
+    letter-spacing: 0.01em;
+}
+.review-submit-btn:hover,
+.review-submit-btn:focus {
+    background: #145e3d;
+    outline: none;
+    transform: scale(1.045);
+}
+</style>
     <footer class="footer">
         <div class="footer-links">
             <div class="footer-column">

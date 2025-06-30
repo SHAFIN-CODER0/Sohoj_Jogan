@@ -152,57 +152,7 @@ header .icons button:hover img {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
     font-size: 14px;
 }
-.design-masters {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* Space between text and button */
-    height: 120vh; /* Adjust height to fit screen */
-    background-image: url('../Images/backgournd.jpg'); /* Use the correct path */
-    background-size: cover;
-    background-position: center;
-    color: white;
-    text-align: left;
-    padding: 50px; /* Add padding to space elements */
-}
 
-.design-masters-content {
-    max-width: 50%; /* Limit width of text */
-}
-
-.title {
-    font-size: 2em;
-    font-weight: bold;
-    font-family: 'Garamond', 'Times New Roman', serif;
-font-weight: bold;
-
-}
-
-.description {
-    font-size: 1.2em;
-    margin-top: 10px;
-    
-}
-
-.shop-now-btn {
-    display: inline-block;
-    padding: 10px 100px;
-    font-size: 1.8em;
-    font-weight: bold;
-    color: black;
-    background: white;
-    border-radius: 60px;
-    text-decoration: none;
-    transition: 0.3s;
-    position: absolute;
-    right: 10px;
-    width: 380px;
-   
-
-}
-
-.shop-now-btn:hover {
-    background: #dddddd;
-}
 
 .main-hero {
     display: flex;
@@ -360,7 +310,7 @@ font-weight: bold;
 }
 
 .cta-btn {
-    background-color: #2ecc71;
+    background-color: #4B014B;
     color: white;
     padding: 15px 45px;
     border: none;
@@ -373,7 +323,7 @@ font-weight: bold;
 }
 
 .cta-btn:hover {
-    background-color: #27ae60;
+    background-color: #6b146b;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
 }
@@ -540,7 +490,7 @@ font-weight: bold;
 }
 
 .cta-btn.help-btn {
-    background-color: #3498db;
+    background-color: #6b146b;;
     padding: 15px 30px;
     border-radius: 8px;
     font-size: 1.2em;
@@ -549,7 +499,7 @@ font-weight: bold;
 }
 
 .cta-btn.help-btn:hover {
-    background-color: #2980b9;
+    background-color: #4B014B;
     transform: translateY(-2px);
 }
 
@@ -642,7 +592,7 @@ font-weight: bold;
 }
 
 .delivery-man-text button.cta-btn {
-    background-color: #30d256;
+    background-color: #6b146b;;
     color: white;
     padding: 10px 22px;
     font-size: 0.95rem;
@@ -656,7 +606,7 @@ font-weight: bold;
 }
 
 .delivery-man-text button.cta-btn:hover {
-    background-color: #1ea33b;
+    background-color: #4B014B;
 }
 
 /* Responsive Design */
@@ -1152,7 +1102,6 @@ font-weight: bold;
 
 
 
-
 /* Sidebar Styling */
 .sidebar {
     position: fixed;
@@ -1166,7 +1115,7 @@ font-weight: bold;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-top: 60px;
+    margin-top: 50px;
 
 }
 
@@ -1695,7 +1644,7 @@ button:hover {
 
 
 /* Styling the dropdown container (select element) */
-#shopOwnerGender {
+#shopOwnerGender ,#shopType{
     width: 100%; /* Full width */
     padding: 10px; /* Padding inside the dropdown */
     font-size: 12px; /* Font size for the options */
@@ -1707,7 +1656,8 @@ button:hover {
 }
 
 /* Style for the options inside the dropdown */
-#shopOwnerGender option {
+#shopOwnerGender option ,
+#shopType option {
     font-size: 10px; /* Font size for options */
     padding: 10px; /* Padding inside each option */
     background-color: #fff; /* Background color for options */
@@ -1715,12 +1665,14 @@ button:hover {
 }
 
 /* Change background color when hovering over options */
-#shopOwnerGender option:hover {
+#shopOwnerGender option:hover,
+#shopType option:hover {
     background-color: #f0f0f0; /* Light gray background on hover */
 }
 
 /* Optionally add a focus style when the user selects the dropdown */
-#shopOwnerGender:focus {
+#shopOwnerGender:focus ,
+#shopType:focus {
     border-color: #4B014B; /* Border color when focused */
 }
 
@@ -2357,4 +2309,17 @@ select[name="userType"]::-webkit-scrollbar {
     width: 24px;
     height: 24px;
     display: block;
+}
+.forgot-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 26px;
+    color: #c00;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+.forgot-close-btn:hover {
+    color: #a00;
 }

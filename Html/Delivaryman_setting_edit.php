@@ -124,9 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <button id="userIcon">
                 <img src="../Images/Sample_User_Icon.png" alt="User">
             </button>
-            <button id="notificationIcon">
-                <img src="../Images/notification.png" alt="Notifications">
-            </button>
+        
             
         </div>
     </header>
@@ -145,14 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </div>
 
-<!-- Notification Sidebar -->
-<div id="notificationSidebar" class="sidebar">
-    <span id="closeNotification" class="close-btn">&times;</span>
-    <h3>নোটিফিকেশন</h3> <!-- Changed 'Notifications' to 'নোটিফিকেশন' -->
-    <div class="sidebar-content">
-        <p>নতুন কোনো নোটিফিকেশন নেই</p> <!-- 'No new notifications' in Bangla -->
-    </div>
-</div>
+
 
 <!-- SETTINGS SECTION -->
 <div class="form-container">

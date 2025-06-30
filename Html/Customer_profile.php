@@ -109,7 +109,11 @@ if (isset($_SESSION['customer_id'])) {
         </button>
     </div>
 </header>
-
+<script>
+document.getElementById('messengerBtn').onclick = function() {
+    window.location.href = '../Html/Massenger-chat.php';
+};
+</script>
 <!-- PROFILE SECTION -->
 <div class="profile-container">
     <h2>আপনার প্রোফাইল</h2>
@@ -318,15 +322,6 @@ if (isset($_SESSION['customer_id'])) {
     font-size: 0.95em;
 }
 </style>
-<!-- Messenger Sidebar -->
-<div id="messengerSidebar" class="sidebar">
-    <span id="closeMessenger" class="close-btn">&times;</span>
-    <h3>মেসেজ</h3>
-    <div class="sidebar-content">
-        <p>কোনো নতুন মেসেজ নেই</p>
-    </div>
-</div>
-
 <script src="../java_script/CustomerProfile.js"></script>
 </body>
 </html>

@@ -5,12 +5,12 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = trim($_POST['customerName']);
-    $phone = trim($_POST['customerPhone']);
-    $gender = $_POST['customerGender'];
-    $address = trim($_POST['customerAddress']);
-    $email = trim($_POST['customerEmail']);
-    $rawPassword = $_POST['customerPassword'];
+    $name       = trim($_POST['customerName']);
+    $phone      = trim($_POST['customerPhone']);
+    $gender     = $_POST['customerGender'];
+    $address    = trim($_POST['customerAddress']);
+    $email      = trim($_POST['customerEmail']);
+    $rawPassword= $_POST['customerPassword'];
 
     // === Validate Phone Number ===
     $allowedPrefixes = ['013', '014', '015', '016', '017', '018', '019'];
@@ -29,7 +29,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = password_hash($rawPassword, PASSWORD_DEFAULT);
 
     // === Image Upload ===
-    $imageName = $_FILES['customerPic']['name'];
+    if (!isset($_FILES['customerPic']) || $_FILES['customerPic']['error'] !== UPLOAD_ERR_OK) {
+        echo "<script>alert('ছবি আপলোডে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।'); window.location.href='../Html/index.php';</script>";
+        exit();
+    }
+
+    $imageName = basename($_FILES['customerPic']['name']);
     $imageTmpName = $_FILES['customerPic']['tmp_name'];
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
     $imageExtension = strtolower(pathinfo($imageName, PATHINFO_EXTENSION));
@@ -39,8 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $uniqueImageName = time() . "_" . basename($imageName);
-    $imageFolder = "../uploads/" . $uniqueImageName;
+    $imageFolder = "../uploads/" . $imageName;
 
     if (move_uploaded_file($imageTmpName, $imageFolder)) {
         // === Check if phone/email is banned ===
@@ -62,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $banStmt->close();
 
         // Check for duplicate email or phone
-        $checkSql = "SELECT * FROM customers WHERE customer_email = ? OR customer_phone = ?";
+        $checkSql = "SELECT customer_id FROM customers WHERE customer_email = ? OR customer_phone = ?";
         $stmt = $conn->prepare($checkSql);
         $stmt->bind_param("ss", $email, $phone);
         $stmt->execute();
@@ -78,23 +82,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Insert into database
             $sql = "INSERT INTO customers (customer_name, customer_phone, customer_gender, customer_address, customer_email, customer_password, profile_pic) 
                     VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sssssss", $name, $phone, $gender, $address, $email, $password, $uniqueImageName);
+            $insertStmt = $conn->prepare($sql);
+            $insertStmt->bind_param("sssssss", $name, $phone, $gender, $address, $email, $password, $imageName);
 
-            if ($stmt->execute()) {
+            if ($insertStmt->execute()) {
                 echo "<script>alert('নিবন্ধন সফল হয়েছে! অনুগ্রহ করে লগইন করুন'); window.location.href='../Html/index.php';</script>";
             } else {
-                echo "SQL Error: " . $conn->error;
+                echo "<script>alert('ডাটাবেজে সমস্যা হয়েছে! দয়া করে পরে আবার চেষ্টা করুন।'); window.location.href='../Html/index.php';</script>";
                 // Remove uploaded image if DB error
                 if (file_exists($imageFolder)) {
                     unlink($imageFolder);
                 }
             }
+            $insertStmt->close();
         }
-
         $stmt->close();
     } else {
-        echo "<script>alert('Error uploading image. Please try again.'); window.location.href='../Html/index.php';</script>";
+        echo "<script>alert('ছবি আপলোডে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।'); window.location.href='../Html/index.php';</script>";
     }
 }
 ?>

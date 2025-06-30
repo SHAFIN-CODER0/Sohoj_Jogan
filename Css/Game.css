@@ -88,37 +88,7 @@ header .icons button:hover img {
     filter: brightness(1.2); /* Slightly brighten on hover */
 }
 
-/* Responsive Design */
-@media (max-width: 600px) {
-    header {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 20px 20px;
-    }
 
-    header .logo {
-        margin-bottom: 20px;
-    }
-
-    header nav ul {
-        flex-direction: column;
-        margin-bottom: 20px;
-    }
-
-    header nav ul li {
-        margin-left: 0;
-        margin-bottom: 10px;
-    }
-
-    header .icons {
-        margin: 10px 0 0 0;
-    }
-
-    header .coin-balance {
-        margin-right: 0;
-        margin-top: 10px;
-    }
-}
 
 header .coin-balance {
     display: flex;
@@ -286,21 +256,6 @@ justify-content: center;
     padding: 20px 10px;
 }
 
-/* Responsive: Stack cards vertically on smaller screens */
-@media (max-width: 700px) {
-    .game-dashboard-vertical {
-        padding: 10px;
-        gap: 18px;
-    }
-    .game-list-scroll {
-        flex-direction: column;
-        gap: 14px;
-    }
-    .main-game-box,
-    .other-games-vertical {
-        padding: 12px;
-    }
-}
 
 /* Footer Styles */
 .footer {
@@ -438,4 +393,36 @@ justify-content: center;
   margin-top: 20px;
   font-family: 'Georgia', serif;
   line-height: 1.5;
+}
+
+/* ====== RESPONSIVE: Stack, shrink, adapt on smaller screens ====== */
+@media (max-width: 1000px) {
+    .slider-container { max-width: 98vw; }
+    .product-slider { gap: 15px; }
+    .product { min-width: 210px; max-width: 270px; }
+    .main-game-box, .other-games-vertical { padding: 14px; }
+}
+@media (max-width: 700px) {
+    header { flex-direction: column; align-items: flex-start; padding: 14px 12px; }
+    header .logo { margin-bottom: 14px; }
+    header nav ul { flex-direction: column; margin-bottom: 14px; }
+    header nav ul li { margin-left: 0; margin-bottom: 8px; }
+    header .icons { margin: 10px 0 0 0; }
+    header .coin-balance { margin-right: 0; margin-top: 10px; }
+    .slider-title { font-size: 1.15rem; padding: 10px 0 0 9px; }
+    .product-slider { gap: 9px; padding: 10px; }
+    .product { min-width: 160px; max-width: 200px; padding: 10px 4px; }
+    .product-title { font-size: 1rem; }
+    .product img { width: 70px; height: 70px; }
+    .game-dashboard-vertical { padding: 7px; gap: 14px; margin-top: 85px; }
+    .main-game-box, .other-games-vertical { padding: 9px; }
+    .game-list-scroll { flex-direction: column; gap: 10px; }
+    .footer { padding: 15px; }
+    .footer-links { flex-direction: column; gap: 8px; }
+    .footer-column { margin: 7px 0; }
+}
+@media (max-width: 400px) {
+    .slider-title { font-size: 1rem; }
+    .product { min-width: 120px; max-width: 150px; }
+    .main-game-box, .other-games-vertical { padding: 5px; }
 }

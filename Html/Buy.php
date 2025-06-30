@@ -2,6 +2,21 @@
 include '../PHP/db_connect.php';
 session_start();
 
+// ---- Initialize flags to avoid undefined variable warnings ----
+$showSuccess = false;
+$showError = false;
+$successMessage = "";
+$errorMessage = "";
+
+// Check if the user is logged in
+if (!isset($_SESSION['customer_email'])) {
+    echo "<script>
+        alert('You must log in first!');
+        window.location.href = '../Html/index.php';
+    </script>";
+    exit();
+}
+
 // ---- Customer Coin Fetch ----
 function bn_number($number) {
     $bn_digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
@@ -42,59 +57,23 @@ $productPrice = (float)$product['price'];
 $productImage = htmlspecialchars($product['product_image_path']);
 $shop_owner_id = (int)$product['shop_owner_id'];
 
-// ---- Shop Location from shop_owners (address to lat/lng) ----
-$sql = "SELECT address_street, address_area, address_city, address_postcode, address_division FROM shop_owners WHERE shop_owner_id = ?";
+// ---- Shop Location from shop_owners (lat/lng) ----
+$sql = "SELECT address_street, address_area, address_city, address_postcode, address_division, shop_latitude, shop_longitude FROM shop_owners WHERE shop_owner_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('i', $shop_owner_id);
 $stmt->execute();
-$stmt->bind_result($street, $area, $city, $postcode, $division);
+$stmt->bind_result($street, $area, $city, $postcode, $division, $shop_latitude, $shop_longitude);
 $stmt->fetch();
 $stmt->close();
 
-$shop_address = trim("$street, $area, $city, $postcode, $division");
+$shop_lat = $shop_latitude;
+$shop_lng = $shop_longitude;
 
-// Geocode function
-function getLatLngFromAddress($address) {
-    $encoded = urlencode($address);
-    $url = "https://nominatim.openstreetmap.org/search?format=json&q=$encoded";
-    $opts = [
-        "http" => [
-            "header" => "User-Agent: shop-app/1.0\r\n"
-        ]
-    ];
-    $context = stream_context_create($opts);
-    $json = @file_get_contents($url, false, $context);
-    $data = json_decode($json, true);
-
-    if (!empty($data)) {
-        return [
-            'lat' => $data[0]['lat'],
-            'lng' => $data[0]['lon']
-        ];
-    }
-    return false;
-}
-
-// ঠিকানাটি থেকে latitude/longitude বের করুন (address না থাকলে বা ভুল থাকলে error দেখান)
-if ($shop_address && strtolower($shop_address) !== ', , , ,') {
-    $latlng = getLatLngFromAddress($shop_address);
-    if ($latlng) {
-        $shop_lat = $latlng['lat'];
-        $shop_lng = $latlng['lng'];
-    } else {
-        echo "<div style='color:red;text-align:center;margin:25px 0;font-size:1.2em;'>দয়া করে দোকানের ঠিকানা সঠিকভাবে যুক্ত করুন।</div>";
-        exit();
-    }
-} else {
-    echo "<div style='color:red;text-align:center;margin:25px 0;font-size:1.2em;'>দয়া করে দোকানের ঠিকানা সঠিকভাবে যুক্ত করুন।</div>";
+// If lat/lng missing, show error
+if (!$shop_lat || !$shop_lng) {
+    echo "<div style='color:red;text-align:center;margin:25px 0;font-size:1.2em;'>দয়া করে দোকানের লোকেশন সঠিকভাবে যুক্ত করুন।</div>";
     exit();
 }
-
-// Order form result messages
-$showSuccess = false;
-$showError = false;
-$successMessage = '';
-$errorMessage = '';
 
 // ---- Main Order Handling (POST to this page) ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -139,37 +118,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorMessage = "bKash Transaction ID দিন।";
     } else {
         // (১) অর্ডার টেবিলে সেভ করুন (payment_method, bkash_txid সহ)
-     // Order Insert
-$sql = "INSERT INTO orders 
-(product_id, shop_owner_id, customer_id, quantity, delivery_method, customer_name, customer_address, customer_phone, customer_comment, distance, delivery_charge, order_time)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-$stmt5 = $conn->prepare($sql);
-$stmt5->bind_param(
-    'iiiisssssid', // delivery_charge যদি FLOAT হয়, যদি INT হয় তাহলে শেষটা 'i'
-    $product_id, $shop_owner_id, $customer_id, $quantity,
-    $delivery, $customer_name, $customer_address, $customer_phone, $customer_comment,
-    $distance, $delivery_charge
-);
-$success = $stmt5->execute();
-$order_id = $conn->insert_id;
-$stmt5->close();
+        $sql = "INSERT INTO orders 
+        (product_id, shop_owner_id, customer_id, quantity, delivery_method, customer_name, customer_address, customer_phone, customer_comment, distance, delivery_charge, order_time)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        $stmt5 = $conn->prepare($sql);
+        $stmt5->bind_param(
+            'iiiisssssid',
+            $product_id, $shop_owner_id, $customer_id, $quantity,
+            $delivery, $customer_name, $customer_address, $customer_phone, $customer_comment,
+            $distance, $delivery_charge
+        );
+        $success = $stmt5->execute();
+        $order_id = $conn->insert_id;
+        $stmt5->close();
 
-// Payment Insert
-if ($success) {
-    $amount = ($payment_method == 'coin') ? 0 : ($productPrice * $quantity + $delivery_charge);
-    $payment_status = 'pending';
-    $sql2 = "INSERT INTO payments (order_id, payment_method, bkash_txid, amount, payment_status, payment_time)
-             VALUES (?, ?, ?, ?, ?, NOW())";
-    $stmt6 = $conn->prepare($sql2);
-    $stmt6->bind_param(
-        'issis', // amount যদি int হয়, যদি float/double হয় তাহলে 'd'
-        $order_id, $payment_method, $bkash_txid, $amount, $payment_status
-    );
-    $stmt6->execute();
-    $stmt6->close();
-    // ...
-}
-
+        // Payment Insert
+        if ($success) {
+            $amount = ($payment_method == 'coin') ? 0 : ($productPrice * $quantity + $delivery_charge);
+            $payment_status = 'pending';
+            $sql2 = "INSERT INTO payments (order_id, payment_method, bkash_txid, amount, payment_status, payment_time)
+                     VALUES (?, ?, ?, ?, ?, NOW())";
+            $stmt6 = $conn->prepare($sql2);
+            $stmt6->bind_param(
+                'issis',
+                $order_id, $payment_method, $bkash_txid, $amount, $payment_status
+            );
+            $stmt6->execute();
+            $stmt6->close();
+        }
         // (২) product টেবিল থেকে stock কমান
         if ($success) {
             $update_sql = "UPDATE products SET stock = stock - ? WHERE product_id = ?";
@@ -186,6 +162,29 @@ if ($success) {
                 $update_coins_stmt->execute();
                 $update_coins_stmt->close();
             }
+            // (১) কাস্টমারকে notification দিন
+            $msg_customer = "আপনার অর্ডারটি গ্রহণ করা হয়েছে!";
+            $stmt_n1 = $conn->prepare("INSERT INTO notifications (user_id, user_type, order_id, message) VALUES (?, 'customer', ?, ?)");
+            $stmt_n1->bind_param('iis', $customer_id, $order_id, $msg_customer);
+            $stmt_n1->execute();
+            $stmt_n1->close();
+
+            // (২) Shop Owner কে notification দিন
+            $msg_shop = "নতুন অর্ডার এসেছে (Order ID: $order_id)। কাস্টমার: $customer_name";
+            $stmt_n2 = $conn->prepare("INSERT INTO notifications (user_id, user_type, order_id, message) VALUES (?, 'shop_owner', ?, ?)");
+            $stmt_n2->bind_param('iis', $shop_owner_id, $order_id, $msg_shop);
+            $stmt_n2->execute();
+            $stmt_n2->close();
+
+            // (৩) সফল অর্ডার হলে ০.৫ কয়েন কাস্টমারকে যোগ করুন
+            if ($success && $customer_id) {
+                $reward_coin = 0.5;
+                $update_reward = $conn->prepare("UPDATE customers SET customer_coins = customer_coins + ? WHERE customer_id = ?");
+                $update_reward->bind_param("di", $reward_coin, $customer_id);
+                $update_reward->execute();
+                $update_reward->close();
+            }
+
             $showSuccess = true;
             $successMessage = "✅ অর্ডার সফলভাবে গ্রহণ করা হয়েছে! আপনি কিছুক্ষণের মধ্যে হোম পেজে চলে যাবেন...";
         } else {
@@ -193,26 +192,6 @@ if ($success) {
             $errorMessage = "❌ অর্ডার গ্রহণে ত্রুটি হয়েছে, আবার চেষ্টা করুন।";
         }
     }
-    if ($success) {
-    // ... stock কমানো, কয়েন কাটা ইত্যাদি ...
-
-    // (১) কাস্টমারকে notification দিন
-    $msg_customer = "আপনার অর্ডারটি গ্রহণ করা হয়েছে!";
-    $stmt_n1 = $conn->prepare("INSERT INTO notifications (user_id, user_type, order_id, message) VALUES (?, 'customer', ?, ?)");
-    $stmt_n1->bind_param('iis', $customer_id, $order_id, $msg_customer);
-    $stmt_n1->execute();
-    $stmt_n1->close();
-
-    // (২) Shop Owner কে notification দিন
-    $msg_shop = "নতুন অর্ডার এসেছে (Order ID: $order_id)। কাস্টমার: $customer_name";
-    $stmt_n2 = $conn->prepare("INSERT INTO notifications (user_id, user_type, order_id, message) VALUES (?, 'shop_owner', ?, ?)");
-    $stmt_n2->bind_param('iis', $shop_owner_id, $order_id, $msg_shop);
-    $stmt_n2->execute();
-    $stmt_n2->close();
-
-    $showSuccess = true;
-    $successMessage = "✅ অর্ডার সফলভাবে গ্রহণ করা হয়েছে! আপনি কিছুক্ষণের মধ্যে হোম পেজে চলে যাবেন...";
-}
 }
 ?>
 <!DOCTYPE html>

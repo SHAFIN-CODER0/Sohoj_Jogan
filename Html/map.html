@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -10,7 +11,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
     <!-- External CSS File -->
-    <link rel="stylesheet" href="../Css/map.css">
+    <link rel="stylesheet" href="../Css/map.css?v=1">
 </head>
 <body>
 
@@ -28,33 +29,54 @@
 
     <!-- Buttons and Input for Search -->
     <div class="btn-container">
+        <!-- স্থান অনুসন্ধান ইনপুট ও বাটন -->
         <div class="input-wrapper">
             <i class="fas fa-search input-icon"></i>
             <input type="text" id="placeInput" placeholder="স্থান নাম লিখুন..." />
         </div>
-        
         <button id="searchPlaceBtn">
             <img src="../Images/gps.png" alt="Search"> স্থান অনুসন্ধান
         </button>
         
+        <!-- বর্তমান অবস্থান বাটন -->
         <button id="currentLocationBtn">
             <img src="../Images/target.png" alt="Location"> বর্তমান অবস্থান
         </button>
         
-        <button id="routeSearchBtn">
+        <!-- পণ্য অনুসন্ধান বাটন -->
+        <button id="routeSearchBtn" type="button">
             <img src="../Images/direction-sign.png" alt="Route"> পণ্য অনুসন্ধান করুন
         </button>
         
+        <!-- পণ্য অনুসন্ধান ইনপুট ও সার্চ বাটন (প্রথমে লুকানো) -->
+        <div id="productSearchArea" style="display:none; margin-top:10px;">
+            <input type="text" id="productInput" placeholder="পণ্যের নাম লিখুন" style="padding:5px; width:200px;">
+            <button id="productSearchBtn" type="button">সার্চ</button>
+        </div>
     </div>
 </section>
+<style>/* Product Search Area Styling (smaller, compact) */
+#productSearchArea input[type="text"] {
+border: 2px solid #d9534f; /* Added a thick red border */
+    padding: 20px;
+    font-size: 14px; /* Bigger font */
+    outline: none;
+    flex-grow: 1;
+    border-radius: 12px;
+    width: 90%;
+    height: 40px;
+    background: #ffffff;
+    color: #333;
+    text-align: center; /* Centered placeholder text */
+    transition: border 0.3s ease; /* Smooth border effect */
+}
+#productSearchArea input[type="text"]:focus {
+      border: 3px solid #c9302c; /* Darker red when focused */
 
+}</style>
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
-
-<script src="../java_script/map.js"></script>
-
-</script>
 <!-- Footer -->
 <footer>
     <div class="footer-content">
@@ -64,3 +86,280 @@
 
 </body>
 </html>
+<script>
+// Initialize the map
+var map = L.map('mapid', {
+    center: [23.8103, 90.4125],
+    zoom: 15,
+    maxZoom: 21,
+    minZoom: 5,
+    zoomControl: false
+});
+
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+// Style zoom buttons
+document.addEventListener("DOMContentLoaded", function () {
+    let zoomButtons = document.querySelectorAll(".leaflet-control-zoom a");
+    zoomButtons.forEach(button => {
+        button.style.width = "30px";
+        button.style.height = "30px";
+        button.style.fontSize = "22px";
+        button.style.lineHeight = "40px";
+    });
+});
+
+// Add OpenStreetMap tiles
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 22
+}).addTo(map);
+
+// --- Red pin icon ---
+const redIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+let currentLocationMarker = null;
+let currentLocationCircle = null;
+let shopMarkers = [];
+let shopsData = [];
+let userLat = null, userLon = null;
+
+// For OSRM route line
+window.routeLayer = null;
+
+// Haversine formula for distance in km
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+// Estimated time (minutes) -- average 6km/h
+function estimateTime(distanceKm, speed = 6) {
+    return Math.round((distanceKm / speed) * 60);
+}
+
+// Clear previous location marker/circle
+function clearPreviousMarkers() {
+    if (currentLocationMarker) map.removeLayer(currentLocationMarker);
+    if (currentLocationCircle) map.removeLayer(currentLocationCircle);
+}
+
+// Clear all shop markers
+function clearShopMarkers() {
+    shopMarkers.forEach(m => map.removeLayer(m));
+    shopMarkers = [];
+}
+
+// Remove previous route line
+function clearRouteLayer() {
+    if (window.routeLayer) {
+        map.removeLayer(window.routeLayer);
+        window.routeLayer = null;
+    }
+}
+
+// Draw route and show road distance/time between two points using OSRM
+function showRoute(fromLat, fromLon, toLat, toLon, callback) {
+    clearRouteLayer();
+    const url = `https://router.project-osrm.org/route/v1/driving/${fromLon},${fromLat};${toLon},${toLat}?overview=full&geometries=geojson`;
+    fetch(url)
+        .then(resp => resp.json())
+        .then(data => {
+            if (data.routes && data.routes.length) {
+                const route = data.routes[0];
+                // Draw the route on the map
+                window.routeLayer = L.geoJSON(route.geometry, {color: "orange", weight: 5}).addTo(map);
+                // Call callback with distance (km) and time (min)
+                callback(route.distance / 1000, Math.round(route.duration / 60));
+            } else {
+                callback(null, null);
+            }
+        })
+        .catch(() => {
+            callback(null, null);
+        });
+}
+
+// Render shops on map (optionally filter by user location)
+function renderShopsOnMap(filterLat = null, filterLon = null) {
+    clearShopMarkers();
+    clearRouteLayer();
+    shopsData.forEach(shop => {
+        let lat = parseFloat(shop.shop_latitude);
+        let lon = parseFloat(shop.shop_longitude);
+
+        let dist = null;
+        let showMarker = true;
+
+        if (filterLat !== null && filterLon !== null) {
+            dist = getDistanceFromLatLonInKm(filterLat, filterLon, lat, lon);
+            if (dist > 10) showMarker = false;
+        }
+        if (showMarker) {
+            let marker = L.marker([lat, lon], {icon: redIcon}).addTo(map);
+
+           marker.on('click', function() {
+    let shopDetailsUrl = `../Html/ShopOwner_Home.php?id=${shop.shop_owner_id}`;
+    if (filterLat !== null && filterLon !== null) {
+        showRoute(filterLat, filterLon, lat, lon, function(roadDist, roadTime) {
+            let popupHtml = `<b><a href="${shopDetailsUrl}" target="_blank" style="color:#1976d2;text-decoration:underline;cursor:pointer;">${shop.shop_name}</a></b><br>
+                <span>এলাকা: ${shop.address_area || ''}</span><br>`;
+            if (roadDist !== null && roadTime !== null) {
+                popupHtml += `রাস্তা দিয়ে দূরত্ব: ${roadDist.toFixed(2)} কিমি<br>`;
+                popupHtml += `সময়: ${roadTime} মিনিট (প্রায়)<br>`;
+            } else {
+                let airDist = getDistanceFromLatLonInKm(filterLat, filterLon, lat, lon);
+                let fallbackTime = estimateTime(airDist, 6);
+                popupHtml += `রাস্তার দূরত্ব পাওয়া যায়নি<br>`;
+                popupHtml += `এয়ার দূরত্ব: ${airDist.toFixed(2)} কিমি<br>`;
+                popupHtml += `সময় (ধরা): ${fallbackTime} মিনিট (প্রায়)<br>`;
+            }
+            marker.bindPopup(popupHtml).openPopup();
+        });
+    } else {
+        let popupHtml = `<b><a href="${shopDetailsUrl}" target="_blank" style="color:#1976d2;text-decoration:underline;cursor:pointer;">${shop.shop_name}</a></b><br>
+            <span>এলাকা: ${shop.address_area || ''}</span><br>
+            <span style="color:red;">আপনার অবস্থান সিলেক্ট করুন (বর্তমান অবস্থান বোতাম চাপুন)</span>`;
+        marker.bindPopup(popupHtml).openPopup();
+    }
+});
+            shopMarkers.push(marker);
+        }
+    });
+}
+
+// Fetch shops from backend
+async function loadShops() {
+    try {
+        let res = await fetch('../api/shops.php');
+        shopsData = await res.json();
+        renderShopsOnMap(); // First load, show all
+    } catch (err) {
+        alert("Shop data load হয় নাই!");
+    }
+}
+
+// 📍 Current Location Button
+document.getElementById("currentLocationBtn").addEventListener("click", () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            const { latitude, longitude } = position.coords;
+
+            userLat = latitude;
+            userLon = longitude;
+
+            clearPreviousMarkers();
+
+            map.setView([latitude, longitude], 16);
+
+            currentLocationMarker = L.marker([latitude, longitude]).addTo(map)
+                .bindPopup("📍 <b>আপনার বর্তমান অবস্থান</b>")
+                .openPopup();
+
+            currentLocationCircle = L.circle([latitude, longitude], {
+                color: "blue",
+                fillColor: "#2196F3",
+                fillOpacity: 0.3,
+                radius: 100
+            }).addTo(map);
+
+            // Show only shops within 10km and show distance/time
+            renderShopsOnMap(latitude, longitude);
+
+        }, () => {
+            alert("আপনার অবস্থান নির্ধারণ করা যাচ্ছে না!");
+        });
+    } else {
+        alert("আপনার ব্রাউজার জিওলোকেশন সমর্থন করে না!");
+    }
+});
+
+// 🔍 Search Location by Name
+document.getElementById("searchPlaceBtn").addEventListener("click", async () => {
+    let placeName = document.getElementById("placeInput").value.trim();
+    if (placeName === "") {
+        alert("অনুগ্রহ করে একটি স্থান নাম লিখুন!");
+        return;
+    }
+    let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(placeName)}`;
+    try {
+        let response = await fetch(url);
+        let data = await response.json();
+        if (data.length > 0) {
+            let lat = parseFloat(data[0].lat);
+            let lon = parseFloat(data[0].lon);
+
+            userLat = lat;
+            userLon = lon;
+
+            clearPreviousMarkers();
+
+            map.setView([lat, lon], 16);
+
+            currentLocationMarker = L.marker([lat, lon]).addTo(map)
+                .bindPopup(`📍 <b>${placeName}</b>`)
+                .openPopup();
+
+            currentLocationCircle = L.circle([lat, lon], {
+                color: "blue",
+                fillColor: "#2196F3",
+                fillOpacity: 0.3,
+                radius: 100
+            }).addTo(map);
+
+            // Show only shops within 10km and show distance/time
+            renderShopsOnMap(lat, lon);
+
+        } else {
+            alert("কোনো ফলাফল পাওয়া যায়নি!");
+        }
+    } catch (error) {
+        console.error("Error fetching location:", error);
+        alert("অনুসন্ধান করতে সমস্যা হচ্ছে!");
+    }
+});
+
+// Initial load
+loadShops();
+// Popup input show/hide
+document.getElementById("routeSearchBtn").addEventListener("click", function() {
+    let area = document.getElementById("productSearchArea");
+    area.style.display = (area.style.display === "none" ? "block" : "none");
+});
+
+// Product search
+document.getElementById("productSearchBtn").addEventListener("click", async function() {
+    let productName = document.getElementById("productInput").value.trim();
+    if (productName === "") {
+        alert("পণ্যের নাম লিখুন!");
+        return;
+    }
+    // Ajax fetch to product_shops.php
+    try {
+        let res = await fetch(`../api/shops.php?product=${encodeURIComponent(productName)}`);
+        let shops = await res.json();
+        if (shops.length === 0) {
+            alert("এই পণ্য কোনো দোকানে পাওয়া যায়নি!");
+            return;
+        }
+        // ম্যাপে শুধু এই দোকানগুলো দেখান
+        shopsData = shops;
+        renderShopsOnMap(userLat, userLon); // আপনার আগের ফাংশন
+    } catch (err) {
+        alert("অনুসন্ধান করা যাচ্ছে না!");
+    }
+});
+</script>

@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (confirmLogout) {
                 localStorage.clear();
                 sessionStorage.clear();
-                window.location.href = '../Html/Index.html';
+                window.location.href = '../Html/Index.php';
             }
         });
     }

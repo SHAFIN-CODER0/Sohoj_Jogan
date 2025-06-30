@@ -26,6 +26,7 @@ header {
     z-index: 1000; 
 }
 
+
 header .logo {
     display: flex;
     align-items: center;
@@ -40,8 +41,7 @@ header .logo img {
 header h2 {
     font-size: 1.5em; /* 32px */
     font-weight: bold;
-    color: #2c3e50; /* ডার্ক নেভি ব্লু */
-    box-shadow: none !important;
+    color: #333;
 }
 
 header nav ul {
@@ -58,11 +58,12 @@ header nav ul li a {
     font-family: Arial, sans-serif;
     text-transform: uppercase;
     font-size:1.2em; /* 16px */
-    color: #2c3e50; /* ডার্ক নেভি ব্লু */
+    color: #333;
     transition: color 0.3s ease;
 }
 
 header nav ul li a:hover {
+
     border-bottom: 2px solid black;
 }
 
@@ -75,7 +76,7 @@ header .icons {
 header .icons button {
     background-color: transparent;
     border: none;
-    margin-left: 15px;
+    margin-left: 20px;
     cursor: pointer;
 }
 
@@ -87,6 +88,7 @@ header .icons button img {
 /* Hover effects for icons */
 header .icons button:hover img {
     filter: brightness(1.2); /* Slightly brighten on hover */
+   
 }
 
 /* Responsive Design */

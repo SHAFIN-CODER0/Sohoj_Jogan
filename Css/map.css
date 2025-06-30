@@ -195,7 +195,7 @@ header .icons button:hover img {
 
 /* Bigger Search Button */
 .search-container button {
-    background: linear-gradient(135deg, #d9534f, #b52b27); /* Enhanced gradient */
+    background: linear-gradient(135deg, #4B014B#4B014B); /* Enhanced gradient */
     color: rgb(255, 255, 255); /* Changed text color to white for better contrast */
     border: none;
     padding: 30px 50px; /* Bigger button */
@@ -217,6 +217,7 @@ header .icons button:hover img {
     background: linear-gradient(135deg, #c9302c, #9e2522);
     transform: scale(1.05); /* Slight scale effect on hover */
 }
+
 
 /* Buttons Container */
 .btn-container {
@@ -244,7 +245,7 @@ header .icons button:hover img {
     margin-bottom:2px;
     font-size: 12px; /* Bigger text */
     color: white;
-    background: linear-gradient(135deg, #a02b2b, #e44a4a); /* Dark gradient background */
+    background: linear-gradient(135deg, #4B014B); /* Dark gradient background */
     border: none;
     border-radius: 12px;
     cursor: pointer;

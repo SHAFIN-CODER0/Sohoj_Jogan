@@ -98,6 +98,22 @@ if (isset($_SESSION['customer_id'])) {
     }
     $warnStmt->close();
 }
+$followed_shops = [];
+if (isset($_SESSION['customer_id'])) {
+    $cid = $_SESSION['customer_id'];
+    $sql = "SELECT so.shop_owner_id, so.shop_name, so.shop_description, so.shop_image_path
+            FROM shop_followers sf
+            JOIN shop_owners so ON sf.shop_owner_id = so.shop_owner_id
+            WHERE sf.customer_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $followed_shops[] = $row;
+    }
+    $stmt->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -120,10 +136,9 @@ if (isset($_SESSION['customer_id'])) {
     </script>
     <nav>
         <ul>
-            <li><a href="../Html/New_Collection.html">নতুন এসেছে</a></li>
-            <li><a href="../Html/Women.html">নারী</a></li>
-            <li><a href="../Html/Man.html">পুরুষ</a></li>
-            <li><a href="../Html/Gift.html">উপহার</a></li>
+            <li><a href="../Html/Women.php">নারী</a></li>
+            <li><a href="../Html/Man.php">পুরুষ</a></li>
+            <li><a href="../Html/Gift.php">উপহার</a></li>
             <li><a href="../Html/Histrory.php?customer_id=<?= $_SESSION['customer_id'] ?>">লাইব্রেরি</a></li>
         </ul>
     </nav>
@@ -154,13 +169,23 @@ if (isset($_SESSION['customer_id'])) {
         <button id="wishlistbtn"><img src="../Images/heart.png" alt="Wishlist"></button>
     </div>
 </header>
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // Wishlist button
     var wishlistBtn = document.getElementById("wishlistbtn");
     if (wishlistBtn) {
         wishlistBtn.addEventListener("click", function(e) {
             e.preventDefault();
             window.location.href = "../Html/Wish_lisit.php";
+        });
+    }
+
+    // Messenger button
+    var messengerBtn = document.getElementById('messengerBtn');
+    if (messengerBtn) {
+        messengerBtn.addEventListener('click', function() {
+            window.location.href = '../Html/Massenger-chat.php';
         });
     }
 });
@@ -340,15 +365,7 @@ document.addEventListener("DOMContentLoaded", function() {
     margin-left: 4px;
     font-size: 0.95em;
 }</style>
-<!-- Messenger Sidebar -->
-<div id="messengerSidebar" class="sidebar">
-    <br>
-    <span id="closeMessenger" class="sidebar-close-icon">&times;</span>
-    <h3>মেসেজ</h3>
-    <div class="sidebar-content">
-        <p>কোনো নতুন মেসেজ নেই</p>
-    </div>
-</div>
+
 <script src="../java_script/Customer_Home.js"></script>
 <section class="design-masters">
     <div class="design-masters-content">
@@ -362,71 +379,85 @@ document.addEventListener("DOMContentLoaded", function() {
         </a>
     </div>
 </section>
-
 <section class="shop-showcase">
     <div class="shop-title">
-        <h1>আপনার আশে-পাশের দোকান</h1>
+        <h1>আপনার ফলো করা দোকান</h1>
     </div>
     <div class="gallery-container">
-        <div class="gallery-item">
-            <img src="../Images/dokan1.jpg" alt="Fabric Design">
-            <p class="item-label">লিবারটি ফ্যাব্রিক এসএস২৫: রিটোল্ড</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/Up.jpg" alt="Fragrance">
-            <p class="item-label">লিবারটি এলবিটি. ফ্র্যাগ্রান্স</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/Courier.png" alt="Luxury Dress">
-            <p class="item-label">ড্রেস</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/comment.jpg" alt="Luxury Bags">
-            <p class="item-label">ব্যাগ</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/home_delivery.jpg" alt="Jewellery">
-            <p class="item-label">নতুন আসা: জুয়েলারি</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/home_delivery.jpg" alt="Jewellery">
-            <p class="item-label">নতুন আসা: জুয়েলারি</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/home_delivery.jpg" alt="Jewellery">
-            <p class="item-label">নতুন আসা: জুয়েলারি</p>
-        </div>
-        <!-- Duplicate the items for seamless scrolling -->
-        <div class="gallery-item">
-            <img src="../Images/dokan1.jpg" alt="Fabric Design">
-            <p class="item-label">লিবারটি ফ্যাব্রিক এসএস২৫: রিটোল্ড</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/Up.jpg" alt="Fragrance">
-            <p class="item-label">লিবারটি এলবিটি. ফ্র্যাগ্রান্স</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/Courier.png" alt="Luxury Dress">
-            <p class="item-label">ড্রেস</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/comment.jpg" alt="Luxury Bags">
-            <p class="item-label">ব্যাগ</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/home_delivery.jpg" alt="Jewellery">
-            <p class="item-label">নতুন আসা: জুয়েলারি</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/home_delivery.jpg" alt="Jewellery">
-            <p class="item-label">নতুন আসা: জুয়েলারি</p>
-        </div>
-        <div class="gallery-item">
-            <img src="../Images/home_delivery.jpg" alt="Jewellery">
-            <p class="item-label">নতুন আসা: জুয়েলারি</p>
-        </div>
+        <?php if (empty($followed_shops)): ?>
+            <p>আপনি এখনও কোনো দোকান ফলো করেননি।</p>
+        <?php else: ?>
+            <?php foreach ($followed_shops as $shop): ?>
+                <div class="gallery-item">
+                    <img src="<?= htmlspecialchars($shop['shop_image_path']) ?>" alt="<?= htmlspecialchars($shop['shop_name']) ?>">
+                    <p class="item-label">
+                        <a href="../Html/ShopOwner_Home.php?id=<?= $shop['shop_owner_id'] ?>">
+                            <?= htmlspecialchars($shop['shop_name']) ?>
+                        </a>
+                    </p>
+                    <p style="font-size:0.95em; color:#555;"><?= htmlspecialchars($shop['shop_description']) ?></p>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 </section>
+<style>.design-masters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between text and button */
+    height: 120vh; /* Adjust height to fit screen */
+    background-image: url('../Images/front_page.png'); /* Use the correct path */
+    background-size: cover;
+    background-position: center;
+    color: white;
+    text-align: left;
+    padding: 50px; /* Add padding to space elements */
+    margin-top: 50px; /* Add margin to top */
+}
+
+.design-masters-content {
+    max-width: 50%;
+     /* Limit width of text */
+}
+
+.title {
+    margin-top:240px;
+    font-size: 2em;
+    font-weight: bold;
+    font-family: 'Garamond', 'Times New Roman', serif;
+font-weight: bold;
+
+}
+
+.description {
+    font-size: 1.2em;
+    margin-top: 10px;
+    
+}
+
+.shop-now-btn {
+    display: inline-block;
+    padding: 10px 100px;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: white;
+    background: #4B014B;
+    border-radius: 60px;
+    text-decoration: none;
+    transition: 0.3s;
+    position: absolute;
+    right: 10px;
+    width: 380px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: -380px; /* Adjust to position the button */
+}
+
+.shop-now-btn:hover {
+    background: #6b146b;
+}
+</style>
+
 <section class="game-section">
     <h2>🎮 গেম খেলে কয়েন জিতুন!</h2>
     <p>মজা করেই কয়েন অর্জন করুন — এখনই খেলুন!</p>
@@ -492,8 +523,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <h4>শপিং অনলাই </h4>
             <ul>
                 <li><a href="#">ডেলিভারি</a></li>
-                <li><a href="#">অর্ডার হিস্টোরি</a></li>
-                <li><a href="#">পেমেন্ট </a></li>
+           
             </ul>
         </div>
         <div class="footer-column">

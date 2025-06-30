@@ -142,7 +142,11 @@ if (isset($customer_id)) {
         </button>
     </div>
 </header>
-
+<script>
+document.getElementById('messengerBtn').onclick = function() {
+    window.location.href = '../Html/Massenger-chat.php';
+};
+</script>
 <!-- OVERLAY (for background when sidebar is open) -->
 <div id="overlay" class="overlay"></div>
 <!-- User Sidebar -->
@@ -319,14 +323,7 @@ if (isset($customer_id)) {
 }
 </style>
 
-<!-- Messenger Sidebar -->
-<div id="messengerSidebar" class="sidebar">
-    <span id="closeMessenger" class="close-btn">&times;</span>
-    <h3>মেসেজ</h3>
-    <div class="sidebar-content">
-        <p>কোনো নতুন মেসেজ নেই</p>
-    </div>
-</div>
+
 
 <script src="../java_script/Cusomer_setting.js"></script>
 
